@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\bin</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DotNet.Standard.NParsing\DotNet.Standard.NParsing.csproj" />
+    <ProjectReference Include="..\DotNet.Standard\DotNet.Standard.csproj" />
+  </ItemGroup>
+
+</Project>
