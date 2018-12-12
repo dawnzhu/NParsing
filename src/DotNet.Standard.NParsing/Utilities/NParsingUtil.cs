@@ -6,7 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using DotNet.Standard.NParsing.ComponentModel;
-using DotNet.Standard.Utilities;
+using DotNet.Standard.Common.Utilities;
 
 namespace DotNet.Standard.NParsing.Utilities
 {

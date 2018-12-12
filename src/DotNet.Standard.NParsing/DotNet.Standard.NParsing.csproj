@@ -2,14 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>dawn zhu</Authors>
+    <Description>DotNet.Standard.NParsing .Net Standard Class Library</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\bin</OutputPath>
+    <OutputPath></OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotNet.Standard\DotNet.Standard.csproj" />
+    <ProjectReference Include="..\DotNet.Standard.Common\DotNet.Standard.Common.csproj" />
   </ItemGroup>
 
 </Project>

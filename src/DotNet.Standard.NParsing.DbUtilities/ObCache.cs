@@ -16,8 +16,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Xml;
-using DotNet.Standard.Utilities;
-using DotNet.Standard.Xml;
+using DotNet.Standard.Common.Utilities;
+using DotNet.Standard.Common.Xml;
 
 namespace DotNet.Standard.NParsing.DbUtilities
 {

@@ -2,10 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>dawn zhu</Authors>
+    <Description>DotNet.Standard.NParsing.MySQL .Net Standard Class Library</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\bin</OutputPath>
+    <OutputPath></OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DotNet.Standard.Common\DotNet.Standard.Common.csproj" />
     <ProjectReference Include="..\DotNet.Standard.NParsing\DotNet.Standard.NParsing.csproj" />
   </ItemGroup>
 

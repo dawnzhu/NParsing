@@ -4,7 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Globalization;
-using DotNet.Standard.Utilities;
+using DotNet.Standard.Common.Utilities;
 
 namespace DotNet.Standard.NParsing.SQLServer
 {

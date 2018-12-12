@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Globalization;
-using DotNet.Standard.Utilities;
+using DotNet.Standard.Common.Utilities;
 using MySql.Data.MySqlClient;
 
 namespace DotNet.Standard.NParsing.MySQL

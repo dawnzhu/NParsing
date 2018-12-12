@@ -1,0 +1,14 @@
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\bin\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.deps.json
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\bin\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\bin\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\bin\Release\netstandard2.0\DotNet.Standard.NParsing.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\bin\Release\netstandard2.0\DotNet.Standard.NParsing.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\obj\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.csprojAssemblyReference.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\obj\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.csproj.CoreCompileInputs.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\obj\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.AssemblyInfoInputs.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\obj\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.AssemblyInfo.cs
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\obj\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.csproj.CopyComplete
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\obj\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\obj\Release\netstandard2.0\DotNet.Standard.NParsing.SQLServer.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\bin\Release\netstandard2.0\DotNet.Standard.Common.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.SQLServer\bin\Release\netstandard2.0\DotNet.Standard.Common.pdb

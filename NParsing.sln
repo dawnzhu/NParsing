@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet.Standard.NParsing.Db
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet.Standard.NParsing", "src\DotNet.Standard.NParsing\DotNet.Standard.NParsing.csproj", "{8697A099-7EBD-49E6-B76E-370C099454D7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet.Standard", "src\DotNet.Standard\DotNet.Standard.csproj", "{D9FDF75A-957B-47BB-8D30-1CB5FF7DC56A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet.Standard.Common", "src\DotNet.Standard.Common\DotNet.Standard.Common.csproj", "{9081F4AB-54BD-4ABE-A31D-DB2F8CCCDBFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{8697A099-7EBD-49E6-B76E-370C099454D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8697A099-7EBD-49E6-B76E-370C099454D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8697A099-7EBD-49E6-B76E-370C099454D7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D9FDF75A-957B-47BB-8D30-1CB5FF7DC56A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D9FDF75A-957B-47BB-8D30-1CB5FF7DC56A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D9FDF75A-957B-47BB-8D30-1CB5FF7DC56A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D9FDF75A-957B-47BB-8D30-1CB5FF7DC56A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9081F4AB-54BD-4ABE-A31D-DB2F8CCCDBFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9081F4AB-54BD-4ABE-A31D-DB2F8CCCDBFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9081F4AB-54BD-4ABE-A31D-DB2F8CCCDBFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9081F4AB-54BD-4ABE-A31D-DB2F8CCCDBFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

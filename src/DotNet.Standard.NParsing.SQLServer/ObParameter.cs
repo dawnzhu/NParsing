@@ -63,7 +63,7 @@ using System.Globalization;
 using System.Linq;
 using DotNet.Standard.NParsing.Interface;
 using DotNet.Standard.NParsing.Utilities;
-using DotNet.Standard.Utilities;
+using DotNet.Standard.Common.Utilities;
 
 namespace DotNet.Standard.NParsing.SQLServer
 {

@@ -1,0 +1,12 @@
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\bin\Release\netstandard2.0\DotNet.Standard.NParsing.deps.json
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\bin\Release\netstandard2.0\DotNet.Standard.NParsing.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\bin\Release\netstandard2.0\DotNet.Standard.NParsing.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\obj\Release\netstandard2.0\DotNet.Standard.NParsing.csprojAssemblyReference.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\obj\Release\netstandard2.0\DotNet.Standard.NParsing.csproj.CoreCompileInputs.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\obj\Release\netstandard2.0\DotNet.Standard.NParsing.AssemblyInfoInputs.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\obj\Release\netstandard2.0\DotNet.Standard.NParsing.AssemblyInfo.cs
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\obj\Release\netstandard2.0\DotNet.Standard.NParsing.csproj.CopyComplete
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\obj\Release\netstandard2.0\DotNet.Standard.NParsing.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\obj\Release\netstandard2.0\DotNet.Standard.NParsing.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\bin\Release\netstandard2.0\DotNet.Standard.Common.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing\bin\Release\netstandard2.0\DotNet.Standard.Common.pdb

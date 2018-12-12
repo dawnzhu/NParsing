@@ -12,7 +12,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using DotNet.Standard.NParsing.ComponentModel;
-using DotNet.Standard.Utilities;
+using DotNet.Standard.Common.Utilities;
 using DotNet.Standard.NParsing.Utilities;
 using DotNet.Standard.NParsing.Interface;
 using MySql.Data.MySqlClient;

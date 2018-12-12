@@ -23,7 +23,7 @@ using System.Data.Common;
 using System.Globalization;
 using DotNet.Standard.NParsing.Utilities;
 using DotNet.Standard.NParsing.Interface;
-using DotNet.Standard.Utilities;
+using DotNet.Standard.Common.Utilities;
 using MySql.Data.MySqlClient;
 
 namespace DotNet.Standard.NParsing.MySQL

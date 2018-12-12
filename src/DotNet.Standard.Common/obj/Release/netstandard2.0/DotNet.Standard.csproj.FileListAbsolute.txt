@@ -1,0 +1,9 @@
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard\bin\Release\netstandard2.0\DotNet.Standard.deps.json
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard\bin\Release\netstandard2.0\DotNet.Standard.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard\bin\Release\netstandard2.0\DotNet.Standard.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard\obj\Release\netstandard2.0\DotNet.Standard.csproj.CoreCompileInputs.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard\obj\Release\netstandard2.0\DotNet.Standard.AssemblyInfoInputs.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard\obj\Release\netstandard2.0\DotNet.Standard.AssemblyInfo.cs
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard\obj\Release\netstandard2.0\DotNet.Standard.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard\obj\Release\netstandard2.0\DotNet.Standard.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard\obj\Release\netstandard2.0\DotNet.Standard.csprojAssemblyReference.cache

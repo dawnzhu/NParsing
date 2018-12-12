@@ -1,0 +1,14 @@
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\bin\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.deps.json
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\bin\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\bin\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\bin\Release\netstandard2.0\DotNet.Standard.NParsing.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\bin\Release\netstandard2.0\DotNet.Standard.NParsing.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\obj\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.csprojAssemblyReference.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\obj\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.csproj.CoreCompileInputs.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\obj\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.AssemblyInfoInputs.cache
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\obj\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.AssemblyInfo.cs
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\obj\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.csproj.CopyComplete
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\obj\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\obj\Release\netstandard2.0\DotNet.Standard.NParsing.DbUtilities.pdb
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\bin\Release\netstandard2.0\DotNet.Standard.Common.dll
+C:\Users\zhi_d\Work\GitHub\NParsing\src\DotNet.Standard.NParsing.DbUtilities\bin\Release\netstandard2.0\DotNet.Standard.Common.pdb
