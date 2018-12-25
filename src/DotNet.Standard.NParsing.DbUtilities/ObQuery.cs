@@ -234,26 +234,23 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
             #region 读取数据
 
-            try
+            if (_iObTransaction != null)
             {
-                if (_iObTransaction != null)
+                dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
+                models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
+                if (!dr.IsClosed)
                 {
-                    dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, sql, ((List<DbParameter>) dbParameters).ToArray());
+                    dr.Close();
+                }
+                dr.Dispose();
+            }
+            else
+            {
+                using (var dbHelper = new DbHelper(_iDbHelper))
+                {
+                    dr = dbHelper.ExecuteReader(sql, ((List<DbParameter>)dbParameters).ToArray());
                     models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
                 }
-                else
-                {
-                    using (var dbHelper = new DbHelper(_iDbHelper))
-                    {
-                        dr = dbHelper.ExecuteReader(sql, ((List<DbParameter>) dbParameters).ToArray());
-                        models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
-                    }
-                }
-            }
-            finally
-            {
-                if (dr != null && !dr.IsClosed)
-                    dr.Close();
             }
 
             return models;
@@ -340,28 +337,25 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
             #region 读取数据
 
-            try
+            if (_iObTransaction != null)
             {
-                if (_iObTransaction != null)
+                count = Convert.ToInt32(DbHelper.ExecuteScalar(_iDbHelper, _iObTransaction.DbTransaction, countsql, ((List<DbParameter>)dbParameters).ToArray()));
+                dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
+                models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
+                if (!dr.IsClosed)
                 {
-                    count = Convert.ToInt32(DbHelper.ExecuteScalar(_iDbHelper, _iObTransaction.DbTransaction, countsql, ((List<DbParameter>)dbParameters).ToArray()));
-                    dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, sql, ((List<DbParameter>) dbParameters).ToArray());
+                    dr.Close();
+                }
+                dr.Dispose();
+            }
+            else
+            {
+                using (var dbHelper = new DbHelper(_iDbHelper))
+                {
+                    count = Convert.ToInt32(dbHelper.ExecuteScalar(countsql, ((List<DbParameter>)dbParameters).ToArray()));
+                    dr = dbHelper.ExecuteReader(sql, ((List<DbParameter>)dbParameters).ToArray());
                     models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
                 }
-                else
-                {
-                    using (var dbHelper = new DbHelper(_iDbHelper))
-                    {
-                        count = Convert.ToInt32(dbHelper.ExecuteScalar(countsql, ((List<DbParameter>)dbParameters).ToArray()));
-                        dr = dbHelper.ExecuteReader(sql, ((List<DbParameter>) dbParameters).ToArray());
-                        models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
-                    }
-                }
-            }
-            finally
-            {
-                if (dr != null && !dr.IsClosed)
-                    dr.Close();
             }
 
             return models;

@@ -1,13 +1,15 @@
 ﻿/**
 * 作    者：朱晓春(zhi_dian@163.com)
-* 创建时间：2010-04-01 16.16:53
+* 创建时间：2018-12-22 14.27:00
 * 版 本 号：1.0.0
 * 功能说明：创建
 * ----------------------------------
 */
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
+using System.Data.SQLite;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -15,9 +17,8 @@ using DotNet.Standard.NParsing.ComponentModel;
 using DotNet.Standard.Common.Utilities;
 using DotNet.Standard.NParsing.Utilities;
 using DotNet.Standard.NParsing.Interface;
-using MySql.Data.MySqlClient;
 
-namespace DotNet.Standard.NParsing.MySQL
+namespace DotNet.Standard.NParsing.SQLite
 {
     public class SqlBuilder : ISqlBuilder
     {
@@ -246,7 +247,7 @@ namespace DotNet.Standard.NParsing.MySQL
                     continue;
                 //TODO ToColumnName
                 var strColumnName = property.ToColumnName();
-                var strParameterName = "@" + strColumnName;
+                var strParameterName = "$" + strColumnName;
                 if (!isSingle)
                 {
                     var id = dbParameters.Count(obj => obj.ParameterName.Contains(strParameterName));
@@ -304,10 +305,10 @@ namespace DotNet.Standard.NParsing.MySQL
                 {
                     if (value.IsEnum())
                         value = Convert.ToDecimal(value);
-                    dbParameters.Add(new MySqlParameter(strParameterName, value));
+                    dbParameters.Add(new SQLiteParameter(strParameterName, value));
                 }
                 else
-                    dbParameters.Add(new MySqlParameter(strParameterName, DBNull.Value));
+                    dbParameters.Add(new SQLiteParameter(strParameterName, DBNull.Value));
             }
             if (identityCount != 0)
             {
@@ -326,10 +327,10 @@ namespace DotNet.Standard.NParsing.MySQL
                     sqlReturn.Add($"INSERT INTO {TableName}({sqlColumns}) VALUES({sqlParameters})");
                     if (isSingle)
                     {
-                        sqlReturn.Add("SELECT @@IDENTITY");
+                        sqlReturn.Add("SELECT last_insert_rowid()");
                     }
 /*                    sqlReturn = string.Format("INSERT INTO {0}({1}) VALUES({2})", t.ToTableName(), sqlColumns, sqlParameters);
-                    sqlReturn += "\nSELECT @@IDENTITY";*/
+                    sqlReturn += "\nSELECT last_insert_rowid()";*/
                 }
             }
             else
@@ -387,7 +388,7 @@ namespace DotNet.Standard.NParsing.MySQL
                 {
                     //TODO ToColumnName
                     string strColumnName = property.ToColumnName();
-                    string strParameterName = "@" + strColumnName;
+                    string strParameterName = "$" + strColumnName;
 
                     #region 查找不可修改列,标识列,查找固定列
 
@@ -415,15 +416,15 @@ namespace DotNet.Standard.NParsing.MySQL
                     #endregion
 
                     strSet += strSet.Length == 0 ? "SET " : ",";
-                    strSet += $"{TableName}.{strColumnName}={strParameterName}";
+                    strSet += $"{strColumnName}={strParameterName}";
                     if (value != null)
                     {
                         if (value.IsEnum())
                             value = Convert.ToDecimal(value);
-                        dbParameters.Add(new MySqlParameter(strParameterName, value));
+                        dbParameters.Add(new SQLiteParameter(strParameterName, value));
                     }
                     else
-                        dbParameters.Add(new MySqlParameter(strParameterName, DBNull.Value));
+                        dbParameters.Add(new SQLiteParameter(strParameterName, DBNull.Value));
                 }
             }
             string sql = $"UPDATE {TableName} {strSet}";
@@ -502,7 +503,7 @@ namespace DotNet.Standard.NParsing.MySQL
             var sql = $"SELECT {columns} FROM {ModelType.ToUTableName(TableName)} ";
             if (topSize.HasValue)
             {
-                sql += "LIMIT 0,@TopRow ";
+                sql += "LIMIT 0,$TopRow ";
                 TopParameters(topSize.Value, ref dbParameters);
             }
             sql += innerJoin;
@@ -529,7 +530,7 @@ namespace DotNet.Standard.NParsing.MySQL
 
         public void TopParameters(int topSize, ref IList<DbParameter> dbParameters)
         {
-            dbParameters.Add(new MySqlParameter("@TopRow", MySqlDbType.Int32) { Value = topSize });
+            dbParameters.Add(new SQLiteParameter("$TopRow", DbType.Int32) { Value = topSize });
         }
 
         #endregion
@@ -621,11 +622,11 @@ namespace DotNet.Standard.NParsing.MySQL
                     cols += columnName;
                 }
                 table = $"(SELECT {columns} FROM {table} {innerJoin} {strWhere}{sqlGroup}) {TableName} ORDER BY {iObSort.ToString(columnNames)}";
-                sql = $"SELECT {cols} FROM {table} LIMIT @StartRow,@SizeRow";
+                sql = $"SELECT {cols} FROM {table} LIMIT $StartRow,$SizeRow";
             }
             else
             {
-                sql = $"SELECT {columns} FROM {table} {innerJoin} {strWhere} ORDER BY {iObSort.ToString()} LIMIT @StartRow,@SizeRow";
+                sql = $"SELECT {columns} FROM {table} {innerJoin} {strWhere} ORDER BY {iObSort.ToString()} LIMIT $StartRow,$SizeRow";
             }
             return sql;
         }
@@ -638,8 +639,8 @@ namespace DotNet.Standard.NParsing.MySQL
         /// <param name="dbParameters"></param>
         public void PageParameters(int pageSize, int pageIndex, ref IList<DbParameter> dbParameters)
         {
-            dbParameters.Add(new MySqlParameter("@SizeRow", MySqlDbType.Int32) { Value = pageSize });
-            dbParameters.Add(new MySqlParameter("@StartRow", MySqlDbType.Int32) { Value = pageSize * (pageIndex - 1) });
+            dbParameters.Add(new SQLiteParameter("$SizeRow", DbType.Int32) { Value = pageSize });
+            dbParameters.Add(new SQLiteParameter("$StartRow", DbType.Int32) { Value = pageSize * (pageIndex - 1) });
         }
 
         #endregion
@@ -692,10 +693,10 @@ namespace DotNet.Standard.NParsing.MySQL
                         var childTableName = property.ToTableName(TableNames, out var childTableExtra) + " " + newTableName;
                         foreach (var foreignkeyName in foreignkeyNames)
                         {
-                            var ctname = foreignkeyName.ChildColumnName.StartsWith("@")
+                            var ctname = foreignkeyName.ChildColumnName.StartsWith("$")
                                 ? foreignkeyName.ChildColumnName
                                 : $"{newTableName}.{foreignkeyName.ChildColumnName}";
-                            var ptname = foreignkeyName.ParentColumnName.StartsWith("@")
+                            var ptname = foreignkeyName.ParentColumnName.StartsWith("$")
                                 ? foreignkeyName.ParentColumnName
                                 : $"{parentTableName}.{foreignkeyName.ParentColumnName}";
                             if (innerJoin.Length == 0)

@@ -343,7 +343,7 @@ namespace DotNet.Standard.NParsing.Utilities
                 var model = new TModel();
                 if (!dr.IsClosed)
                 {
-                    DataFill(dr/*, tableNames*/, columnNames, model, propertyInfos, tableName, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/);
+                    DataFill(dr, columnNames, model, propertyInfos, tableName, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/);
                 }
                 list.Add(model);
             }
@@ -379,7 +379,7 @@ namespace DotNet.Standard.NParsing.Utilities
         /// <param name="propertyInfos">对象属性集</param>
         /// <param name="tableName">当前表名</param>
         /// <param name="propertyNames"></param>
-        private static void DataFill(IDataRecord dr/*, IDictionary<string, string> tableNames*/, IList<string> columnNames, object model, IEnumerable<PropertyInfo> propertyInfos, string tableName, IDictionary<string, string> propertyNames/*, IDictionary<string, int> sqlTableNames*/)
+        private static void DataFill(IDataRecord dr, IList<string> columnNames, object model, IEnumerable<PropertyInfo> propertyInfos, string tableName, IDictionary<string, string> propertyNames/*, IDictionary<string, int> sqlTableNames*/)
         {
             foreach (var property in propertyInfos)
             {
@@ -389,26 +389,15 @@ namespace DotNet.Standard.NParsing.Utilities
                     var t = property.PropertyType.ToBasic();
                     if (t.IsSystem())
                     {
-                       /* string propertyName;
-                       var k = tableName + "_" + property.Name;
-                        if (propertyNames.ContainsKey(k))
-                        {
-                            propertyName = propertyNames[k];
-                        }
-                        else
-                        {
-                            //TODO ToColumnName
-                            propertyName = tableName + "_" + property.ToColumnName();
-                            propertyNames.Add(k, propertyName);
-                        }*/
                         var propertyName = tableName + "_" + property.Name;
                         object value = null;
                         var indexOf = columnNames.IndexOf(propertyName);
                         if (indexOf > -1 && dr[indexOf] != DBNull.Value)
                         {
                             value = t.IsEnum()
-                                ? Enum.ToObject(t, dr[indexOf])
+                                ? dr[indexOf] is string s ? Enum.Parse(t, s) : Enum.ToObject(t, dr[indexOf])
                                 : Convert.ChangeType(dr[indexOf], t);
+                            //value = dr[indexOf].ToChangeType(t);
                         }
                         property.SetValue(model, value, null);
                     }
@@ -419,20 +408,9 @@ namespace DotNet.Standard.NParsing.Utilities
                             property.SetValue(model, Activator.CreateInstance(t), null);
                             oValue = property.GetValue(model, null);
                         }
-                        /*var tn = t.ToTableName(tableNames);
-                        if (sqlTableNames.ContainsKey(tn))
-                        {
-                            var index = sqlTableNames[tn] + 1;
-                            tn += index;
-                            sqlTableNames[tn] = index;
-                        }
-                        else
-                        {
-                            sqlTableNames.Add(tn, 1);
-                        }*/
                         var newTableName = tableName + "_" + property.Name;
-                        DataFill(dr/*, tableNames*/, columnNames, oValue, t.GetProperties(BindingFlags.Instance | BindingFlags.Public), newTableName,
-                            propertyNames/*, sqlTableNames*/);
+                        DataFill(dr, columnNames, oValue, t.GetProperties(BindingFlags.Instance | BindingFlags.Public), newTableName,
+                            propertyNames);
                     }
                 }
                 catch (Exception er)
@@ -475,8 +453,9 @@ namespace DotNet.Standard.NParsing.Utilities
                         if (di?[property.Name] != null)
                         {
                             value = t.IsEnum()
-                                ? Enum.ToObject(t, di[property.Name])
+                                ? di[property.Name] is string s ? Enum.Parse(t, s) : Enum.ToObject(t, di[property.Name])
                                 : Convert.ChangeType(di[property.Name], t);
+                            //value = di[property.Name].ToChangeType(t);
                         }
                         property.SetValue(model, value, null);
                     }

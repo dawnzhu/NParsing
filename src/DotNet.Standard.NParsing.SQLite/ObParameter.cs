@@ -1,32 +1,20 @@
 ﻿/**
 * 作    者：朱晓春(zhi_dian@163.com)
-* 创建时间：2010-04-01 16.16:53
+* 创建时间：2018-12-22 14.27:00
 * 版 本 号：1.0.0
 * 功能说明：创建
- * ----------------------------------
-* 修改标识：修改
-* 修 改 人：朱晓春
-* 日    期：2010-04-07 15:48:00
-* 版 本 号：1.0.2
-* 修改内容：增加创建子参数功能 public ObParameter(IObParameter iObParameter)
- * ----------------------------------
-* 修改标识：修改
-* 修 改 人：朱晓春
-* 日    期：2012-06-04 15:41:00
-* 版 本 号：2.4.0
-* 修改内容：增加Between和Not Between运算
 */
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Data.SQLite;
 using System.Globalization;
 using DotNet.Standard.NParsing.Utilities;
 using DotNet.Standard.NParsing.Interface;
 using DotNet.Standard.Common.Utilities;
-using MySql.Data.MySqlClient;
 
-namespace DotNet.Standard.NParsing.MySQL
+namespace DotNet.Standard.NParsing.SQLite
 {
     public class ObParameter : ObParameterBase
     {
@@ -188,7 +176,7 @@ namespace DotNet.Standard.NParsing.MySQL
         {
             string sqlWhere = string.Empty;
             var dbTerm = (DbTerm)iObParameter.Value;
-            string parameterName = "@" + dbTerm.ColumnName;
+            string parameterName = "$" + dbTerm.ColumnName;
 
             #region 防止重复参数名
 
@@ -298,19 +286,19 @@ namespace DotNet.Standard.NParsing.MySQL
                 case DbSymbol.NotLike:
                     if (dbTerm.Value.IsEnum())
                         dbTerm.Value = Convert.ToDecimal(dbTerm.Value);
-                    dbParameter.Add(new MySqlParameter(parameterName, "%" + dbTerm.Value + "%"));
+                    dbParameter.Add(new SQLiteParameter(parameterName, "%" + dbTerm.Value + "%"));
                     break;
                 case DbSymbol.LikeLeft:
                 case DbSymbol.NotLikeLeft:
                     if (dbTerm.Value.IsEnum())
                         dbTerm.Value = Convert.ToDecimal(dbTerm.Value);
-                    dbParameter.Add(new MySqlParameter(parameterName, "%" + dbTerm.Value));
+                    dbParameter.Add(new SQLiteParameter(parameterName, "%" + dbTerm.Value));
                     break;
                 case DbSymbol.LikeRight:
                 case DbSymbol.NotLikeRight:
                     if (dbTerm.Value.IsEnum())
                         dbTerm.Value = Convert.ToDecimal(dbTerm.Value);
-                    dbParameter.Add(new MySqlParameter(parameterName, dbTerm.Value + "%"));
+                    dbParameter.Add(new SQLiteParameter(parameterName, dbTerm.Value + "%"));
                     break;
                 case DbSymbol.In:
                 case DbSymbol.NotIn:
@@ -322,7 +310,7 @@ namespace DotNet.Standard.NParsing.MySQL
                         foreach (var v in vs)
                         {
                             var value = v.IsEnum() ? Convert.ToDecimal(v) : v;
-                            dbParameter.Add(new MySqlParameter(parameterName + ii, value));
+                            dbParameter.Add(new SQLiteParameter(parameterName + ii, value));
                             ii++;
                         }
                     }
@@ -350,7 +338,7 @@ namespace DotNet.Standard.NParsing.MySQL
                 default:
                     if (dbTerm.Value.IsEnum())
                         dbTerm.Value = Convert.ToDecimal(dbTerm.Value);
-                    dbParameter.Add(new MySqlParameter(parameterName, dbTerm.Value));
+                    dbParameter.Add(new SQLiteParameter(parameterName, dbTerm.Value));
                     break;
             }
             return sqlWhere;
@@ -371,7 +359,7 @@ namespace DotNet.Standard.NParsing.MySQL
         {
             string sqlWhere = string.Empty;
             var dbTerm = (DbTerm3)iObParameter.Value;
-            string parameterName = "@" + dbTerm.SrcValue.ColumnName;
+            string parameterName = "$" + dbTerm.SrcValue.ColumnName;
 
             if (!(dbTerm.DstValue is IObProperty))
             {
@@ -396,19 +384,19 @@ namespace DotNet.Standard.NParsing.MySQL
                     case DbSymbol.NotLike:
                         if (dbTerm.DstValue.IsEnum())
                             dbTerm.DstValue = Convert.ToDecimal(dbTerm.DstValue);
-                        dbParameter.Add(new MySqlParameter(parameterName, "%" + dbTerm.DstValue + "%"));
+                        dbParameter.Add(new SQLiteParameter(parameterName, "%" + dbTerm.DstValue + "%"));
                         break;
                     case DbSymbol.LikeLeft:
                     case DbSymbol.NotLikeLeft:
                         if (dbTerm.DstValue.IsEnum())
                             dbTerm.DstValue = Convert.ToDecimal(dbTerm.DstValue);
-                        dbParameter.Add(new MySqlParameter(parameterName, "%" + dbTerm.DstValue));
+                        dbParameter.Add(new SQLiteParameter(parameterName, "%" + dbTerm.DstValue));
                         break;
                     case DbSymbol.LikeRight:
                     case DbSymbol.NotLikeRight:
                         if (dbTerm.DstValue.IsEnum())
                             dbTerm.DstValue = Convert.ToDecimal(dbTerm.DstValue);
-                        dbParameter.Add(new MySqlParameter(parameterName, dbTerm.DstValue + "%"));
+                        dbParameter.Add(new SQLiteParameter(parameterName, dbTerm.DstValue + "%"));
                         break;
                     case DbSymbol.In:
                     case DbSymbol.NotIn:
@@ -420,7 +408,7 @@ namespace DotNet.Standard.NParsing.MySQL
                             foreach (var v in vs)
                             {
                                 var value = v.IsEnum() ? Convert.ToDecimal(v) : v;
-                                dbParameter.Add(new MySqlParameter(parameterName + ii, value));
+                                dbParameter.Add(new SQLiteParameter(parameterName + ii, value));
                                 ii++;
                             }
                         }
@@ -448,7 +436,7 @@ namespace DotNet.Standard.NParsing.MySQL
                     default:
                         if (dbTerm.DstValue.IsEnum())
                             dbTerm.DstValue = Convert.ToDecimal(dbTerm.DstValue);
-                        dbParameter.Add(new MySqlParameter(parameterName, dbTerm.DstValue));
+                        dbParameter.Add(new SQLiteParameter(parameterName, dbTerm.DstValue));
                         break;
                 }
             }
