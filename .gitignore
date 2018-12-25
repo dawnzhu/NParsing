@@ -8,3 +8,5 @@ src/DotNet.Standard.NParsing.MySQL/bin/
 src/DotNet.Standard.NParsing.MySQL/obj/
 src/DotNet.Standard.NParsing.SQLServer/bin/
 src/DotNet.Standard.NParsing.SQLServer/obj/
+src/DotNet.Standard.NParsing.SQLite/bin/
+src/DotNet.Standard.NParsing.SQLite/obj/
