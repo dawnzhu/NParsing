@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 
 namespace DotNet.Standard.Common.Utilities
@@ -15,8 +16,7 @@ namespace DotNet.Standard.Common.Utilities
             try
             {
                 _mark = "";
-                /*AppDomain.CurrentDomain.SetupInformation.ApplicationBase*//*AppContext.BaseDirectory*/
-                _directPath = $@"{Directory.GetCurrentDirectory()}/log";
+                _directPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\log";
                 if (!Directory.Exists(_directPath))
                 {
                     Directory.CreateDirectory(_directPath);
