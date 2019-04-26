@@ -103,6 +103,8 @@ namespace DotNet.Standard.NParsing.Interface
         /// <returns></returns>
         int NonQuery(string sqlText, params DbParameter[] commandParameters);
         int NonQuery(IObTransaction iObTransaction, string sqlText, params DbParameter[] commandParameters);
+        int NonQueryByStoredProcedure(string spName, params DbParameter[] commandParameters);
+        int NonQueryByStoredProcedure(IObTransaction iObTransaction, string spName, params DbParameter[] commandParameters);
 
         /// <summary>
         /// 获取一个DataSet
@@ -112,6 +114,8 @@ namespace DotNet.Standard.NParsing.Interface
         /// <returns></returns>
         DataSet GetDataset(string sqlText, params DbParameter[] commandParameters);
         DataSet GetDataset(IObTransaction iObTransaction, string sqlText, params DbParameter[] commandParameters);
+        DataSet GetDatasetByStoredProcedure(string spName, params DbParameter[] commandParameters);
+        DataSet GetDatasetByStoredProcedure(IObTransaction iObTransaction, string spName, params DbParameter[] commandParameters);
 
         /// <summary>
         /// 获取首行首列
@@ -121,6 +125,8 @@ namespace DotNet.Standard.NParsing.Interface
         /// <returns></returns>
         object GetScalar(string sqlText, params DbParameter[] commandParameters);
         object GetScalar(IObTransaction iObTransaction, string sqlText, params DbParameter[] commandParameters);
+        object GetScalarByStoredProcedure(string spName, params DbParameter[] commandParameters);
+        object GetScalarByStoredProcedure(IObTransaction iObTransaction, string spName, params DbParameter[] commandParameters);
     }
 
     /// <summary>

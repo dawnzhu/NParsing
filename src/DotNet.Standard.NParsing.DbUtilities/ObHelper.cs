@@ -163,6 +163,19 @@ namespace DotNet.Standard.NParsing.DbUtilities
             return DbHelper.ExecuteNonQuery(_iWriteDbHelper, iObTransaction.DbTransaction, sqlText, commandParameters);
         }
 
+        public int NonQueryByStoredProcedure(string spName, params DbParameter[] commandParameters)
+        {
+            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            {
+                return dbHelper.ExecuteNonQuery(CommandType.StoredProcedure, spName, commandParameters);
+            }
+        }
+
+        public int NonQueryByStoredProcedure(IObTransaction iObTransaction, string spName, params DbParameter[] commandParameters)
+        {
+            return DbHelper.ExecuteNonQuery(_iWriteDbHelper, iObTransaction.DbTransaction, CommandType.StoredProcedure, spName, commandParameters);
+        }
+
         #endregion
 
         #region GetDataset
@@ -180,6 +193,19 @@ namespace DotNet.Standard.NParsing.DbUtilities
             return DbHelper.ExecuteDataset(_iReadDbHelper, iObTransaction.DbTransaction, sqlText, commandParameters);
         }
 
+        public DataSet GetDatasetByStoredProcedure(string spName, params DbParameter[] commandParameters)
+        {
+            using (var dbHelper = new DbHelper(_iReadDbHelper))
+            {
+                return dbHelper.ExecuteDataset(CommandType.StoredProcedure, spName, commandParameters);
+            }
+        }
+
+        public DataSet GetDatasetByStoredProcedure(IObTransaction iObTransaction, string spName, params DbParameter[] commandParameters)
+        {
+            return DbHelper.ExecuteDataset(_iReadDbHelper, iObTransaction.DbTransaction, CommandType.StoredProcedure, spName, commandParameters);
+        }
+
         #endregion
 
         #region GetScalar
@@ -195,6 +221,19 @@ namespace DotNet.Standard.NParsing.DbUtilities
         public object GetScalar(IObTransaction iObTransaction, string sqlText, params DbParameter[] commandParameters)
         {
             return DbHelper.ExecuteScalar(_iReadDbHelper, iObTransaction.DbTransaction, sqlText, commandParameters);
+        }
+
+        public object GetScalarByStoredProcedure(string spName, params DbParameter[] commandParameters)
+        {
+            using (var dbHelper = new DbHelper(_iReadDbHelper))
+            {
+                return dbHelper.ExecuteScalar(CommandType.StoredProcedure, spName, commandParameters);
+            }
+        }
+
+        public object GetScalarByStoredProcedure(IObTransaction iObTransaction, string spName, params DbParameter[] commandParameters)
+        {
+            return DbHelper.ExecuteScalar(_iReadDbHelper, iObTransaction.DbTransaction, CommandType.StoredProcedure, spName, commandParameters);
         }
 
         #endregion
