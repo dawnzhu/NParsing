@@ -6,6 +6,7 @@
     <Description>DotNet.Standard.NParsing .Net Standard Class Library</Description>
     <Version>1.0.2</Version>
     <AssemblyVersion>1.0.3.0</AssemblyVersion>
+    <FileVersion>1.0.3.0</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
