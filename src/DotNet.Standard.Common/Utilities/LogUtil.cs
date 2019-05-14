@@ -16,7 +16,7 @@ namespace DotNet.Standard.Common.Utilities
             try
             {
                 _mark = "";
-                _directPath = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}\\log";
+                _directPath = $"{AppDomain.CurrentDomain.BaseDirectory}\\log";
                 if (!Directory.Exists(_directPath))
                 {
                     Directory.CreateDirectory(_directPath);
