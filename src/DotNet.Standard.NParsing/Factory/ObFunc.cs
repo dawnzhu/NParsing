@@ -11,7 +11,9 @@
 * 修改内容：代码整理
 */
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DotNet.Standard.NParsing.Interface;
 using DotNet.Standard.NParsing.Utilities;
 
@@ -76,65 +78,65 @@ namespace DotNet.Standard.NParsing.Factory
 
         #region 扩展方法
 
-        public static ObProperty Top<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase
+        public static ObProperty<TSource> Top<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
+            where TSource : ObTermBase, new()
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Null;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return iObProperty;
+            return new ObProperty<TSource>(iObProperty); ;
         }
 
-        public static ObProperty Avg<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase
+        public static ObProperty<TSource> Avg<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
+            where TSource : ObTermBase, new()
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Avg;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return iObProperty;
+            return new ObProperty<TSource>(iObProperty); ;
         }
 
-        public static ObProperty Count<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase
+        public static ObProperty<TSource> Count<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
+            where TSource : ObTermBase, new()
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Count;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return iObProperty;
+            return new ObProperty<TSource>(iObProperty); ;
         }
 
-        public static ObProperty Max<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase
+        public static ObProperty<TSource> Max<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
+            where TSource : ObTermBase, new()
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Max;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return iObProperty;
+            return new ObProperty<TSource>(iObProperty);
         }
 
-        public static ObProperty Min<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase
+        public static ObProperty<TSource> Min<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
+            where TSource : ObTermBase, new()
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Min;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return iObProperty;
+            return new ObProperty<TSource>(iObProperty); ;
         }
 
-        public static ObProperty Sum<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase
+        public static ObProperty<TSource> Sum<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
+            where TSource : ObTermBase, new()
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Sum;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return iObProperty;
+            return new ObProperty<TSource>(iObProperty); ;
         }
 
-        public static ObProperty RowNumber<TSource>(this TSource source, Func<TSource, IObSort> keySelector)
-            where TSource : ObTermBase
+        public static ObProperty<TSource> RowNumber<TSource>(this TSource source, Func<TSource, IObSort> keySelector)
+            where TSource : ObTermBase, new()
         {
             var iObSort = keySelector(source);
-            var iObProperty = new ObProperty(iObSort.List.First().ObProperty)
+            var iObProperty = new ObProperty<TSource>(iObSort.List.First().ObProperty)
             {
                 DbFunc = DbFunc.RowNumber,
                 Sort = iObSort
@@ -142,12 +144,12 @@ namespace DotNet.Standard.NParsing.Factory
             return iObProperty;
         }
 
-        public static ObProperty RowNumber<TSource>(this TSource source, Func<TSource, IObGroup> keySelector, Func<TSource, IObSort> keySelector2)
-            where TSource : ObTermBase
+        public static ObProperty<TSource> RowNumber<TSource>(this TSource source, Func<TSource, IObGroup> keySelector, Func<TSource, IObSort> keySelector2)
+            where TSource : ObTermBase, new()
         {
             var iObSort = keySelector2(source);
             var iObGroup = keySelector(source);
-            var iObProperty = new ObProperty(iObSort.List.First().ObProperty)
+            var iObProperty = new ObProperty<TSource>(iObSort.List.First().ObProperty)
             {
                 DbFunc = DbFunc.RowNumber,
                 Sort = iObSort,
@@ -156,13 +158,14 @@ namespace DotNet.Standard.NParsing.Factory
             return iObProperty;
         }
 
-        public static ObProperty Custom<TSource>(this TSource source, string func, Func<TSource, object[]> keySelector)
-            where TSource : ObTermBase
+        [Obsolete]
+        public static ObProperty<TSource> Custom<TSource>(this TSource source, string func, Func<TSource, object[]> keySelector)
+            where TSource : ObTermBase, new()
         {
             var parameters = keySelector(source);
             if (!(parameters[0] is IObProperty))
                 throw new Exception("自定义函数首个参数必须为IObProperty");
-            var obProperty = new ObProperty((IObProperty)parameters[0])
+            var obProperty = new ObProperty<TSource>((IObProperty)parameters[0])
             {
                 DbFunc = DbFunc.Custom,
                 FuncName = func,
@@ -171,27 +174,49 @@ namespace DotNet.Standard.NParsing.Factory
             return obProperty;
         }
 
+        public static ObProperty<TSource> Custom<TSource, TKey>(this TSource source, string func, Func<TSource, TKey> keySelector)
+            where TSource : ObTermBase, new()
+        {
+            var key = keySelector(source);
+            var parameters = new List<object>();
+            foreach (var propertyInfo in key.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            {
+                var k = propertyInfo.GetValue(key);
+                parameters.Add(k);
+            }
+            if (!(parameters.First() is IObProperty property))
+                throw new Exception("自定义函数首个参数必须为IObProperty");
+            var obProperty = new ObProperty<TSource>(property)
+            {
+                DbFunc = DbFunc.Custom,
+                FuncName = func,
+                CustomParams = parameters.ToArray()
+            };
+            return obProperty;
+        }
+
+
         #endregion
 
-/*        /// <summary>
-        /// 创建显示属性
-        /// </summary>
-        /// <param name="obProperty">属性</param>
-        /// <param name="dbFunc"></param>
-        /// <returns></returns>
-        private static IObProperty ObFun_Create(IObProperty obProperty, DbFunc dbFunc)
-        {
-            Type t = Assembly.Load(ASSEMBLY_STRING).GetType(CLASS_NAME);
-            var parameters = new object[]
-                                 {
-                                     obProperty.ModelType,
-                                     obProperty.TableName,
-                                     obProperty.Brothers,
-                                     obProperty.AriSymbol,
-                                     obProperty.ColumnName,
-                                     dbFunc
-                                 };
-            return (IObProperty)Activator.CreateInstance(t, parameters);
-        }*/
+        /*        /// <summary>
+                /// 创建显示属性
+                /// </summary>
+                /// <param name="obProperty">属性</param>
+                /// <param name="dbFunc"></param>
+                /// <returns></returns>
+                private static IObProperty ObFun_Create(IObProperty obProperty, DbFunc dbFunc)
+                {
+                    Type t = Assembly.Load(ASSEMBLY_STRING).GetType(CLASS_NAME);
+                    var parameters = new object[]
+                                         {
+                                             obProperty.ModelType,
+                                             obProperty.TableName,
+                                             obProperty.Brothers,
+                                             obProperty.AriSymbol,
+                                             obProperty.ColumnName,
+                                             dbFunc
+                                         };
+                    return (IObProperty)Activator.CreateInstance(t, parameters);
+                }*/
     }
 }

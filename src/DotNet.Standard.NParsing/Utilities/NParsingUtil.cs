@@ -329,6 +329,99 @@ namespace DotNet.Standard.NParsing.Utilities
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="dr"></param>
+        /// <returns></returns>
+        public static IList<TModel> ToList<TModel>(this IDataReader dr) where TModel : new()
+        {
+            var list = new List<TModel>();
+            IList<string> columnNames = new List<string>();
+            for (var i = 0; i < dr.FieldCount; i++)
+                columnNames.Add(dr.GetName(i));
+            var propertyInfos = typeof(TModel).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            var propertyNames = new Dictionary<string, string>();
+            while (dr.Read())
+            {
+                var model = new TModel();
+                if (!dr.IsClosed)
+                {
+                    DataFill(dr, columnNames, model, propertyInfos, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/);
+                }
+                list.Add(model);
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 填充数据对象
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="dr"></param>
+        public static TModel ToModel<TModel>(this IDataReader dr) where TModel : new()
+        {
+            var model = new TModel();
+            if (!dr.IsClosed)
+            {
+                IList<string> columnNames = new List<string>();
+                for (var i = 0; i < dr.FieldCount; i++)
+                    columnNames.Add(dr.GetName(i));
+                var propertyInfos = typeof(TModel).GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                var propertyNames = new Dictionary<string, string>();
+                DataFill(dr/*, tableNames*/, columnNames, model, propertyInfos, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/);
+            }
+            return model;
+        }
+
+        /// <summary>
+        /// 将数据流中的记录存储到对像中
+        /// </summary>
+        /// <param name="dr">数据</param>
+        /// <param name="columnNames">字段集</param>
+        /// <param name="model">对象</param>
+        /// <param name="propertyInfos">对象属性集</param>
+        /// <param name="propertyNames"></param>
+        private static void DataFill(IDataRecord dr, IList<string> columnNames, object model, IEnumerable<PropertyInfo> propertyInfos, IDictionary<string, string> propertyNames/*, IDictionary<string, int> sqlTableNames*/)
+        {
+            foreach (var property in propertyInfos)
+            {
+                try
+                {
+                    var oValue = property.GetValue(model, null);
+                    var t = property.PropertyType.ToBasic();
+                    if (t.IsSystem())
+                    {
+                        var propertyName = property.Name;
+                        object value = null;
+                        var indexOf = columnNames.IndexOf(propertyName);
+                        if (indexOf > -1 && dr[indexOf] != DBNull.Value)
+                        {
+                            value = t.IsEnum()
+                                ? dr[indexOf] is string s ? Enum.Parse(t, s) : Enum.ToObject(t, dr[indexOf])
+                                : Convert.ChangeType(dr[indexOf], t);
+                            //value = dr[indexOf].ToChangeType(t);
+                        }
+                        property.SetValue(model, value, null);
+                    }
+                    else if (!t.IsGenericType)
+                    {
+                        if (oValue == null)
+                        {
+                            property.SetValue(model, Activator.CreateInstance(t), null);
+                            oValue = property.GetValue(model, null);
+                        }
+                        DataFill(dr, columnNames, oValue, t.GetProperties(BindingFlags.Instance | BindingFlags.Public), propertyNames);
+                    }
+                }
+                catch (Exception er)
+                {
+                    throw new Exception(property.ToColumnName() + er.Message);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 填充数据对象集
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="dr"></param>
         /// <param name="tableNames"></param>
         /// <param name="columnNames"></param>
         /// <returns></returns>

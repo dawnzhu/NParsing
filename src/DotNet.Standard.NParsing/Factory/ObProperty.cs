@@ -704,4 +704,18 @@ namespace DotNet.Standard.NParsing.Factory
             return this;
         }
     }
+
+    public class ObProperty<TTerm> : ObProperty, IObProperty<TTerm>
+        where TTerm : ObTermBase, new()
+    {
+        internal ObProperty(IObProperty iObProperty) : base(iObProperty)
+        {
+        }
+
+        public ObProperty As(Func<TTerm, IObProperty> keySelector)
+        {
+            AsProperty = keySelector(new TTerm());
+            return this;
+        }
+    }
 }

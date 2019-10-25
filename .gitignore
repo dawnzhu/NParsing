@@ -1,3 +1,4 @@
+.vs/
 src/DotNet.Standard.Common/bin/
 src/DotNet.Standard.Common/obj/
 src/DotNet.Standard.NParsing/bin/
@@ -10,3 +11,5 @@ src/DotNet.Standard.NParsing.SQLServer/bin/
 src/DotNet.Standard.NParsing.SQLServer/obj/
 src/DotNet.Standard.NParsing.SQLite/bin/
 src/DotNet.Standard.NParsing.SQLite/obj/
+src/DotNet.Standard.NParsing.UnitTest/bin/
+src/DotNet.Standard.NParsing.UnitTest/obj/

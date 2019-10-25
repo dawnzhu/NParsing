@@ -47,6 +47,21 @@ namespace DotNet.Standard.NParsing.Interface
         }
     }
 
+    public class ObTermBase<TModel> : ObTermBase
+    {
+        public ObTermBase() : base(typeof(TModel))
+        {
+        }
+
+        public ObTermBase(string rename) : base(typeof(TModel), rename)
+        {
+        }
+
+        public ObTermBase(ObTermBase parent, MethodBase currentMethod) : base(typeof(TModel), parent, currentMethod)
+        {
+        }
+    }
+
     public abstract class ObTermBase
     {
         private readonly List<string> _notJoinModels;

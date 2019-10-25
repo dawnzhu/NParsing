@@ -21,6 +21,31 @@ namespace DotNet.Standard.NParsing.Interface
     public interface IObQuery<TModel>
     {
         /// <summary>
+        /// 过虑条件参数
+        /// </summary>
+        IObParameter ObParameter { get; }
+
+        /// <summary>
+        /// 分组后过虑条件参数
+        /// </summary>
+        IObParameter ObGroupParameter { get; }
+
+        /// <summary>
+        /// 分组
+        /// </summary>
+        IObGroup ObGroup { get; }
+
+        /// <summary>
+        /// 排序
+        /// </summary>
+        IObSort ObSort { get; }
+
+        /// <summary>
+        /// 关联
+        /// </summary>
+        IObJoin ObJoin { get; }
+
+        /// <summary>
         /// 获得一个对像
         /// </summary>
         /// <returns></returns>

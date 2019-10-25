@@ -46,4 +46,9 @@ namespace DotNet.Standard.NParsing.Interface
 
         string Key { get; }
     }
+
+    public interface IObProperty<out TTerm> : IObProperty
+    {
+        ObProperty As(Func<TTerm, IObProperty> keySelector);
+    }
 }

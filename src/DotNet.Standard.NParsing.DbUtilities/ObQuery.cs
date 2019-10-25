@@ -28,29 +28,45 @@ namespace DotNet.Standard.NParsing.DbUtilities
         private readonly ISqlBuilder<TModel> _iSqlBuilder;
         private readonly string _providerName;
         private readonly IObTransaction _iObTransaction;
-        private readonly IObParameter _iObParameter;
-        private readonly IObParameter _iObParameter2;
-        private readonly IObGroup _iObGroup;
-        private readonly IObSort _iObSort;
+        private  IObJoin _iObJoin;
         private readonly string _key;
         private readonly string _sqlExtra;
         private readonly string _sqlVersion;
+        public IObParameter ObParameter { get; protected set; }
+        public IObParameter ObGroupParameter { get; protected set; }
+        public IObGroup ObGroup { get; protected set; }
+        public IObSort ObSort { get; protected set; }
+        public IObJoin ObJoin
+        {
+            get => _iObJoin;
+            protected set
+            {
+                _iObJoin = value;
+                _iSqlBuilder.JoinModels = _iObJoin.JoinModels;
+            }
+        }
+
+        public ObQuery(IDbHelper iDbHelper, ISqlBuilder<TModel> iSqlBuilder, string providerName, IObTransaction iObTransaction)
+            : this(iDbHelper, iSqlBuilder, providerName, iObTransaction, null, null, null, null, null)
+        {
+        }
+
         public ObQuery(IDbHelper iDbHelper, ISqlBuilder<TModel> iSqlBuilder, string providerName,
-            IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort)
+            IObTransaction iObTransaction, IObJoin iJoin, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObGroupParameter, IObSort iObSort)
         {
             PageSize = 0;
             _iDbHelper = iDbHelper;
             _iSqlBuilder = iSqlBuilder;
-            if (iObJoin != null)
+            if (iJoin != null)
             {
-                _iSqlBuilder.JoinModels = iObJoin.JoinModels;
+                _iSqlBuilder.JoinModels = iJoin.JoinModels;
             }
             _providerName = providerName;
             _iObTransaction = iObTransaction;
-            _iObParameter = iObParameter;
-            _iObParameter2 = iObParameter2;
-            _iObGroup = iObGroup;
-            _iObSort = iObSort;
+            ObParameter = iObParameter;
+            ObGroupParameter = iObGroupParameter;
+            ObGroup = iObGroup;
+            ObSort = iObSort;
             _key = typeof(TModel).ToTableName(iSqlBuilder.ObRedefine.Models, out _sqlExtra, out _sqlVersion) + "|";
             if(iObParameter != null)
                 _key += iObParameter.Key + "|";
@@ -168,8 +184,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
             #region 生成Key
 
             var key = _key;
-            if (_iObSort != null)
-                key += _iObSort.Key + "|";
+            if (ObSort != null)
+                key += ObSort.Key + "|";
             key += "ToList";
             if (topSize.HasValue)
             {
@@ -185,21 +201,21 @@ namespace DotNet.Standard.NParsing.DbUtilities
             IObParameter iObParameter2 = null;
             IObGroup iObGroup = null;
             IObSort iObSort = null;
-            if (_iObParameter != null)
+            if (ObParameter != null)
             {
-                iObParameter = ObConvert.ToObParameter(_providerName, _iObParameter);
+                iObParameter = ObConvert.ToObParameter(_providerName, ObParameter);
             }
-            if (_iObGroup != null)
+            if (ObGroup != null)
             {
-                iObGroup = ObConvert.ToObGroup(_providerName, _iObGroup);
+                iObGroup = ObConvert.ToObGroup(_providerName, ObGroup);
             }
-            if (_iObParameter2 != null)
+            if (ObGroupParameter != null)
             {
-                iObParameter2 = ObConvert.ToObParameter(_providerName, _iObParameter2);
+                iObParameter2 = ObConvert.ToObParameter(_providerName, ObGroupParameter);
             }
-            if (_iObSort != null)
+            if (ObSort != null)
             {
-                iObSort = ObConvert.ToObSort(_providerName, _iObSort);
+                iObSort = ObConvert.ToObSort(_providerName, ObSort);
             }
             DbDataReader dr = null;
 
@@ -263,9 +279,9 @@ namespace DotNet.Standard.NParsing.DbUtilities
             #region 生成Key
 
             var key = _key;
-            if (_iObSort == null)
+            if (ObSort == null)
                 throw new Exception("分页时，请设置排序方式");
-            key += _iObSort.Key + "|";
+            key += ObSort.Key + "|";
             key += "ToList_" + (pageIndex == 1 ? "Home" : "Other");
             //var key = _key + "ToList_" + pageSize + "_" + pageIndex;
             //var key = _key + "ToList_" + (pageIndex == 1 ? "Home" : "Other");
@@ -279,21 +295,21 @@ namespace DotNet.Standard.NParsing.DbUtilities
             IObParameter iObParameter2 = null;
             IObGroup iObGroup = null;
             IObSort iObSort = null;
-            if (_iObParameter != null)
+            if (ObParameter != null)
             {
-                iObParameter = ObConvert.ToObParameter(_providerName, _iObParameter);
+                iObParameter = ObConvert.ToObParameter(_providerName, ObParameter);
             }
-            if (_iObGroup != null)
+            if (ObGroup != null)
             {
-                iObGroup = ObConvert.ToObGroup(_providerName, _iObGroup);
+                iObGroup = ObConvert.ToObGroup(_providerName, ObGroup);
             }
-            if (_iObParameter2 != null)
+            if (ObGroupParameter != null)
             {
-                iObParameter2 = ObConvert.ToObParameter(_providerName, _iObParameter2);
+                iObParameter2 = ObConvert.ToObParameter(_providerName, ObGroupParameter);
             }
-            if (_iObSort != null)
+            if (ObSort != null)
             {
-                iObSort = ObConvert.ToObSort(_providerName, _iObSort);
+                iObSort = ObConvert.ToObSort(_providerName, ObSort);
             }
             DbDataReader dr = null;
 
@@ -430,8 +446,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
             #region 生成Key
 
             var key = _key;
-            if (_iObSort != null)
-                key += _iObSort.Key + "|";
+            if (ObSort != null)
+                key += ObSort.Key + "|";
             key += "ToList";
             if (topSize.HasValue)
             {
@@ -447,21 +463,21 @@ namespace DotNet.Standard.NParsing.DbUtilities
             IObParameter iObParameter2 = null;
             IObGroup iObGroup = null;
             IObSort iObSort = null;
-            if (_iObParameter != null)
+            if (ObParameter != null)
             {
-                iObParameter = ObConvert.ToObParameter(_providerName, _iObParameter);
+                iObParameter = ObConvert.ToObParameter(_providerName, ObParameter);
             }
-            if (_iObGroup != null)
+            if (ObGroup != null)
             {
-                iObGroup = ObConvert.ToObGroup(_providerName, _iObGroup);
+                iObGroup = ObConvert.ToObGroup(_providerName, ObGroup);
             }
-            if (_iObParameter2 != null)
+            if (ObGroupParameter != null)
             {
-                iObParameter2 = ObConvert.ToObParameter(_providerName, _iObParameter2);
+                iObParameter2 = ObConvert.ToObParameter(_providerName, ObGroupParameter);
             }
-            if (_iObSort != null)
+            if (ObSort != null)
             {
-                iObSort = ObConvert.ToObSort(_providerName, _iObSort);
+                iObSort = ObConvert.ToObSort(_providerName, ObSort);
             }
 
             #endregion
@@ -515,9 +531,9 @@ namespace DotNet.Standard.NParsing.DbUtilities
             #region 生成Key
 
             var key = _key;
-            if (_iObSort == null)
+            if (ObSort == null)
                 throw new Exception("分页时，请设置排序方式");
-            key += _iObSort.Key + "|";
+            key += ObSort.Key + "|";
             key += "ToList_" + (pageIndex == 1 ? "Home" : "Other");
             //var key = _key + "ToList_" + pageSize + "_" + pageIndex;
             //var key = _key + "ToList_" + (pageIndex == 1 ? "Home" : "Other");
@@ -531,21 +547,21 @@ namespace DotNet.Standard.NParsing.DbUtilities
             IObParameter iObParameter2 = null;
             IObGroup iObGroup = null;
             IObSort iObSort = null;
-            if (_iObParameter != null)
+            if (ObParameter != null)
             {
-                iObParameter = ObConvert.ToObParameter(_providerName, _iObParameter);
+                iObParameter = ObConvert.ToObParameter(_providerName, ObParameter);
             }
-            if (_iObGroup != null)
+            if (ObGroup != null)
             {
-                iObGroup = ObConvert.ToObGroup(_providerName, _iObGroup);
+                iObGroup = ObConvert.ToObGroup(_providerName, ObGroup);
             }
-            if (_iObParameter2 != null)
+            if (ObGroupParameter != null)
             {
-                iObParameter2 = ObConvert.ToObParameter(_providerName, _iObParameter2);
+                iObParameter2 = ObConvert.ToObParameter(_providerName, ObGroupParameter);
             }
-            if (_iObSort != null)
+            if (ObSort != null)
             {
-                iObSort = ObConvert.ToObSort(_providerName, _iObSort);
+                iObSort = ObConvert.ToObSort(_providerName, ObSort);
             }
 
             #endregion
@@ -611,8 +627,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
             #region 生成Key
 
             var key = _key;
-            if (_iObSort != null)
-                key += _iObSort.Key + "|";
+            if (ObSort != null)
+                key += ObSort.Key + "|";
             key += "Scalar_" + iObProperty.Key;
 
             #endregion
@@ -625,21 +641,21 @@ namespace DotNet.Standard.NParsing.DbUtilities
             IObParameter iObParameter2 = null;
             IObGroup iObGroup = null;
             IObSort iObSort = null;
-            if (_iObParameter != null)
+            if (ObParameter != null)
             {
-                iObParameter = ObConvert.ToObParameter(_providerName, _iObParameter);
+                iObParameter = ObConvert.ToObParameter(_providerName, ObParameter);
             }
-            if (_iObGroup != null)
+            if (ObGroup != null)
             {
-                iObGroup = ObConvert.ToObGroup(_providerName, _iObGroup);
+                iObGroup = ObConvert.ToObGroup(_providerName, ObGroup);
             }
-            if (_iObParameter2 != null)
+            if (ObGroupParameter != null)
             {
-                iObParameter2 = ObConvert.ToObParameter(_providerName, _iObParameter2);
+                iObParameter2 = ObConvert.ToObParameter(_providerName, ObGroupParameter);
             }
-            if (_iObSort != null)
+            if (ObSort != null)
             {
-                iObSort = ObConvert.ToObSort(_providerName, _iObSort);
+                iObSort = ObConvert.ToObSort(_providerName, ObSort);
             }
             IList<DbParameter> dbParameters = new List<DbParameter>();
 
@@ -693,9 +709,9 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
             bool b;
             IObParameter iObParameter = null;
-            if (_iObParameter != null)
+            if (ObParameter != null)
             {
-                iObParameter = ObConvert.ToObParameter(_providerName, _iObParameter);
+                iObParameter = ObConvert.ToObParameter(_providerName, ObParameter);
             }
             IList<DbParameter> dbParameters = new List<DbParameter>();
 
@@ -749,17 +765,17 @@ namespace DotNet.Standard.NParsing.DbUtilities
             IObParameter iObParameter = null;
             IObParameter iObParameter2 = null;
             IObGroup iObGroup = null;
-            if (_iObParameter != null)
+            if (ObParameter != null)
             {
-                iObParameter = ObConvert.ToObParameter(_providerName, _iObParameter);
+                iObParameter = ObConvert.ToObParameter(_providerName, ObParameter);
             }
-            if (_iObGroup != null)
+            if (ObGroup != null)
             {
-                iObGroup = ObConvert.ToObGroup(_providerName, _iObGroup);
+                iObGroup = ObConvert.ToObGroup(_providerName, ObGroup);
             }
-            if (_iObParameter2 != null)
+            if (ObGroupParameter != null)
             {
-                iObParameter2 = ObConvert.ToObParameter(_providerName, _iObParameter2);
+                iObParameter2 = ObConvert.ToObParameter(_providerName, ObGroupParameter);
             }
             IList<DbParameter> dbParameters = new List<DbParameter>();
 

@@ -68,9 +68,12 @@
 * 版 本 号：2.2.0
 * 修改内容：所有过期查询接口取消，查询统一使用Query
 */
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using DotNet.Standard.NParsing.Factory;
 
 namespace DotNet.Standard.NParsing.Interface
 {
@@ -271,5 +274,30 @@ namespace DotNet.Standard.NParsing.Interface
         IObQuery<TModel> Query(IObTransaction iObTransaction, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort);
         IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort);
 
+        IObSql<TModel> SqlText(string commandText, params DbParameter[] commandParameters);
+        IObSql<TModel> SqlText(IObTransaction iObTransaction, string commandText, params DbParameter[] commandParameters);
+
+        IObSql<TModel> SqlStoredProcedure(string commandText, params DbParameter[] commandParameters);
+        IObSql<TModel> SqlStoredProcedure(IObTransaction iObTransaction, string commandText, params DbParameter[] commandParameters);
+    }
+
+    public interface IObHelper<TModel, out TTerm> : IObHelper<TModel>
+        where TModel : ObModelBase
+        where TTerm : ObTermBase
+    {
+        TTerm Term { get; }
+        int Delete(Func<TTerm, IObParameter> keySelector);
+        int Update(TModel model, Func<TTerm, IObParameter> keySelector);
+        IObSelect<TModel, TTerm> Where(Func<TTerm, IObParameter> keySelector);
+        IObSelect<TModel, TTerm> GroupBy<TKey>(Func<TTerm, TKey> keySelector);
+        IObSelect<TModel, TTerm> GroupBy(Func<TTerm, ObProperty> keySelector);
+        IObSelect<TModel, TTerm> DistinctBy<TKey>(Func<TTerm, TKey> keySelector);
+        IObSelect<TModel, TTerm> DistinctBy(Func<TTerm, ObProperty> keySelector);
+        IObSelect<TModel, TTerm> OrderBy<TKey>(Func<TTerm, TKey> keySelector);
+        IObSelect<TModel, TTerm> OrderBy(Func<TTerm, ObProperty> keySelector);
+        IObSelect<TModel, TTerm> OrderByDescending<TKey>(Func<TTerm, TKey> keySelector);
+        IObSelect<TModel, TTerm> OrderByDescending(Func<TTerm, ObProperty> keySelector);
+        IObSelect<TModel, TTerm> Join<TKey>(Func<TTerm, TKey> keySelector);
+        IObSelect<TModel, TTerm> Join(Func<TTerm, ObTermBase> keySelector);
     }
 }

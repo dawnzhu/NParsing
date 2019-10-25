@@ -73,10 +73,12 @@
 * 修改内容：增加模型类名称重定义功能
 */
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Reflection;
+using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Interface;
 
 namespace DotNet.Standard.NParsing.DbUtilities
@@ -241,74 +243,74 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
     public class ObHelper<TModel> : IObHelper<TModel> where TModel : class, new()
     {
-        private readonly IDbHelper _iReadDbHelper;
-        private readonly IDbHelper _iWriteDbHelper;
-        private readonly ISqlBuilder<TModel> _iSqlBuilder;
-        private readonly string _providerName;
+        protected IDbHelper ReadDbHelper { get; }
+        protected IDbHelper WriteDbHelper { get; }
+        protected ISqlBuilder<TModel> SqlBuilder { get; }
+        protected string ProviderName { get; }
         public ObHelper(string connectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels)
         {
-            _providerName = providerName;
+            ProviderName = providerName;
             if(iObRedefine == null)
                iObRedefine = new ObRedefine(); 
             var className = providerName + ".SqlBuilder`1";
             var t = typeof(TModel);
             className += "[[" + t.FullName + "," + t.Assembly.FullName + "]]";
             t = Assembly.Load(providerName).GetType(className);
-            _iSqlBuilder = (ISqlBuilder<TModel>)Activator.CreateInstance(t, iObRedefine, notJoinModels);
+            SqlBuilder = (ISqlBuilder<TModel>)Activator.CreateInstance(t, iObRedefine, notJoinModels);
 
             className = providerName + ".DbHelper";
             t = Assembly.Load(providerName).GetType(className);
-            _iWriteDbHelper = (IDbHelper)Activator.CreateInstance(t, connectionString);
-            _iReadDbHelper = _iWriteDbHelper;
+            WriteDbHelper = (IDbHelper)Activator.CreateInstance(t, connectionString);
+            ReadDbHelper = WriteDbHelper;
         }
 
         public ObHelper(string readConnectionString, string writeConnectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels)
         {
-            _providerName = providerName;
+            ProviderName = providerName;
             if (iObRedefine == null)
                 iObRedefine = new ObRedefine();
             var className = providerName + ".SqlBuilder`1";
             var t = typeof(TModel);
             className += "[[" + t.FullName + "," + t.Assembly.FullName + "]]";
             t = Assembly.Load(providerName).GetType(className);
-            _iSqlBuilder = (ISqlBuilder<TModel>)Activator.CreateInstance(t, iObRedefine, notJoinModels);
+            SqlBuilder = (ISqlBuilder<TModel>)Activator.CreateInstance(t, iObRedefine, notJoinModels);
 
             className = providerName + ".DbHelper";
             t = Assembly.Load(providerName).GetType(className);
-            _iReadDbHelper = (IDbHelper)Activator.CreateInstance(t, readConnectionString);
-            _iWriteDbHelper = (IDbHelper)Activator.CreateInstance(t, writeConnectionString);
+            ReadDbHelper = (IDbHelper)Activator.CreateInstance(t, readConnectionString);
+            WriteDbHelper = (IDbHelper)Activator.CreateInstance(t, writeConnectionString);
         }
 
         #region 创建表 public bool Create()
 
         public bool Create()
         {
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
-                string sql = _iSqlBuilder.CreateTable();
+                string sql = SqlBuilder.CreateTable();
                 return dbHelper.ExecuteScalar(sql) != null;
             }
         }
 
         public bool Create(IObTransaction iObTransaction)
         {
-            string sql = _iSqlBuilder.CreateTable();
-            return DbHelper.ExecuteScalar(_iWriteDbHelper, iObTransaction.DbTransaction, sql) != null;
+            string sql = SqlBuilder.CreateTable();
+            return DbHelper.ExecuteScalar(WriteDbHelper, iObTransaction.DbTransaction, sql) != null;
         }
 
         public bool Create(string name)
         {
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
-                string sql = _iSqlBuilder.CreateTable(name);
+                string sql = SqlBuilder.CreateTable(name);
                 return dbHelper.ExecuteScalar(sql) != null;
             }
         }
 
         public bool Create(IObTransaction iObTransaction, string name)
         {
-            string sql = _iSqlBuilder.CreateTable(name);
-            return DbHelper.ExecuteScalar(_iWriteDbHelper, iObTransaction.DbTransaction, sql) != null;
+            string sql = SqlBuilder.CreateTable(name);
+            return DbHelper.ExecuteScalar(WriteDbHelper, iObTransaction.DbTransaction, sql) != null;
         }
 
         #endregion
@@ -317,17 +319,17 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public bool Drop()
         {
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
-                string sql = _iSqlBuilder.DropTable();
+                string sql = SqlBuilder.DropTable();
                 return dbHelper.ExecuteScalar(sql) != null;
             }
         }
 
         public bool Drop(IObTransaction iObTransaction)
         {
-            string sql = _iSqlBuilder.DropTable();
-            return DbHelper.ExecuteScalar(_iWriteDbHelper, iObTransaction.DbTransaction, sql) != null;
+            string sql = SqlBuilder.DropTable();
+            return DbHelper.ExecuteScalar(WriteDbHelper, iObTransaction.DbTransaction, sql) != null;
         }
 
         #endregion
@@ -340,10 +342,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
             {
                 dbSort.TableName = "";
             }
-            var obSort = ObConvert.ToObSort(_providerName, iObSort);
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            var obSort = ObConvert.ToObSort(ProviderName, iObSort);
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
-                string sql = _iSqlBuilder.CreateIndex(name, obSort, fileGroup);
+                string sql = SqlBuilder.CreateIndex(name, obSort, fileGroup);
                 return dbHelper.ExecuteScalar(sql) != null;
             }
         }
@@ -354,9 +356,9 @@ namespace DotNet.Standard.NParsing.DbUtilities
             {
                 dbSort.TableName = "";
             }
-            var obSort = ObConvert.ToObSort(_providerName, iObSort);
-            string sql = _iSqlBuilder.CreateIndex(name, obSort, fileGroup);
-            return DbHelper.ExecuteScalar(_iWriteDbHelper, iObTransaction.DbTransaction, sql) != null;
+            var obSort = ObConvert.ToObSort(ProviderName, iObSort);
+            string sql = SqlBuilder.CreateIndex(name, obSort, fileGroup);
+            return DbHelper.ExecuteScalar(WriteDbHelper, iObTransaction.DbTransaction, sql) != null;
         }
 
         #endregion
@@ -365,17 +367,17 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public bool DropIndex(string name)
         {
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
-                string sql = _iSqlBuilder.DropIndex(name);
+                string sql = SqlBuilder.DropIndex(name);
                 return dbHelper.ExecuteScalar(sql) != null;
             }
         }
 
         public bool DropIndex(IObTransaction iObTransaction, string name)
         {
-            string sql = _iSqlBuilder.DropIndex(name);
-            return DbHelper.ExecuteScalar(_iWriteDbHelper, iObTransaction.DbTransaction, sql) != null;
+            string sql = SqlBuilder.DropIndex(name);
+            return DbHelper.ExecuteScalar(WriteDbHelper, iObTransaction.DbTransaction, sql) != null;
         }
 
         #endregion
@@ -389,11 +391,11 @@ namespace DotNet.Standard.NParsing.DbUtilities
         /// <returns></returns>
         public bool Exists(IObParameter iObParameter)
         {
-            iObParameter = ObConvert.ToObParameter(_providerName, iObParameter);
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            iObParameter = ObConvert.ToObParameter(ProviderName, iObParameter);
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
                 IList<DbParameter> dbParameters = new List<DbParameter>();
-                string sql = _iSqlBuilder.ExistsSelect(iObParameter, ref dbParameters);
+                string sql = SqlBuilder.ExistsSelect(iObParameter, ref dbParameters);
                 return dbHelper.Exists(sql, ((List<DbParameter>)dbParameters).ToArray());
             }
         }
@@ -412,8 +414,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
         {
             iObParameter = ObConvert.ToObParameter(iObTransaction.ProviderName, iObParameter);
             IList<DbParameter> dbParameters = new List<DbParameter>();
-            string sql = _iSqlBuilder.ExistsSelect(iObParameter, ref dbParameters);
-            return DbHelper.Exists(_iWriteDbHelper, iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
+            string sql = SqlBuilder.ExistsSelect(iObParameter, ref dbParameters);
+            return DbHelper.Exists(WriteDbHelper, iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
         }
 
         #endregion
@@ -431,10 +433,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
         /// </returns>
         public object Add(TModel model)
         {
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
                 IList<DbParameter> dbParameters = new List<DbParameter>();
-                var sqls = _iSqlBuilder.Insert(model, ref dbParameters);
+                var sqls = SqlBuilder.Insert(model, ref dbParameters);
 
                 #region 解决Oracle序列返回问题（使用输出参数返回）
 
@@ -475,7 +477,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
         public object Add(IObTransaction iObTransaction, TModel model)
         {
             IList<DbParameter> dbParameters = new List<DbParameter>();
-            var sqls = _iSqlBuilder.Insert(model, ref dbParameters);
+            var sqls = SqlBuilder.Insert(model, ref dbParameters);
 
             #region 解决Oracle序列返回问题（使用输出参数返回）
 
@@ -488,15 +490,15 @@ namespace DotNet.Standard.NParsing.DbUtilities
             }
             if (outputParameter != null)
             {
-                DbHelper.ExecuteScalar(_iWriteDbHelper, iObTransaction.DbTransaction, sqls, ((List<DbParameter>)dbParameters).ToArray());
+                DbHelper.ExecuteScalar(WriteDbHelper, iObTransaction.DbTransaction, sqls, ((List<DbParameter>)dbParameters).ToArray());
                 return outputParameter.Value;
             }
 
             #endregion
 
             return sqls.Length > 1 ?
-                DbHelper.ExecuteScalar(_iWriteDbHelper, iObTransaction.DbTransaction, sqls, ((List<DbParameter>)dbParameters).ToArray()) :
-                DbHelper.ExecuteNonQuery(_iWriteDbHelper, iObTransaction.DbTransaction, sqls[0], ((List<DbParameter>)dbParameters).ToArray());
+                DbHelper.ExecuteScalar(WriteDbHelper, iObTransaction.DbTransaction, sqls, ((List<DbParameter>)dbParameters).ToArray()) :
+                DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sqls[0], ((List<DbParameter>)dbParameters).ToArray());
         }
 
         #endregion
@@ -505,10 +507,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public object Add(IList<TModel> models)
         {
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
                 IList<DbParameter> dbParameters = new List<DbParameter>();
-                var sqls = _iSqlBuilder.Insert(models, ref dbParameters);
+                var sqls = SqlBuilder.Insert(models, ref dbParameters);
 
                 #region 解决Oracle序列返回问题（使用输出参数返回）
 
@@ -538,7 +540,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
         public object Add(IObTransaction iObTransaction, IList<TModel> models)
         {
             IList<DbParameter> dbParameters = new List<DbParameter>();
-            var sqls = _iSqlBuilder.Insert(models, ref dbParameters);
+            var sqls = SqlBuilder.Insert(models, ref dbParameters);
 
             #region 解决Oracle序列返回问题（使用输出参数返回）
 
@@ -551,14 +553,14 @@ namespace DotNet.Standard.NParsing.DbUtilities
             }
             if (outputParameter != null)
             {
-                DbHelper.ExecuteScalar(_iWriteDbHelper, iObTransaction.DbTransaction, sqls,
+                DbHelper.ExecuteScalar(WriteDbHelper, iObTransaction.DbTransaction, sqls,
                     ((List<DbParameter>) dbParameters).ToArray());
                 return outputParameter.Value;
             }
 
             #endregion
 
-            return DbHelper.ExecuteNonQuery(_iWriteDbHelper, iObTransaction.DbTransaction, sqls,
+            return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sqls,
                 ((List<DbParameter>) dbParameters).ToArray());
         }
 
@@ -569,10 +571,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public int Delete()
         {
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
                 IList<DbParameter> dbParameters = new List<DbParameter>();
-                string sql = _iSqlBuilder.Delete(ref dbParameters);
+                string sql = SqlBuilder.Delete(ref dbParameters);
                 return dbHelper.ExecuteNonQuery(sql, ((List<DbParameter>) dbParameters).ToArray());
             }
         }
@@ -584,8 +586,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
         public int Delete(IObTransaction iObTransaction)
         {
             IList<DbParameter> dbParameters = new List<DbParameter>();
-            string sql = _iSqlBuilder.Delete(ref dbParameters);
-            return DbHelper.ExecuteNonQuery(_iWriteDbHelper, iObTransaction.DbTransaction, sql,
+            string sql = SqlBuilder.Delete(ref dbParameters);
+            return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sql,
                 ((List<DbParameter>) dbParameters).ToArray());
         }
 
@@ -600,11 +602,11 @@ namespace DotNet.Standard.NParsing.DbUtilities
         /// <returns></returns>
         public int Delete(IObParameter iObParameter)
         {
-            iObParameter = ObConvert.ToObParameter(_providerName, iObParameter);
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            iObParameter = ObConvert.ToObParameter(ProviderName, iObParameter);
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
                 IList<DbParameter> dbParameters = new List<DbParameter>();
-                string sql = _iSqlBuilder.Delete(iObParameter, ref dbParameters);
+                string sql = SqlBuilder.Delete(iObParameter, ref dbParameters);
                 return dbHelper.ExecuteNonQuery(sql, ((List<DbParameter>)dbParameters).ToArray());
             }
         }
@@ -623,8 +625,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
         {
             iObParameter = ObConvert.ToObParameter(iObTransaction.ProviderName, iObParameter);
             IList<DbParameter> dbParameters = new List<DbParameter>();
-            string sql = _iSqlBuilder.Delete(iObParameter, ref dbParameters);
-            return DbHelper.ExecuteNonQuery(_iWriteDbHelper, iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
+            string sql = SqlBuilder.Delete(iObParameter, ref dbParameters);
+            return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
         }
 
         #endregion
@@ -634,10 +636,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public int Update(TModel model)
         {
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
                 IList<DbParameter> dbParameters = new List<DbParameter>();
-                string sql = _iSqlBuilder.Update(model, ref dbParameters);
+                string sql = SqlBuilder.Update(model, ref dbParameters);
                 return dbHelper.ExecuteNonQuery(sql, ((List<DbParameter>) dbParameters).ToArray());
             }
         }
@@ -649,8 +651,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
         public int Update(IObTransaction iObTransaction, TModel model)
         {
             IList<DbParameter> dbParameters = new List<DbParameter>();
-            string sql = _iSqlBuilder.Update(model, ref dbParameters);
-            return DbHelper.ExecuteNonQuery(_iWriteDbHelper, iObTransaction.DbTransaction, sql,
+            string sql = SqlBuilder.Update(model, ref dbParameters);
+            return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sql,
                 ((List<DbParameter>) dbParameters).ToArray());
         }
 
@@ -666,11 +668,11 @@ namespace DotNet.Standard.NParsing.DbUtilities
         /// <returns></returns>
         public int Update(TModel model, IObParameter iObParameter)
         {
-            iObParameter = ObConvert.ToObParameter(_providerName, iObParameter);
-            using (var dbHelper = new DbHelper(_iWriteDbHelper))
+            iObParameter = ObConvert.ToObParameter(ProviderName, iObParameter);
+            using (var dbHelper = new DbHelper(WriteDbHelper))
             {
                 IList<DbParameter> dbParameters = new List<DbParameter>();
-                string sql = _iSqlBuilder.Update(model, iObParameter, ref dbParameters);
+                string sql = SqlBuilder.Update(model, iObParameter, ref dbParameters);
                 return dbHelper.ExecuteNonQuery(sql, ((List<DbParameter>)dbParameters).ToArray());
             }
         }
@@ -690,8 +692,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
         {
             iObParameter = ObConvert.ToObParameter(iObTransaction.ProviderName, iObParameter);
             IList<DbParameter> dbParameters = new List<DbParameter>();
-            string sql = _iSqlBuilder.Update(model, iObParameter, ref dbParameters);
-            return DbHelper.ExecuteNonQuery(_iWriteDbHelper, iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
+            string sql = SqlBuilder.Update(model, iObParameter, ref dbParameters);
+            return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
         }
         
         #endregion
@@ -701,7 +703,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query()
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, null, null, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, null, null, null, null);
         }
 
         #endregion
@@ -710,7 +712,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, null, null, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, null, null, null, null);
         }
 
         #endregion
@@ -719,7 +721,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObParameter iObParameter)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, iObParameter, null, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, iObParameter, null, null, null);
         }
 
         #endregion
@@ -728,7 +730,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObParameter iObParameter)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, iObParameter, null, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, iObParameter, null, null, null);
         }
 
         #endregion
@@ -737,7 +739,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, null, null, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, null, null, null, iObSort);
         }
 
         #endregion
@@ -746,7 +748,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, null, null, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, null, null, null, iObSort);
         }
 
         #endregion
@@ -755,7 +757,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObParameter iObParameter, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, iObParameter, null, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, iObParameter, null, null, iObSort);
         }
 
         #endregion
@@ -764,7 +766,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObParameter iObParameter, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, iObParameter, null, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, iObParameter, null, null, iObSort);
         }
 
         #endregion
@@ -773,7 +775,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, null, null, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, null, null, null, null);
         }
 
         #endregion
@@ -782,7 +784,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, null, null, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, null, null, null, null);
         }
 
         #endregion
@@ -791,7 +793,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObParameter iObParameter)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, iObParameter, null, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, iObParameter, null, null, null);
         }
 
         #endregion
@@ -800,7 +802,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, iObParameter, null, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, iObParameter, null, null, null);
         }
 
         #endregion
@@ -809,7 +811,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, null, null, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, null, null, null, iObSort);
         }
 
         #endregion
@@ -818,7 +820,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, null, null, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, null, null, null, iObSort);
         }
 
         #endregion
@@ -827,7 +829,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObParameter iObParameter, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, iObParameter, null, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, iObParameter, null, null, iObSort);
         }
 
         #endregion
@@ -836,7 +838,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, iObParameter, null, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, iObParameter, null, null, iObSort);
         }
 
         #endregion
@@ -845,7 +847,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObGroup iObGroup)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, null, iObGroup, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, null, iObGroup, null, null);
         }
 
         #endregion
@@ -854,7 +856,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObGroup iObGroup)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, null, iObGroup, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, null, iObGroup, null, null);
         }
 
         #endregion
@@ -863,7 +865,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObParameter iObParameter, IObGroup iObGroup)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, iObParameter, iObGroup, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, iObParameter, iObGroup, null, null);
         }
 
         #endregion
@@ -872,7 +874,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, iObParameter, iObGroup, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, iObParameter, iObGroup, null, null);
         }
 
         #endregion
@@ -881,7 +883,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObGroup iObGroup, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, null, iObGroup, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, null, iObGroup, null, iObSort);
         }
 
         #endregion
@@ -890,7 +892,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObGroup iObGroup, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, null, iObGroup, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, null, iObGroup, null, iObSort);
         }
 
         #endregion
@@ -899,7 +901,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObParameter iObParameter, IObGroup iObGroup, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, iObParameter, iObGroup, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, iObParameter, iObGroup, null, iObSort);
         }
 
         #endregion
@@ -908,7 +910,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, iObParameter, iObGroup, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, iObParameter, iObGroup, null, iObSort);
         }
 
         #endregion
@@ -917,7 +919,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObGroup iObGroup)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, null, iObGroup, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, null, iObGroup, null, null);
         }
 
         #endregion
@@ -926,7 +928,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObGroup iObGroup)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, null, iObGroup, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, null, iObGroup, null, null);
         }
 
         #endregion
@@ -935,7 +937,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObParameter iObParameter, IObGroup iObGroup)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, iObParameter, iObGroup, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, iObParameter, iObGroup, null, null);
         }
 
         #endregion
@@ -944,7 +946,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, iObParameter, iObGroup, null, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, iObParameter, iObGroup, null, null);
         }
 
         #endregion
@@ -953,7 +955,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObGroup iObGroup, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, null, iObGroup, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, null, iObGroup, null, iObSort);
         }
 
         #endregion
@@ -962,7 +964,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObGroup iObGroup, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, null, iObGroup, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, null, iObGroup, null, iObSort);
         }
 
         #endregion
@@ -971,7 +973,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObParameter iObParameter, IObGroup iObGroup, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, iObParameter, iObGroup, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, iObParameter, iObGroup, null, iObSort);
         }
 
         #endregion
@@ -980,7 +982,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, iObParameter, iObGroup, null, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, iObParameter, iObGroup, null, iObSort);
         }
 
         #endregion
@@ -989,7 +991,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObGroup iObGroup, IObParameter iObParameter2)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, null, iObGroup, iObParameter2, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, null, iObGroup, iObParameter2, null);
         }
 
         #endregion
@@ -998,7 +1000,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObGroup iObGroup, IObParameter iObParameter2)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, null, iObGroup, iObParameter2, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, null, iObGroup, iObParameter2, null);
         }
 
         #endregion
@@ -1007,7 +1009,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, iObParameter, iObGroup, iObParameter2, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, iObParameter, iObGroup, iObParameter2, null);
         }
 
         #endregion
@@ -1016,7 +1018,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, iObParameter, iObGroup, iObParameter2, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, iObParameter, iObGroup, iObParameter2, null);
         }
 
         #endregion
@@ -1025,7 +1027,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, null, iObGroup, iObParameter2, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, null, iObGroup, iObParameter2, iObSort);
         }
 
         #endregion
@@ -1034,7 +1036,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, null, iObGroup, iObParameter2, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, null, iObGroup, iObParameter2, iObSort);
         }
 
         #endregion
@@ -1043,7 +1045,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, null, iObParameter, iObGroup, iObParameter2, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, null, iObParameter, iObGroup, iObParameter2, iObSort);
         }
 
         #endregion
@@ -1052,7 +1054,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, null, iObJoin, iObParameter, iObGroup, iObParameter2, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, null, iObJoin, iObParameter, iObGroup, iObParameter2, iObSort);
         }
 
         #endregion
@@ -1061,7 +1063,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObGroup iObGroup, IObParameter iObParameter2)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, null, iObGroup, iObParameter2, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, null, iObGroup, iObParameter2, null);
         }
 
         #endregion
@@ -1070,7 +1072,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObGroup iObGroup, IObParameter iObParameter2)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, null, iObGroup, iObParameter2, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, null, iObGroup, iObParameter2, null);
         }
 
         #endregion
@@ -1079,7 +1081,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, iObParameter, iObGroup, iObParameter2, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, iObParameter, iObGroup, iObParameter2, null);
         }
 
         #endregion
@@ -1088,7 +1090,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, iObParameter, iObGroup, iObParameter2, null);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, iObParameter, iObGroup, iObParameter2, null);
         }
 
         #endregion
@@ -1097,7 +1099,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, null, iObGroup, iObParameter2, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, null, iObGroup, iObParameter2, iObSort);
         }
 
         #endregion
@@ -1106,7 +1108,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, null, iObGroup, iObParameter2, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, null, iObGroup, iObParameter2, iObSort);
         }
 
         #endregion
@@ -1115,7 +1117,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, null, iObParameter, iObGroup, iObParameter2, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, null, iObParameter, iObGroup, iObParameter2, iObSort);
         }
 
         #endregion
@@ -1124,10 +1126,30 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQuery<TModel> Query(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort)
         {
-            return new ObQuery<TModel>(_iReadDbHelper, _iSqlBuilder, _providerName, iObTransaction, iObJoin, iObParameter, iObGroup, iObParameter2, iObSort);
+            return new ObQuery<TModel>(ReadDbHelper, SqlBuilder, ProviderName, iObTransaction, iObJoin, iObParameter, iObGroup, iObParameter2, iObSort);
         }
 
         #endregion
+
+        public IObSql<TModel> SqlText(string commandText, params DbParameter[] commandParameters)
+        {
+            return new ObSql<TModel>(WriteDbHelper, null, CommandType.Text, commandText, commandParameters);
+        }
+
+        public IObSql<TModel> SqlText(IObTransaction iObTransaction, string commandText, params DbParameter[] commandParameters)
+        {
+            return new ObSql<TModel>(WriteDbHelper, iObTransaction, CommandType.Text, commandText, commandParameters);
+        }
+
+        public IObSql<TModel> SqlStoredProcedure(string commandText, params DbParameter[] commandParameters)
+        {
+            return new ObSql<TModel>(WriteDbHelper, null, CommandType.StoredProcedure, commandText, commandParameters);
+        }
+
+        public IObSql<TModel> SqlStoredProcedure(IObTransaction iObTransaction, string commandText, params DbParameter[] commandParameters)
+        {
+            return new ObSql<TModel>(WriteDbHelper, iObTransaction, CommandType.StoredProcedure, commandText, commandParameters);
+        }
 
         //#region 创建当前数据库的参数
 
@@ -1225,5 +1247,126 @@ namespace DotNet.Standard.NParsing.DbUtilities
         //}
 
         //#endregion
+    }
+
+    public class ObHelper<TModel, TTerm> : ObHelper<TModel>, IObHelper<TModel, TTerm>
+        where TModel : ObModelBase, new()
+        where TTerm : ObTermBase, new()
+    {
+        public TTerm Term { get; }
+
+        public ObHelper(string connectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels) : base(connectionString, providerName, iObRedefine, notJoinModels)
+        {
+            Term = new TTerm();
+        }
+
+        public ObHelper(string readConnectionString, string writeConnectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels) : base(readConnectionString, writeConnectionString, providerName, iObRedefine, notJoinModels)
+        {
+            Term = new TTerm();
+        }
+
+        #region 从数据库删除一个对象 public int Delete(Func<TTerm, IObParameter> keySelector)
+
+        /// <summary>
+        /// 从数据库删除一个对象
+        /// </summary>
+        /// <param name="keySelector">条件</param>
+        /// <returns></returns>
+        public int Delete(Func<TTerm, IObParameter> keySelector)
+        {
+            var iObParameter = keySelector(Term);
+            return Delete(iObParameter);
+        }
+
+        #endregion
+
+        #region 更新一个数据库对象 public int Update(M model, Func<TTerm, IObParameter> keySelector)
+
+        /// <summary>
+        /// 更新一个数据库对象
+        /// </summary>
+        /// <param name="model">对象</param>
+        /// <param name="keySelector">条件</param>
+        /// <returns></returns>
+        public int Update(TModel model, Func<TTerm, IObParameter> keySelector)
+        {
+            var iObParameter = keySelector(Term);
+            return Update(model, iObParameter);
+        }
+
+        #endregion
+
+        public IObSelect<TModel, TTerm> Where(Func<TTerm, IObParameter> keySelector)
+        {
+            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
+            select.Where(keySelector);
+            return select;
+        }
+
+        public IObSelect<TModel, TTerm> GroupBy<TKey>(Func<TTerm, TKey> keySelector)
+        {
+            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
+            select.GroupBy(keySelector);
+            return select;
+        }
+
+        public IObSelect<TModel, TTerm> GroupBy(Func<TTerm, ObProperty> keySelector)
+        {
+            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
+            select.GroupBy(keySelector);
+            return select;
+        }
+
+        public IObSelect<TModel, TTerm> DistinctBy<TKey>(Func<TTerm, TKey> keySelector)
+        {
+            return GroupBy(keySelector);
+        }
+
+        public IObSelect<TModel, TTerm> DistinctBy(Func<TTerm, ObProperty> keySelector)
+        {
+            return GroupBy(keySelector);
+        }
+
+        public IObSelect<TModel, TTerm> OrderBy<TKey>(Func<TTerm, TKey> keySelector)
+        {
+            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
+            select.OrderBy(keySelector);
+            return select;
+        }
+
+        public IObSelect<TModel, TTerm> OrderBy(Func<TTerm, ObProperty> keySelector)
+        {
+            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
+            select.OrderBy(keySelector);
+            return select;
+        }
+
+        public IObSelect<TModel, TTerm> OrderByDescending<TKey>(Func<TTerm, TKey> keySelector)
+        {
+            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
+            select.OrderByDescending(keySelector);
+            return select;
+        }
+
+        public IObSelect<TModel, TTerm> OrderByDescending(Func<TTerm, ObProperty> keySelector)
+        {
+            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
+            select.OrderByDescending(keySelector);
+            return select;
+        }
+
+        public IObSelect<TModel, TTerm> Join<TKey>(Func<TTerm, TKey> keySelector)
+        {
+            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
+            select.Join(keySelector);
+            return select;
+        }
+
+        public IObSelect<TModel, TTerm> Join(Func<TTerm, ObTermBase> keySelector)
+        {
+            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
+            select.Join(keySelector);
+            return select;
+        }
     }
 }
