@@ -108,7 +108,7 @@ namespace DotNet.Standard.NParsing.Interface
 
         int MaxDegreeOfParallelism { get; }
 
-        Tuple<string, string, IList<DbParameter>> CurrentExeSql { get; }
+        (string Key, string Text, IList<DbParameter> Parameters) CurrentExeSql { get; }
 
         /// <summary>
         /// 通过分页并行获取数据

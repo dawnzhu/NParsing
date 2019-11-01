@@ -1,4 +1,6 @@
+using System;
 using System.Data.SqlClient;
+using DotNet.Standard.NParsing.ComponentModel;
 using DotNet.Standard.NParsing.Factory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -13,7 +15,16 @@ namespace DotNet.Standard.NParsing.UnitTest
             /*var dal = ObHelper.Create<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
             var list = dal.SqlText("SELECT * FROM Employes WHERE ID=@ID", new SqlParameter("@ID", 1)).ToList();*/
             var dal = ObHelper.Create<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
-            var query = dal
+            try
+            {
+                dal.Update(new EmployeInfo(), o => o.Id == 1);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            /*var query = dal
                 .Where(o => o.DepartmentId.In(1, 2, 3))
                 .GroupBy(o => new
                 {
@@ -40,7 +51,7 @@ namespace DotNet.Standard.NParsing.UnitTest
                 });
             var list = query.ToList();
             
-            var a = list;
+            var a = list;*/
 
         }
     }

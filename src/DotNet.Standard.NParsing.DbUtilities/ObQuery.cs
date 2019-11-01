@@ -243,7 +243,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames});
             }
 #if DEBUG
-            CurrentExeSql = new Tuple<string, string, IList<DbParameter>>(key, sql, dbParameters);
+            CurrentExeSql = (key, sql, dbParameters);
 #endif
 
             #endregion
@@ -347,7 +347,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames });
             }
 #if DEBUG
-            CurrentExeSql = new Tuple<string, string, IList<DbParameter>>(key, sql, dbParameters);
+            CurrentExeSql = (key, sql, dbParameters);
 #endif
             #endregion
 
@@ -503,7 +503,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames });
             }
 #if DEBUG
-            CurrentExeSql = new Tuple<string, string, IList<DbParameter>>(key, sql, dbParameters);
+            CurrentExeSql = (key, sql, dbParameters);
 #endif
             #endregion
 
@@ -597,7 +597,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames });
             }
 #if DEBUG
-            CurrentExeSql = new Tuple<string, string, IList<DbParameter>>(key, sql, dbParameters);
+            CurrentExeSql = (key, sql, dbParameters);
 #endif
             #endregion
 
@@ -676,7 +676,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql });
             }
 #if DEBUG
-            CurrentExeSql = new Tuple<string, string, IList<DbParameter>>(key, sql, dbParameters);
+            CurrentExeSql = (key, sql, dbParameters);
 #endif
             #endregion
 
@@ -732,7 +732,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql });
             }
 #if DEBUG
-            CurrentExeSql = new Tuple<string, string, IList<DbParameter>>(key, sql, dbParameters);
+            CurrentExeSql = (key, sql, dbParameters);
 #endif
             #endregion
 
@@ -796,7 +796,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql });
             }
 #if DEBUG
-            CurrentExeSql = new Tuple<string, string, IList<DbParameter>>(key, sql, dbParameters);
+            CurrentExeSql = (key, sql, dbParameters);
 #endif
             #endregion
 
@@ -823,7 +823,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public int MaxDegreeOfParallelism { get; private set; }
 
-        public Tuple<string, string, IList<DbParameter>> CurrentExeSql { get; private set; }
+        public (string Key, string Text, IList<DbParameter> Parameters) CurrentExeSql { get; private set; }
 
         public IObQuery<TModel> Parallel()
         {

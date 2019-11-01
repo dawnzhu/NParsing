@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using DotNet.Standard.NParsing.ComponentModel;
 using DotNet.Standard.NParsing.Interface;
 
 namespace DotNet.Standard.NParsing.DbUtilities
@@ -103,6 +104,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                         return true;
                     }
                 }
+                catch (Exception er)
+                {
+                    throw new ObException(er, CommandType.Text, commandText, commandParameters);
+                }
                 finally
                 {
                     dbCom.Parameters.Clear();
@@ -141,6 +146,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     {
                         return true;
                     }
+                }
+                catch (Exception er)
+                {
+                    throw new ObException(er, CommandType.Text, commandText, commandParameters);
                 }
                 finally
                 {
@@ -182,6 +191,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     AttachParameters(dbCom, commandParameters);
                     iRet = dbCom.ExecuteNonQuery();
                 }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, commandText, commandParameters);
+                }
                 finally
                 {
                     dbCom.Parameters.Clear();
@@ -222,6 +235,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                         iRet += dbCom.ExecuteNonQuery();
                     }
                 }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, dbCom.CommandText, commandParameters);
+                }
                 finally
                 {
                     dbCom.Parameters.Clear();
@@ -260,6 +277,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     dbCom.CommandTimeout = 240;
                     AttachParameters(dbCom, commandParameters);
                     iRet = dbCom.ExecuteNonQuery();
+                }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, commandText, commandParameters);
                 }
                 finally
                 {
@@ -302,6 +323,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                         dbCom.CommandText = commandText;
                         iRet += dbCom.ExecuteNonQuery();
                     }
+                }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, dbCom.CommandText, commandParameters);
                 }
                 finally
                 {
@@ -346,6 +371,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     da.Fill(dataSet);
                     return dataSet;
                 }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, commandText, commandParameters);
+                }
                 finally
                 {
                     da.SelectCommand.Parameters.Clear();
@@ -389,6 +418,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     da.Fill(dataSet);
                     return dataSet;
                 }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, da.SelectCommand.CommandText, commandParameters);
+                }
                 finally
                 {
                     da.SelectCommand.Parameters.Clear();
@@ -427,6 +460,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     var dataSet = new DataSet();
                     da.Fill(dataSet);
                     return dataSet;
+                }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, commandText, commandParameters);
                 }
                 finally
                 {
@@ -472,6 +509,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     da.Fill(dataSet);
                     return dataSet;
                 }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, da.SelectCommand.CommandText, commandParameters);
+                }
                 finally
                 {
                     da.SelectCommand.Parameters.Clear();
@@ -511,6 +552,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     dbCom.CommandTimeout = 240;
                     AttachParameters(dbCom, commandParameters);
                     return dbCom.ExecuteReader(CommandBehavior.CloseConnection);
+                }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, commandText, commandParameters);
                 }
                 finally
                 {
@@ -553,6 +598,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     dbCom.CommandText = commandTexts[commandTexts.Length - 1];
                     return dbCom.ExecuteReader(CommandBehavior.CloseConnection);
                 }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, dbCom.CommandText, commandParameters);
+                }
                 finally
                 {
                     dbCom.Parameters.Clear();
@@ -592,6 +641,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     dbCom.CommandTimeout = 240;
                     AttachParameters(dbCom, commandParameters);
                     return dbCom.ExecuteReader();
+                }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, commandText, commandParameters);
                 }
                 finally
                 {
@@ -638,6 +691,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     dbCom.CommandText = commandTexts[commandTexts.Length - 1];
                     return dbCom.ExecuteReader();
                 }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, dbCom.CommandText, commandParameters);
+                }
                 finally
                 {
                     dbCom.Parameters.Clear();
@@ -676,6 +733,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     dbCom.CommandTimeout = 240;
                     AttachParameters(dbCom, commandParameters);
                     return dbCom.ExecuteScalar();
+                }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, commandText, commandParameters);
                 }
                 finally
                 {
@@ -716,6 +777,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     }
                     dbCom.CommandText = commandTexts[commandTexts.Length - 1];
                     return dbCom.ExecuteScalar();
+                }
+                catch (Exception er)
+                {
+                    throw new ObException(er, commandType, dbCom.CommandText, commandParameters);
                 }
                 finally
                 {
