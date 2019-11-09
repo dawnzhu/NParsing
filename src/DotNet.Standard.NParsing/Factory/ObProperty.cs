@@ -706,15 +706,18 @@ namespace DotNet.Standard.NParsing.Factory
     }
 
     public class ObProperty<TTerm> : ObProperty, IObProperty<TTerm>
-        where TTerm : ObTermBase, new()
+        where TTerm : ObTermBase
     {
-        internal ObProperty(IObProperty iObProperty) : base(iObProperty)
+        private readonly TTerm _term;
+
+        internal ObProperty(TTerm term, IObProperty iObProperty) : base(iObProperty)
         {
+            _term = term;
         }
 
         public ObProperty As(Func<TTerm, IObProperty> keySelector)
         {
-            AsProperty = keySelector(new TTerm());
+            AsProperty = keySelector(_term);
             return this;
         }
     }

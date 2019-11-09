@@ -12,19 +12,28 @@ namespace DotNet.Standard.NParsing.UnitTest
         [TestMethod]
         public void TestMethod1()
         {
+            /*var aa = new Employe().Of();
+            var bb = aa.Department;
+            var cc = new EmployeInfo().Of();
+            cc.Age = 1;
+            cc.Department = new DepartmentInfo().Of();
+            cc.Department.Name = "abc";*/
+            var dal = new Employe().Of().Helper<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
             /*var dal = ObHelper.Create<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
             var list = dal.SqlText("SELECT * FROM Employes WHERE ID=@ID", new SqlParameter("@ID", 1)).ToList();*/
-            var dal = ObHelper.Create<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
+            //var dal = ObHelper.Create<EmployeInfo, Employe>(new Employe().Proxy(), "database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
             try
             {
-                dal.Update(new EmployeInfo(), o => o.Id == 1);
+                var emp = new EmployeInfo().Of();
+                emp.Age = 25;
+                dal.Update(emp, o => o.Id == 1);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 throw;
             }
-            /*var query = dal
+            var query = dal
                 .Where(o => o.DepartmentId.In(1, 2, 3))
                 .GroupBy(o => new
                 {
@@ -34,7 +43,7 @@ namespace DotNet.Standard.NParsing.UnitTest
                 })
                 .Select(o => new
                 {
-                    Age = o.Avg(k => k.Age),
+                    Age = o.Avg(k => k.Age).As(k => k.Age),
                     Name = o.Min(k => k.Id)
                 })
                 .Where(o => o.Age > 20)
@@ -51,7 +60,7 @@ namespace DotNet.Standard.NParsing.UnitTest
                 });
             var list = query.ToList();
             
-            var a = list;*/
+            var a = list;
 
         }
     }

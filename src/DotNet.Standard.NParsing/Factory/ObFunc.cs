@@ -79,64 +79,64 @@ namespace DotNet.Standard.NParsing.Factory
         #region 扩展方法
 
         public static ObProperty<TSource> Top<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Null;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(iObProperty); ;
+            return new ObProperty<TSource>(source, iObProperty); ;
         }
 
         public static ObProperty<TSource> Avg<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Avg;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(iObProperty); ;
+            return new ObProperty<TSource>(source, iObProperty); ;
         }
 
         public static ObProperty<TSource> Count<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Count;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(iObProperty); ;
+            return new ObProperty<TSource>(source, iObProperty); ;
         }
 
         public static ObProperty<TSource> Max<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Max;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(iObProperty);
+            return new ObProperty<TSource>(source, iObProperty);
         }
 
         public static ObProperty<TSource> Min<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Min;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(iObProperty); ;
+            return new ObProperty<TSource>(source, iObProperty); ;
         }
 
         public static ObProperty<TSource> Sum<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Sum;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(iObProperty); ;
+            return new ObProperty<TSource>(source, iObProperty); ;
         }
 
         public static ObProperty<TSource> RowNumber<TSource>(this TSource source, Func<TSource, IObSort> keySelector)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var iObSort = keySelector(source);
-            var iObProperty = new ObProperty<TSource>(iObSort.List.First().ObProperty)
+            var iObProperty = new ObProperty<TSource>(source, iObSort.List.First().ObProperty)
             {
                 DbFunc = DbFunc.RowNumber,
                 Sort = iObSort
@@ -145,11 +145,11 @@ namespace DotNet.Standard.NParsing.Factory
         }
 
         public static ObProperty<TSource> RowNumber<TSource>(this TSource source, Func<TSource, IObGroup> keySelector, Func<TSource, IObSort> keySelector2)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var iObSort = keySelector2(source);
             var iObGroup = keySelector(source);
-            var iObProperty = new ObProperty<TSource>(iObSort.List.First().ObProperty)
+            var iObProperty = new ObProperty<TSource>(source, iObSort.List.First().ObProperty)
             {
                 DbFunc = DbFunc.RowNumber,
                 Sort = iObSort,
@@ -160,12 +160,12 @@ namespace DotNet.Standard.NParsing.Factory
 
         [Obsolete]
         public static ObProperty<TSource> Custom<TSource>(this TSource source, string func, Func<TSource, object[]> keySelector)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var parameters = keySelector(source);
             if (!(parameters[0] is IObProperty))
                 throw new Exception("自定义函数首个参数必须为IObProperty");
-            var obProperty = new ObProperty<TSource>((IObProperty)parameters[0])
+            var obProperty = new ObProperty<TSource>(source, (IObProperty)parameters[0])
             {
                 DbFunc = DbFunc.Custom,
                 FuncName = func,
@@ -175,7 +175,7 @@ namespace DotNet.Standard.NParsing.Factory
         }
 
         public static ObProperty<TSource> Custom<TSource, TKey>(this TSource source, string func, Func<TSource, TKey> keySelector)
-            where TSource : ObTermBase, new()
+            where TSource : ObTermBase
         {
             var key = keySelector(source);
             var parameters = new List<object>();
@@ -186,7 +186,7 @@ namespace DotNet.Standard.NParsing.Factory
             }
             if (!(parameters.First() is IObProperty property))
                 throw new Exception("自定义函数首个参数必须为IObProperty");
-            var obProperty = new ObProperty<TSource>(property)
+            var obProperty = new ObProperty<TSource>(source, property)
             {
                 DbFunc = DbFunc.Custom,
                 FuncName = func,

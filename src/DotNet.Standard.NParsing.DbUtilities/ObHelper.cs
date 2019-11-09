@@ -1265,6 +1265,16 @@ namespace DotNet.Standard.NParsing.DbUtilities
             Term = new TTerm();
         }
 
+        public ObHelper(TTerm term, string connectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels) : base(connectionString, providerName, iObRedefine, notJoinModels)
+        {
+            Term = term;
+        }
+
+        public ObHelper(TTerm term, string readConnectionString, string writeConnectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels) : base(readConnectionString, writeConnectionString, providerName, iObRedefine, notJoinModels)
+        {
+            Term = term;
+        }
+
         #region 从数据库删除一个对象 public int Delete(Func<TTerm, IObParameter> keySelector)
 
         /// <summary>

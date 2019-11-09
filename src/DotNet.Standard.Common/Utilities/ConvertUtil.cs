@@ -274,6 +274,20 @@ namespace DotNet.Standard.Common.Utilities
 
         #endregion
 
+        public static bool Contains(this Type type1, Type type2)
+        {
+            while (true)
+            {
+                if (type1 == type2) return true;
+                if (type1.BaseType != null && type1.BaseType != typeof(object))
+                {
+                    type1 = type1.BaseType;
+                    continue;
+                }
+                return false;
+            }
+        }
+
         #region 扩展类型转基本类型 public static Type ToBasic(this Type t)
 
         /// <summary>

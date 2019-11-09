@@ -14,6 +14,7 @@
     <copyright>Copyright 2019</copyright>
     <dependencies>
       <dependency id="DotNet.Standard.Common" version="1.0.0"/>
+      <dependency id="System.Reflection.Emit" version="4.6.0"/>
     </dependencies>
   </metadata>
 </package>

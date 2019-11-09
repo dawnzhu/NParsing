@@ -11,38 +11,18 @@ namespace DotNet.Standard.NParsing.UnitTest
     [ObModel(Name = "Employes")]
     public class EmployeBaseInfo : ObModelBase
     {
-        private int _id;
-
         /// <summary>
         /// 员工编号
         /// </summary>	
         [ObConstraint(ObConstraint.PrimaryKey)]
         [ObProperty(Name = "ID", Length = 4, Nullable = false)]
-        public int Id
-        {
-            get { return _id; }
-            set
-            {
-                SetPropertyValid(MethodBase.GetCurrentMethod());
-                _id = value;
-            }
-        }
-
-        private string _name;
+        public virtual int Id { get; set; }
 
         /// <summary>
         /// 员工名称
         /// </summary>	
         [ObProperty(Name = "Name", Length = 50, Nullable = false)]
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                SetPropertyValid(MethodBase.GetCurrentMethod());
-                _name = value;
-            }
-        }
+        public virtual string Name { get; set; }
     }
 
     public class EmployeBase : ObTermBase
@@ -55,120 +35,60 @@ namespace DotNet.Standard.NParsing.UnitTest
         {
         }
 
-        public EmployeBase(ObTermBase parent, MethodBase currentMethod) : base(typeof(EmployeBaseInfo), parent, currentMethod)
+        public EmployeBase(ObTermBase parent, string rename) : base(typeof(EmployeBaseInfo), parent, rename)
         {
         }
 
-        public EmployeBase(Type modelType, ObTermBase parent, MethodBase currentMethod) : base(modelType, parent, currentMethod)
+        public EmployeBase(Type modelType, ObTermBase parent, string rename) : base(modelType, parent, rename)
         {
         }
 
         /// <summary>
         /// 员工编号
         /// </summary>		
-        public ObProperty Id
-        {
-            get { return GetProperty(MethodBase.GetCurrentMethod()); }
-        }
+        public virtual ObProperty Id { get; }
 
         /// <summary>
         /// 员工名称
         /// </summary>		
-        public ObProperty Name
-        {
-            get { return GetProperty(MethodBase.GetCurrentMethod()); }
-        }
+        public virtual ObProperty Name { get; }
     }
 
     [ObModel(Name = "Employes")]
     public class EmployeInfo : EmployeBaseInfo
     {
-
-        private int _gender;
-
         /// <summary>
         /// 性别
         /// </summary>	
         [ObProperty(Name = "Gender", Length = 4, Nullable = false)]
-        public int Gender
-        {
-            get { return _gender; }
-            set
-            {
-                SetPropertyValid(MethodBase.GetCurrentMethod());
-                _gender = value;
-            }
-        }
-
-        private DateTime _createtime;
+        public virtual int Gender { get; set; }
 
         /// <summary>
         /// 创建时间
         /// </summary>	
         [ObProperty(Name = "CreateTime", Length = 8, Precision = 3, Nullable = false, Modifiable = false)]
-        public DateTime CreateTime
-        {
-            get { return _createtime; }
-            set
-            {
-                if (value.Year >= 1900 && value.Month > 0 && value.Day > 0)
-                {
-                    SetPropertyValid(MethodBase.GetCurrentMethod());
-                }
-                _createtime = value;
-            }
-        }
-
-        private bool _dimission;
+        public virtual DateTime CreateTime { get; set; }
 
         /// <summary>
         /// Dimission
         /// </summary>	
         [ObProperty(Name = "Dimission", Length = 1, Nullable = false)]
-        public bool Dimission
-        {
-            get { return _dimission; }
-            set
-            {
-                SetPropertyValid(MethodBase.GetCurrentMethod());
-                _dimission = value;
-            }
-        }
-
-        private int _departmentid;
+        public virtual bool Dimission { get; set; }
 
         /// <summary>
         /// 部门编号
         /// </summary>
         [ObConstraint(ObConstraint.ForeignKey, Refclass = typeof(DepartmentInfo), Refproperty = "Id")]
         [ObProperty(Name = "DepartmentID", Length = 4, Nullable = true)]
-        public int DepartmentId
-        {
-            get { return _departmentid; }
-            set
-            {
-                SetPropertyValid(MethodBase.GetCurrentMethod());
-                _departmentid = value;
-            }
-        }
-
-        private int _age;
+        public virtual int DepartmentId { get; set; }
 
         /// <summary>
         /// 年龄
         /// </summary>	
         [ObProperty(Name = "Age", Length = 4, Nullable = false)]
-        public int Age
-        {
-            get { return _age; }
-            set
-            {
-                SetPropertyValid(MethodBase.GetCurrentMethod());
-                _age = value;
-            }
-        }
+        public virtual int Age { get; set; }
 
-        public DepartmentInfo Department { get; set; }
+        public virtual DepartmentInfo Department { get; set; }
     }
 
     public class Employe : EmployeBase
@@ -181,59 +101,36 @@ namespace DotNet.Standard.NParsing.UnitTest
         {
         }
 
-        public Employe(ObTermBase parent, MethodBase currentMethod) : base(typeof(EmployeInfo), parent, currentMethod)
+        public Employe(ObTermBase parent, string rename) : base(typeof(EmployeInfo), parent, rename)
         {
         }
 
         /// <summary>
         /// 性别
         /// </summary>		
-        public ObProperty Gender
-        {
-            get { return GetProperty(MethodBase.GetCurrentMethod()); }
-        }
+        public virtual ObProperty Gender { get; }
 
         /// <summary>
         /// 创建时间
         /// </summary>		
-        public ObProperty CreateTime
-        {
-            get { return GetProperty(MethodBase.GetCurrentMethod()); }
-        }
+        public virtual ObProperty CreateTime { get; }
 
         /// <summary>
         /// Dimission
         /// </summary>		
-        public ObProperty Dimission
-        {
-            get { return GetProperty(MethodBase.GetCurrentMethod()); }
-        }
+        public virtual ObProperty Dimission { get; }
 
         /// <summary>
         /// 部门编号
         /// </summary>		
-        public ObProperty DepartmentId
-        {
-            get { return GetProperty(MethodBase.GetCurrentMethod()); }
-        }
+        public virtual ObProperty DepartmentId { get; }
 
         /// <summary>
         /// 年龄
         /// </summary>		
-        public ObProperty Age
-        {
-            get { return GetProperty(MethodBase.GetCurrentMethod()); }
-        }
+        public virtual ObProperty Age { get; }
 
-        public Department Department
-        {
-            get { return new Department(this, MethodBase.GetCurrentMethod()); }
-        }
+        public virtual Department Department { get; }
 
-    }
-
-    public interface IEmployeInfo
-    {
-        int Age { get; set; }
     }
 }

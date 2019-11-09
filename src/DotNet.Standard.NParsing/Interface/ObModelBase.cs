@@ -19,11 +19,16 @@ namespace DotNet.Standard.NParsing.Interface
     [Serializable]
     public abstract class ObModelBase : IObModel
     {
-        private IList<string> _obValidProperties;
+        public IList<string> ObValidProperties { get; private set; }
 
         protected ObModelBase()
         {
-            _obValidProperties = new List<string>();
+            ObValidProperties = new List<string>();
+        }
+
+        protected void ProxySet(ObModelBase obModelBase)
+        {
+            ObValidProperties = obModelBase.ObValidProperties;
         }
 
         protected virtual void SetPropertyValid(MethodBase currentMethod)
@@ -33,17 +38,17 @@ namespace DotNet.Standard.NParsing.Interface
 
         protected void SetPropertyValid(string propertyName)
         {
-            if (_obValidProperties == null)
-                _obValidProperties = new List<string>();
-            if (!_obValidProperties.Contains(propertyName))
+            if (ObValidProperties == null)
+                ObValidProperties = new List<string>();
+            if (!ObValidProperties.Contains(propertyName))
             {
-                _obValidProperties.Add(propertyName);
+                ObValidProperties.Add(propertyName);
             }
         }
 
         public bool IsPropertyValid(string propertyName)
         {
-            return _obValidProperties != null &&_obValidProperties.Contains(propertyName);
+            return ObValidProperties != null && ObValidProperties.Contains(propertyName);
         }
     }
 
@@ -64,38 +69,68 @@ namespace DotNet.Standard.NParsing.Interface
 
     public abstract class ObTermBase
     {
-        private readonly List<string> _notJoinModels;
-        public IObRedefine ObRedefine { get; }
-        public Type ModelType { get; }
-        public string ObTableName { get; }
+        public List<string> NotJoinModels { get; private set; }
+        public IObRedefine ObRedefine { get; private set; }
+        public Type ModelType { get; private set; }
+        public string ObTableName { get; private set; }
 
         protected ObTermBase(Type modelType)
         {
-            ModelType = modelType;
-            _notJoinModels = new List<string>();
-            ObRedefine = null;
-            ObTableName = ModelType.ToTableName();
+            Init(modelType);
         }
 
         protected ObTermBase(Type modelType, string rename)
         {
-            ModelType = modelType;
-            _notJoinModels = new List<string>();
-            ObRedefine = Factory.ObRedefine.Create(modelType, rename);
-            ObTableName = modelType.ToTableName(ObRedefine.Models);
+            Init(modelType, rename);
+        }
+
+        protected ObTermBase(Type modelType, ObTermBase parent, string rename)
+        {
+            Init(modelType, parent, rename);
         }
 
         protected ObTermBase(Type modelType, ObTermBase parent, MethodBase currentMethod)
         {
+            Init(modelType, parent, currentMethod);
+        }
+
+        protected void Init(Type modelType)
+        {
+            Init(modelType, null);
+        }
+
+        protected void Init(Type modelType, string rename)
+        {
+            Init(modelType, null, rename);
+        }
+
+        protected void Init(Type modelType, ObTermBase parent, string rename)
+        {
             ModelType = modelType;
-            _notJoinModels = new List<string>();
+            NotJoinModels = new List<string>();
+            ObRedefine = rename == null ? null : Factory.ObRedefine.Create(modelType, parent, rename);
+            ObTableName = ModelType.ToTableName();
+        }
+
+        protected void Init(Type modelType, ObTermBase parent, MethodBase currentMethod)
+        {
+            ModelType = modelType;
+            NotJoinModels = new List<string>();
             ObRedefine = Factory.ObRedefine.Create(modelType, parent, currentMethod);
             ObTableName = modelType.ToTableName(ObRedefine.Models);
         }
 
+        protected void ProxySet(ObTermBase obTermBase)
+        {
+            ModelType = obTermBase.ModelType;
+            ObRedefine = obTermBase.ObRedefine;
+            ObTableName = obTermBase.ObTableName;
+            NotJoinModels = obTermBase.NotJoinModels;
+        }
+
         internal void AddNotJoin(ObTermBase obTermBase)
         {
-            _notJoinModels.Add(obTermBase.ModelType.ToTableName(obTermBase.ObRedefine?.Models));
+            NotJoinModels.Add(obTermBase.ModelType.ToTableName(obTermBase.ObRedefine?.Models));
         }
 
         internal void AddNotJoin(params ObTermBase[] obTermBases)
@@ -105,7 +140,7 @@ namespace DotNet.Standard.NParsing.Interface
                 if (obj.IObRedefine == null) continue;
                 _notJoinModels.Add(obj.ModelType.ToTableName(obj.IObRedefine.Models));
             }*/
-            _notJoinModels.AddRange(obTermBases.Select(obj => obj.ModelType.ToTableName(obj.ObRedefine?.Models)));
+            NotJoinModels.AddRange(obTermBases.Select(obj => obj.ModelType.ToTableName(obj.ObRedefine?.Models)));
         }
 
         public IObHelper<TModel> Helper<TModel>(string connectionString, string providerName)
@@ -114,12 +149,12 @@ namespace DotNet.Standard.NParsing.Interface
             {
                 throw new Exception("模型类型不正确");
             }
-            return ObHelper.Create<TModel>(connectionString, providerName, ObRedefine, _notJoinModels);
+            return ObHelper.Create<TModel>(connectionString, providerName, ObRedefine, NotJoinModels);
         }
 
         public IObHelper<IObModel> Helper(string connectionString, string providerName)
         {
-            return ObHelper.Create(ModelType, connectionString, providerName, ObRedefine, _notJoinModels);
+            return ObHelper.Create(ModelType, connectionString, providerName, ObRedefine, NotJoinModels);
         }
 
         public IObHelper<TModel> Helper<TModel>(string readConnectionString, string writeConnectionString, string providerName)
@@ -128,12 +163,12 @@ namespace DotNet.Standard.NParsing.Interface
             {
                 throw new Exception("模型类型不正确");
             }
-            return ObHelper.Create<TModel>(readConnectionString, writeConnectionString, providerName, ObRedefine, _notJoinModels);
+            return ObHelper.Create<TModel>(readConnectionString, writeConnectionString, providerName, ObRedefine, NotJoinModels);
         }
 
         public IObHelper<IObModel> Helper(string readConnectionString, string writeConnectionString, string providerName)
         {
-            return ObHelper.Create(ModelType, readConnectionString, writeConnectionString, providerName, ObRedefine, _notJoinModels);
+            return ObHelper.Create(ModelType, readConnectionString, writeConnectionString, providerName, ObRedefine, NotJoinModels);
         }
 
         protected ObProperty GetProperty(MethodBase currentMethod)
