@@ -132,7 +132,20 @@ namespace DotNet.Standard.NParsing.SQLServer
                 var columnValue = obSettledValue ?? string.Format("{0}{2}{1}", iObProperty.TableName, iObProperty.ColumnName, separator);
                 brothers = iObProperty.Brothers;
                 brotherIndex = iObProperty.FuncBrotherCount;
-                columnValue = CreateSql(columnValue, brothers, 0, brotherIndex, ref dbParameter);
+                if (iObProperty.CustomParams == null)
+                {
+                    columnValue = CreateSql(columnValue, brothers, 0, brotherIndex, ref dbParameter);
+                }
+                else
+                {
+                    columnValue = "";
+                    foreach (var customParam in iObProperty.CustomParams)
+                    {
+                        if (columnValue.Length > 0)
+                            columnValue += ",";
+                        columnValue += CreateSql(customParam, ref dbParameter);
+                    }
+                }
                 switch (iObProperty.DbFunc)
                 {
                     case DbFunc.Null:
@@ -162,14 +175,7 @@ namespace DotNet.Standard.NParsing.SQLServer
                         columnNames += $"ROW_NUMBER() OVER({g}ORDER BY {iObProperty.Sort.ToString()})";
                         break;
                     case DbFunc.Custom:
-                        var custom = "";
-                        foreach (var customParam in iObProperty.CustomParams)
-                        {
-                            if(custom.Length > 0)
-                                custom += ",";
-                            custom += CreateSql(customParam, ref dbParameter);
-                        }
-                        columnNames += $"{iObProperty.FuncName}({custom})";
+                        columnNames += $"{iObProperty.FuncName}({columnValue})";
                         break;
                 }
                 asString = renaming ? $" AS {iObProperty.AsProperty.TableName}_{iObProperty.AsProperty.PropertyName}" : "";

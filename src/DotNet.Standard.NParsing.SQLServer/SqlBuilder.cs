@@ -710,6 +710,68 @@ namespace DotNet.Standard.NParsing.SQLServer
         public string Select(int pageSize, int pageIndex, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort, ref IList<DbParameter> dbParameters, out IList<string> columnNames)
         {
             PageParameters(pageSize, pageIndex, ref dbParameters);
+            string innerJoin = JoinString(ModelType, ref dbParameters, out var columns, out columnNames);
+            string strWhere = string.Empty;
+            if (iObParameter != null)
+            {
+                strWhere = iObParameter.ToString(ref dbParameters);
+                if (strWhere.Length > 0)
+                {
+                    strWhere = "WHERE " + strWhere;
+                }
+            }
+            var table = ModelType.ToUTableName(TableName);
+            string sql;
+            if (iObGroup != null)
+            {
+                var sqlGroup = iObGroup.ToString(ref dbParameters, out columns, out columnNames);
+                if (!string.IsNullOrEmpty(sqlGroup))
+                    sqlGroup = " GROUP BY " + sqlGroup;
+                var cols = string.Empty;
+                foreach (var columnName in columnNames)
+                {
+                    if (cols.Length > 0)
+                        cols += ",";
+                    cols += columnName;
+                }
+                table = $"(SELECT {columns} FROM {table} {innerJoin} {strWhere}{sqlGroup}) {TableName} ORDER BY {iObSort.ToString('_')}";
+                sql = $"SELECT {cols} FROM {table} OFFSET @StartRow ROWS FETCH NEXT @SizeRow ROWS ONLY";
+            }
+            else
+            {
+                sql = $"SELECT {columns} FROM {table} {innerJoin} {strWhere} ORDER BY {iObSort.ToString()} OFFSET @StartRow ROWS FETCH NEXT @SizeRow ROWS ONLY";
+            }
+            return sql;
+        }
+
+        /// <summary>
+        /// 分页参数
+        /// </summary>
+        /// <param name="pageSize">分页大小</param>
+        /// <param name="pageIndex">第几页</param>
+        /// <param name="dbParameters"></param>
+        public void PageParameters(int pageSize, int pageIndex, ref IList<DbParameter> dbParameters)
+        {
+            dbParameters.Add(new SqlParameter("@SizeRow", SqlDbType.Int) { Value = pageSize });
+            dbParameters.Add(new SqlParameter("@StartRow", SqlDbType.Int) { Value = pageSize * (pageIndex - 1) });
+        }
+
+        /* 改成OFFSET,FETCH方式分页（最低支持SQL Server 2012）
+        /// <summary>
+        /// 生成分页SELECT语句
+        /// </summary>
+        /// <param name="pageSize">分页大小</param>
+        /// <param name="pageIndex">第几页</param>
+        /// <param name="iObParameter">条件参数</param>
+        /// <param name="iObGroup">分组</param>
+        /// <param name="iObParameter2"></param>
+        /// <param name="iObSort">排序</param>
+        /// <param name="dbParameters">转成数据库参数</param>
+        /// <param name="columnNames"></param>
+        /// <returns></returns>
+        public string Select(int pageSize, int pageIndex, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObParameter2, IObSort iObSort, ref IList<DbParameter> dbParameters, out IList<string> columnNames)
+        {
+            PageParameters(pageSize, pageIndex, ref dbParameters);
             var dbSort = iObSort.List[0];
             string innerJoin = JoinString(ModelType, ref dbParameters, out var columns, out columnNames);
             string strWhereAnd = " WHERE ";
@@ -729,23 +791,11 @@ namespace DotNet.Standard.NParsing.SQLServer
             if (iObSort.List.Count > 1 || iObGroup != null)
             {
                 const string sortName = "RowOrder";
-                //var tmpTable = "(SELECT * FROM #tmp) AS " + ModelType.ToTableName();
                 if (iObGroup != null)
                 {
                     var sqlGroup = iObGroup.ToString(ref dbParameters, out columns, out columnNames);
                     if (!string.IsNullOrEmpty(sqlGroup))
                         sqlGroup = " GROUP BY " + sqlGroup;
-/*                    var cols = string.Empty;
-                    foreach (var columnName in columnNames)
-                    {
-                        if (cols.Length > 0)
-                            cols += ",";
-                        cols += columnName;
-                    }*/
-/*                    table = string.Format("(SELECT {0},ROW_NUMBER() OVER (ORDER BY {4}) AS {5} FROM {1} GROUP BY {2}) {3}",
-                        columns, table, sqlGroup, ModelType.ToTableName(), iObSort.ToString(columnNames), sortName);
-                    sql = string.Format("SELECT {0} FROM {1} {2} {3}{7}{4} >= {5} AND {4} <= {6}",
-                        cols, table, innerJoin, strWhere, sortName, pageSize * (pageIndex - 1), pageSize * pageIndex - 1, strWhereAnd);*/
                     var strWhere2 = "";
                     if (iObParameter2 != null)
                     {
@@ -755,21 +805,13 @@ namespace DotNet.Standard.NParsing.SQLServer
                 }
                 else
                 {
-/*                    table = string.Format("(SELECT *,ROW_NUMBER() OVER (ORDER BY {2}) AS {3} FROM {0}) {1}",
-                        table, ModelType.ToTableName(), iObSort.ToString(columnNames), sortName);
-                    sql = string.Format("SELECT {0} FROM {1} {2} {3}{7}{4} >= {5} AND {4} <= {6}",
-                        columns, table, innerJoin, strWhere, sortName, pageSize * (pageIndex - 1), pageSize * pageIndex - 1, strWhereAnd);*/
-
                     table = $"(SELECT {columns},ROW_NUMBER() OVER (ORDER BY {iObSort.ToString()}) AS {sortName} FROM {table} {innerJoin} {strWhere}) {TableName}";
                 }
                 sql = $"SELECT * FROM {table} WHERE {sortName} BETWEEN @StartRow AND @EndRow";
-                //sql = "SELECT * FROM " + table + "WHERE " + sortName + " >= " + (pageSize * (pageIndex - 1)) + " AND " + sortName + " <= " + (pageSize * pageIndex - 1);
             }
             else
             {
                 var sortName = $"{dbSort.TableName}.{dbSort.ColumnName}";
-/*                var sql1 = string.Format("SELECT TOP {4} {0} FROM {1} {2} {3}", columns, table, innerJoin, strWhere, pageSize);
-                var sql2 = string.Format("SELECT TOP {4} {0} FROM {1} {2} {3}", sortName, table, innerJoin, strWhere, pageSize * (pageIndex - 1));*/
                 var sql1 = $"SELECT TOP (@TopRow) {columns} FROM {table} {innerJoin} {strWhere}";
                 var sql2 = $"SELECT TOP (@StartRow) {sortName} FROM {table} {innerJoin} {strWhere}";
                 if (pageIndex == 1)
@@ -804,7 +846,7 @@ namespace DotNet.Standard.NParsing.SQLServer
             dbParameters.Add(new SqlParameter("@TopRow", SqlDbType.Int) { Value = pageSize });
             dbParameters.Add(new SqlParameter("@StartRow", SqlDbType.Int) { Value = pageSize * (pageIndex - 1) + 1 });
             dbParameters.Add(new SqlParameter("@EndRow", SqlDbType.Int) { Value = pageSize * pageIndex });
-        }
+        }*/
 
         #endregion
 
