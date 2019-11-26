@@ -9,6 +9,12 @@
 * 日    期：2011-12-02 17:51:00
 * 版 本 号：2.3.0
 * 修改内容：代码整理
+* ----------------------------------
+* 修改标识：修改
+* 修 改 人：朱晓春
+* 日    期：2019-11-23 17:51:00
+* 版 本 号：1.0.6
+* 修改内容：支持嵌套调用
 */
 using System;
 using System.Collections.Generic;
@@ -21,44 +27,87 @@ namespace DotNet.Standard.NParsing.Factory
 {
     public static class ObFunc
     {
-/*        private const string ASSEMBLY_STRING = "DotNet.Standard.NParsing.DbUtilities";
-        private const string CLASS_NAME = ASSEMBLY_STRING + ".ObProperty";*/
 
         #region 基础方法
 
         public static ObProperty Avg(ObProperty obProperty)
         {
-            obProperty.DbFunc = DbFunc.Avg;
-            obProperty.FuncBrotherCount = obProperty.Brothers.Count;
-            return obProperty;
+            if (obProperty.DbFunc == DbFunc.Null)
+            {
+                obProperty.DbFunc = DbFunc.Avg;
+                obProperty.FuncBrotherCount = obProperty.Brothers.Count;
+                return obProperty;
+            }
+            var iObProperty = new ObProperty(obProperty)
+            {
+                DbFunc = DbFunc.Avg,
+                CustomParams = new object[] { obProperty }
+            };
+            return iObProperty;
         }
 
         public static ObProperty Count(ObProperty obProperty)
         {
-            obProperty.DbFunc = DbFunc.Count;
-            obProperty.FuncBrotherCount = obProperty.Brothers.Count;
-            return obProperty;
+            if (obProperty.DbFunc == DbFunc.Null)
+            {
+                obProperty.DbFunc = DbFunc.Count;
+                obProperty.FuncBrotherCount = obProperty.Brothers.Count;
+                return obProperty;
+            }
+            var iObProperty = new ObProperty(obProperty)
+            {
+                DbFunc = DbFunc.Count,
+                CustomParams = new object[] { obProperty }
+            };
+            return iObProperty;
         }
 
         public static ObProperty Max(ObProperty obProperty)
         {
-            obProperty.DbFunc = DbFunc.Max;
-            obProperty.FuncBrotherCount = obProperty.Brothers.Count;
-            return obProperty;
+            if (obProperty.DbFunc == DbFunc.Null)
+            {
+                obProperty.DbFunc = DbFunc.Max;
+                obProperty.FuncBrotherCount = obProperty.Brothers.Count;
+                return obProperty;
+            }
+            var iObProperty = new ObProperty(obProperty)
+            {
+                DbFunc = DbFunc.Max,
+                CustomParams = new object[] { obProperty }
+            };
+            return iObProperty;
         }
 
         public static ObProperty Min(ObProperty obProperty)
         {
-            obProperty.DbFunc = DbFunc.Min;
-            obProperty.FuncBrotherCount = obProperty.Brothers.Count;
-            return obProperty;
+            if (obProperty.DbFunc == DbFunc.Null)
+            {
+                obProperty.DbFunc = DbFunc.Min;
+                obProperty.FuncBrotherCount = obProperty.Brothers.Count;
+                return obProperty;
+            }
+            var iObProperty = new ObProperty(obProperty)
+            {
+                DbFunc = DbFunc.Min,
+                CustomParams = new object[] { obProperty }
+            };
+            return iObProperty;
         }
 
         public static ObProperty Sum(ObProperty obProperty)
         {
-            obProperty.DbFunc = DbFunc.Sum;
-            obProperty.FuncBrotherCount = obProperty.Brothers.Count;
-            return obProperty;
+            if (obProperty.DbFunc == DbFunc.Null)
+            {
+                obProperty.DbFunc = DbFunc.Sum;
+                obProperty.FuncBrotherCount = obProperty.Brothers.Count;
+                return obProperty;
+            }
+            var iObProperty = new ObProperty(obProperty)
+            {
+                DbFunc = DbFunc.Sum,
+                CustomParams = new object[] { obProperty }
+            };
+            return iObProperty;
         }
 
         public static ObProperty Custom(string func, params object[] parameters)
@@ -84,52 +133,98 @@ namespace DotNet.Standard.NParsing.Factory
             var iObProperty = keySelector(source);
             iObProperty.DbFunc = DbFunc.Null;
             iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(source, iObProperty); ;
+            return new ObProperty<TSource>(source, iObProperty);
         }
 
         public static ObProperty<TSource> Avg<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
             where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
-            iObProperty.DbFunc = DbFunc.Avg;
-            iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(source, iObProperty); ;
+            if (iObProperty.DbFunc == DbFunc.Null)
+            {
+                iObProperty.DbFunc = DbFunc.Avg;
+                iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
+                return new ObProperty<TSource>(source, iObProperty);
+            }
+            var obProperty = new ObProperty<TSource>(source, iObProperty)
+            {
+                DbFunc = DbFunc.Avg,
+                CustomParams = new object[] { iObProperty }
+            };
+            return obProperty;
         }
 
         public static ObProperty<TSource> Count<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
             where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
-            iObProperty.DbFunc = DbFunc.Count;
-            iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(source, iObProperty); ;
+            if (iObProperty.DbFunc == DbFunc.Null)
+            {
+                iObProperty.DbFunc = DbFunc.Count;
+                iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
+                return new ObProperty<TSource>(source, iObProperty);
+            }
+            var obProperty = new ObProperty<TSource>(source, iObProperty)
+            {
+                DbFunc = DbFunc.Count,
+                CustomParams = new object[] { iObProperty }
+            };
+            return obProperty;
         }
 
         public static ObProperty<TSource> Max<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
             where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
-            iObProperty.DbFunc = DbFunc.Max;
-            iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(source, iObProperty);
+            if (iObProperty.DbFunc == DbFunc.Null)
+            {
+                iObProperty.DbFunc = DbFunc.Max;
+                iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
+                return new ObProperty<TSource>(source, iObProperty);
+            }
+            var obProperty = new ObProperty<TSource>(source, iObProperty)
+            {
+                DbFunc = DbFunc.Max,
+                CustomParams = new object[] { iObProperty }
+            };
+            return obProperty;
         }
 
         public static ObProperty<TSource> Min<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
             where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
-            iObProperty.DbFunc = DbFunc.Min;
-            iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(source, iObProperty); ;
+            if (iObProperty.DbFunc == DbFunc.Null)
+            {
+                iObProperty.DbFunc = DbFunc.Min;
+                iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
+                return new ObProperty<TSource>(source, iObProperty);
+            }
+            var obProperty = new ObProperty<TSource>(source, iObProperty)
+            {
+                DbFunc = DbFunc.Min,
+                CustomParams = new object[] { iObProperty }
+            };
+            return obProperty;
         }
 
         public static ObProperty<TSource> Sum<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
             where TSource : ObTermBase
         {
             var iObProperty = keySelector(source);
-            iObProperty.DbFunc = DbFunc.Sum;
-            iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
-            return new ObProperty<TSource>(source, iObProperty); ;
+            if (iObProperty.DbFunc == DbFunc.Null)
+            {
+                iObProperty.DbFunc = DbFunc.Sum;
+                iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
+                return new ObProperty<TSource>(source, iObProperty);
+            }
+            var obProperty = new ObProperty<TSource>(source, iObProperty)
+            {
+                DbFunc = DbFunc.Sum,
+                CustomParams = new object[] { iObProperty }
+            };
+            return obProperty;
+
         }
 
         public static ObProperty<TSource> RowNumber<TSource>(this TSource source, Func<TSource, IObSort> keySelector)
@@ -195,28 +290,7 @@ namespace DotNet.Standard.NParsing.Factory
             return obProperty;
         }
 
-
         #endregion
 
-        /*        /// <summary>
-                /// 创建显示属性
-                /// </summary>
-                /// <param name="obProperty">属性</param>
-                /// <param name="dbFunc"></param>
-                /// <returns></returns>
-                private static IObProperty ObFun_Create(IObProperty obProperty, DbFunc dbFunc)
-                {
-                    Type t = Assembly.Load(ASSEMBLY_STRING).GetType(CLASS_NAME);
-                    var parameters = new object[]
-                                         {
-                                             obProperty.ModelType,
-                                             obProperty.TableName,
-                                             obProperty.Brothers,
-                                             obProperty.AriSymbol,
-                                             obProperty.ColumnName,
-                                             dbFunc
-                                         };
-                    return (IObProperty)Activator.CreateInstance(t, parameters);
-                }*/
     }
 }

@@ -62,6 +62,10 @@ namespace DotNet.Standard.NParsing.Interface
         {
         }
 
+        public ObTermBase(ObTermBase parent, string rename) : base(typeof(TModel), parent, rename)
+        {
+        }
+
         public ObTermBase(ObTermBase parent, MethodBase currentMethod) : base(typeof(TModel), parent, currentMethod)
         {
         }

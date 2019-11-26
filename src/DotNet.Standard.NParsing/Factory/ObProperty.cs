@@ -144,8 +144,8 @@ namespace DotNet.Standard.NParsing.Factory
             }
             else
             {
-                var obvalue = new ObValue(DbAriSymbol.Plus, value);
-                obProperty.Brothers.Add(obvalue);
+                var obValue = new ObValue(DbAriSymbol.Plus, value);
+                obProperty.Brothers.Add(obValue);
             }
             return obProperty;
         }
@@ -159,8 +159,8 @@ namespace DotNet.Standard.NParsing.Factory
             }
             else
             {
-                var obvalue = new ObValue(DbAriSymbol.Minus, value);
-                obProperty.Brothers.Add(obvalue);
+                var obValue = new ObValue(DbAriSymbol.Minus, value);
+                obProperty.Brothers.Add(obValue);
             }
             return obProperty;
         }
@@ -174,8 +174,8 @@ namespace DotNet.Standard.NParsing.Factory
             }
             else
             {
-                var obvalue = new ObValue(DbAriSymbol.Multiply, value);
-                obProperty.Brothers.Add(obvalue);
+                var obValue = new ObValue(DbAriSymbol.Multiply, value);
+                obProperty.Brothers.Add(obValue);
             }
             return obProperty;
         }
@@ -189,8 +189,8 @@ namespace DotNet.Standard.NParsing.Factory
             }
             else
             {
-                var obvalue = new ObValue(DbAriSymbol.Except, value);
-                obProperty.Brothers.Add(obvalue);
+                var obValue = new ObValue(DbAriSymbol.Except, value);
+                obProperty.Brothers.Add(obValue);
             }
             return obProperty;
         }
@@ -203,8 +203,8 @@ namespace DotNet.Standard.NParsing.Factory
             }
             else
             {
-                var obvalue = new ObValue(DbAriSymbol.Mod, value);
-                obProperty.Brothers.Add(obvalue);
+                var obValue = new ObValue(DbAriSymbol.Mod, value);
+                obProperty.Brothers.Add(obValue);
             }
             return obProperty;
         }
@@ -218,8 +218,8 @@ namespace DotNet.Standard.NParsing.Factory
             }
             else
             {
-                var obvalue = new ObValue(DbAriSymbol.And, value);
-                obProperty.Brothers.Add(obvalue);
+                var obValue = new ObValue(DbAriSymbol.And, value);
+                obProperty.Brothers.Add(obValue);
             }
             return obProperty;
         }
@@ -233,8 +233,8 @@ namespace DotNet.Standard.NParsing.Factory
             }
             else
             {
-                var obvalue = new ObValue(DbAriSymbol.Or, value);
-                obProperty.Brothers.Add(obvalue);
+                var obValue = new ObValue(DbAriSymbol.Or, value);
+                obProperty.Brothers.Add(obValue);
             }
             return obProperty;
         }
