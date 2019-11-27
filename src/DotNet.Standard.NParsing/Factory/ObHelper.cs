@@ -225,67 +225,14 @@ namespace DotNet.Standard.NParsing.Factory
             where TModel : ObModelBase
             where TTerm : ObTermBase
         {
-            return ObHelper_Create<TModel, TTerm>(term, connectionString, providerName, null, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Create<TModel, TTerm>(TTerm term, string connectionString, string providerName, IObRedefine iObRedefine)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, connectionString, providerName, iObRedefine, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Create<TModel, TTerm>(TTerm term, string connectionString, string providerName, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, connectionString, providerName, null, notJoinModels);
-        }
-
-        /// <summary>
-        /// 创建数据库操作接口，传入数据库连接字符串和数据库操作类库名称，方便数据库连接字符串加密存储
-        /// </summary>
-        /// <typeparam name="TModel">对象模型</typeparam>
-        /// <typeparam name="TTerm"></typeparam>
-        /// <param name="term"></param>
-        /// <param name="connectionString">数据库连接字符串</param>
-        /// <param name="providerName">数据库操作类库名称</param>
-        /// <param name="iObRedefine"></param>
-        /// <param name="notJoinModels"></param>
-        /// <returns></returns>
-        public static IObHelper<TModel, TTerm> Create<TModel, TTerm>(TTerm term, string connectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, connectionString, providerName, iObRedefine, notJoinModels);
+            return ObHelper_Create<TModel, TTerm>(term, connectionString, providerName, term.ObRedefine, term.NotJoinModels);
         }
 
         public static IObHelper<TModel, TTerm> Create<TModel, TTerm>(TTerm term, string readConnectionString, string writeConnectionString, string providerName)
             where TModel : ObModelBase
             where TTerm : ObTermBase
         {
-            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, null, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Create<TModel, TTerm>(TTerm term, string readConnectionString, string writeConnectionString, string providerName, IObRedefine iObRedefine)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, iObRedefine, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Create<TModel, TTerm>(TTerm term, string readConnectionString, string writeConnectionString, string providerName, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, null, notJoinModels);
-        }
-
-        public static IObHelper<TModel, TTerm> Create<TModel, TTerm>(TTerm term, string readConnectionString, string writeConnectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, iObRedefine, notJoinModels);
+            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, term.ObRedefine, term.NotJoinModels);
         }
 
         #endregion
@@ -338,106 +285,15 @@ namespace DotNet.Standard.NParsing.Factory
             where TModel : ObModelBase
             where TTerm : ObTermBase
         {
-            return ObHelper_Create<TModel, TTerm>(term, connectionString, providerName, null, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm term, string connectionString, string providerName, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, connectionString, providerName, null, notJoinModels);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm term, string connectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, connectionString, providerName, iObRedefine, notJoinModels);
+            return ObHelper_Create<TModel, TTerm>(term, connectionString, providerName, term.ObRedefine, term.NotJoinModels);
         }
 
         public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm term, string readConnectionString, string writeConnectionString, string providerName)
             where TModel : ObModelBase
             where TTerm : ObTermBase
         {
-            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, null, null);
+            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, term.ObRedefine, term.NotJoinModels);
         }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm term, string readConnectionString, string writeConnectionString, string providerName, IObRedefine iObRedefine)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, iObRedefine, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm term, string readConnectionString, string writeConnectionString, string providerName, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, null, notJoinModels);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm term, string readConnectionString, string writeConnectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(term, readConnectionString, writeConnectionString, providerName, iObRedefine, notJoinModels);
-        }
-
-        /*public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm m, string connectionString, string providerName)
-            where TTerm : ObTermBase
-            where TModel : ObModelBase
-        {
-            return ObHelper_Create<TModel, TTerm>(connectionString, providerName, null, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm m, string connectionString, string providerName, IObRedefine iObRedefine)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(connectionString, providerName, iObRedefine, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm m, string connectionString, string providerName, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(connectionString, providerName, null, notJoinModels);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm m, string connectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(connectionString, providerName, iObRedefine, notJoinModels);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm m, string readConnectionString, string writeConnectionString, string providerName)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(readConnectionString, writeConnectionString, providerName, null, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm m, string readConnectionString, string writeConnectionString, string providerName, IObRedefine iObRedefine)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(readConnectionString, writeConnectionString, providerName, iObRedefine, null);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm m, string readConnectionString, string writeConnectionString, string providerName, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(readConnectionString, writeConnectionString, providerName, null, notJoinModels);
-        }
-
-        public static IObHelper<TModel, TTerm> Helper<TModel, TTerm>(this TTerm m, string readConnectionString, string writeConnectionString, string providerName, IObRedefine iObRedefine, IList<string> notJoinModels)
-            where TModel : ObModelBase
-            where TTerm : ObTermBase
-        {
-            return ObHelper_Create<TModel, TTerm>(readConnectionString, writeConnectionString, providerName, iObRedefine, notJoinModels);
-        }*/
 
         #endregion
 

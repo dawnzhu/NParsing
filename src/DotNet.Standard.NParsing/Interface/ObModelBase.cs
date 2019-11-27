@@ -80,6 +80,38 @@ namespace DotNet.Standard.NParsing.Interface
 
         protected ObTermBase(Type modelType)
         {
+            ModelType = modelType;
+            NotJoinModels = new List<string>();
+            ObRedefine = null;
+            ObTableName = ModelType.ToTableName();
+        }
+
+        protected ObTermBase(Type modelType, string rename)
+        {
+            ModelType = modelType;
+            NotJoinModels = new List<string>();
+            ObRedefine = Factory.ObRedefine.Create(modelType, rename);
+            ObTableName = modelType.ToTableName(ObRedefine.Models);
+        }
+
+        protected ObTermBase(Type modelType, ObTermBase parent, MethodBase currentMethod)
+        {
+            ModelType = modelType;
+            NotJoinModels = new List<string>();
+            ObRedefine = Factory.ObRedefine.Create(modelType, parent, currentMethod);
+            ObTableName = modelType.ToTableName(ObRedefine.Models);
+        }
+
+        protected ObTermBase(Type modelType, ObTermBase parent, string rename)
+        {
+            ModelType = modelType;
+            NotJoinModels = new List<string>();
+            ObRedefine = Factory.ObRedefine.Create(modelType, parent, rename);
+            ObTableName = modelType.ToTableName(ObRedefine.Models);
+        }
+
+        /*protected ObTermBase(Type modelType)
+        {
             Init(modelType);
         }
 
@@ -112,8 +144,16 @@ namespace DotNet.Standard.NParsing.Interface
         {
             ModelType = modelType;
             NotJoinModels = new List<string>();
-            ObRedefine = rename == null ? null : Factory.ObRedefine.Create(modelType, parent, rename);
-            ObTableName = ModelType.ToTableName();
+            if (rename == null)
+            {
+                ObRedefine = null;
+                ObTableName = ModelType.ToTableName();
+            }
+            else
+            {
+                ObRedefine = Factory.ObRedefine.Create(modelType, parent, rename);
+                ObTableName = ModelType.ToTableName(ObRedefine.Models);
+            }
         }
 
         protected void Init(Type modelType, ObTermBase parent, MethodBase currentMethod)
@@ -122,7 +162,7 @@ namespace DotNet.Standard.NParsing.Interface
             NotJoinModels = new List<string>();
             ObRedefine = Factory.ObRedefine.Create(modelType, parent, currentMethod);
             ObTableName = modelType.ToTableName(ObRedefine.Models);
-        }
+        }*/
 
         protected void ProxySet(ObTermBase obTermBase)
         {
