@@ -54,7 +54,7 @@ namespace DotNet.Standard.NParsing.UnitTest
         public virtual ObProperty Name { get; }
     }
 
-    [ObModel(Name = "Employes")]
+    [ObModel(Name = "Employes2")]
     public class EmployeInfo : EmployeBaseInfo
     {
         /// <summary>
