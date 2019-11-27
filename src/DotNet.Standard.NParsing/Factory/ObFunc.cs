@@ -253,7 +253,6 @@ namespace DotNet.Standard.NParsing.Factory
             return iObProperty;
         }
 
-        [Obsolete]
         public static ObProperty<TSource> Custom<TSource>(this TSource source, string func, Func<TSource, object[]> keySelector)
             where TSource : ObTermBase
         {
