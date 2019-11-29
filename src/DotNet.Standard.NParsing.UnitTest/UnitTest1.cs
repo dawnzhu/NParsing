@@ -4,6 +4,7 @@ using DotNet.Standard.NParsing.ComponentModel;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Interface;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 
 namespace DotNet.Standard.NParsing.UnitTest
 {
@@ -13,7 +14,7 @@ namespace DotNet.Standard.NParsing.UnitTest
         [TestMethod]
         public void TestMethod1()
         {
-            /*var cc = new EmployeInfo().Of();
+            /*var cc = new EmployeInfo();
             cc.Gender = 1;*/
             /*var aa = new Employe().Of();
             var bb = aa.Department;

@@ -19,16 +19,16 @@ namespace DotNet.Standard.NParsing.Interface
     [Serializable]
     public abstract class ObModelBase : IObModel
     {
-        public IList<string> ObValidProperties { get; private set; }
+        private IList<string> _obValidProperties;
 
         protected ObModelBase()
         {
-            ObValidProperties = new List<string>();
+            _obValidProperties = new List<string>();
         }
 
         protected void ProxySet(ObModelBase obModelBase)
         {
-            ObValidProperties = obModelBase.ObValidProperties;
+            _obValidProperties = obModelBase._obValidProperties;
         }
 
         protected virtual void SetPropertyValid(MethodBase currentMethod)
@@ -38,17 +38,17 @@ namespace DotNet.Standard.NParsing.Interface
 
         protected void SetPropertyValid(string propertyName)
         {
-            if (ObValidProperties == null)
-                ObValidProperties = new List<string>();
-            if (!ObValidProperties.Contains(propertyName))
+            if (_obValidProperties == null)
+                _obValidProperties = new List<string>();
+            if (!_obValidProperties.Contains(propertyName))
             {
-                ObValidProperties.Add(propertyName);
+                _obValidProperties.Add(propertyName);
             }
         }
 
         public bool IsPropertyValid(string propertyName)
         {
-            return ObValidProperties != null && ObValidProperties.Contains(propertyName);
+            return _obValidProperties != null && _obValidProperties.Contains(propertyName);
         }
     }
 

@@ -89,7 +89,7 @@ namespace DotNet.Standard.NParsing.Factory
                     ilSetMethod.Emit(OpCodes.Ret);   //return;
 
                     //设置属性的Get Set方法
-                    //propertyBuilder.SetGetMethod(methodGet);
+                    propertyBuilder.SetGetMethod(methodGet);
                     propertyBuilder.SetSetMethod(methodSet);
                 }
                 /*else if (propertyType.Contains(typeof(ObModelBase)))
