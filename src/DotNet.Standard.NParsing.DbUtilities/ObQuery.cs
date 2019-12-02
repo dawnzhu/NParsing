@@ -217,7 +217,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             {
                 iObSort = ObConvert.ToObSort(_providerName, ObSort);
             }
-            DbDataReader dr = null;
+            DbDataReader dr;
 
             #endregion
 
@@ -311,7 +311,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             {
                 iObSort = ObConvert.ToObSort(_providerName, ObSort);
             }
-            DbDataReader dr = null;
+            DbDataReader dr;
 
             #endregion
 

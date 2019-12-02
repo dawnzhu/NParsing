@@ -14,6 +14,8 @@ namespace DotNet.Standard.NParsing.UnitTest
         [TestMethod]
         public void TestMethod1()
         {
+            var emp = (EmployeInfo)ObModel.Create(typeof(EmployeInfo));
+            emp.Name = "abc";
             /*var cc = new EmployeInfo();
             cc.Gender = 1;*/
             /*var aa = new Employe().Of();

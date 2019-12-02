@@ -27,7 +27,7 @@ namespace DotNet.Standard.NParsing.Factory
             return (T)Create(proxyType, args);
         }
 
-        private static object Create(Type proxyType, params object[] args)
+        public static object Create(Type proxyType, params object[] args)
         {
             var assemblyName = new AssemblyName(DynamicAssemblyName);
             var assemblyBuilderAccess = AssemblyBuilderAccess.Run;
@@ -41,7 +41,7 @@ namespace DotNet.Standard.NParsing.Factory
             var methodProxySet = proxyType.GetMethod("ProxySet", BindingFlags.Instance | BindingFlags.NonPublic);
             var constructorBuilder = typeBuilderProxy.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, constructorArgs);
             var ilgCtor = constructorBuilder.GetILGenerator();
-            if (methodProxySet != null)
+            if (methodProxySet != null && args.Length > 0)
             {
                 ilgCtor.Emit(OpCodes.Ldarg_0);
                 for (var i = 0; i < args.Length; i++)
@@ -150,7 +150,7 @@ namespace DotNet.Standard.NParsing.Factory
             return (T)Create(proxyType, args);
         }
 
-        private static object Create(Type proxyType, params object[] args)
+        public static object Create(Type proxyType, params object[] args)
         {
             var assemblyName = new AssemblyName(DynamicAssemblyName);
             var assemblyBuilderAccess = AssemblyBuilderAccess.Run;
