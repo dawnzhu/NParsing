@@ -3,32 +3,32 @@
 
 **主要更新功能(V1.1.2)**
 ----------------------------------------------
-#1.数据库执行出错，SQL语句会随错误抛出  
+# 1.数据库执行出错，SQL语句会随错误抛出  
 `ObException.CurrentExeSql`  
 
-#2.支持类似linq的书写方式  
+# 2.支持类似linq的书写方式  
 `IObHelper<TM, TT> dal = ObHelper.Create<TM, TT>(connectionString, providerName);`  
 
-##1).查询  
+## 1).查询  
 `IList<TM> list = dal.Where(o => o.Name.Like("a")).GroupBy(o => o.Name).Select(o => new {Id = o.Max(k => k.Id)}).OrderBy(o => o.Name).ToList();`  
 
-##2).删除  
+## 2).删除  
 `dal.Delete(o => o.Id == 1);`  
 
-##3).更新  
+## 3).更新  
 `dal.Update(new TM(){Name=""}, o => o.Id == 1);`  
 
-#3.支持数据库函数嵌套调用  
+# 3.支持数据库函数嵌套调用  
 `IList<TM> list = dal.GroupBy(o => o.Name).Select(o => new {Id = o.Max(k => k.Custom("dbo.test", t => t.Id))}).ToList();`  
 
-#4.支持调用SQL语句返回模型对象或对象列表  
+# 4.支持调用SQL语句返回模型对象或对象列表  
 ```
 IObHelper<TM, TT> dal = ObHelper.Create<TM, TT>(connectionString, providerName);
 IList<TM> m = dal.SqlText(sqlText, params).ToModel();
 IList<TM> list = dal.SqlText(sqlText, params).ToList();
 ````
   
-#5.简化模型类和条件类  
+# 5.简化模型类和条件类  
 ```
 /// <summary>
 /// 部门模型类
@@ -74,27 +74,27 @@ public class DepartmentBase : ObTermBase
 ```
   
 例：更新数据代码  
-##1).  
+## 1).  
 `DepartmentInfo m = new DepartmentInfo().Of();`  
 或  
 `DepartmentInfo m = ObModel.Create<DepartmentInfo>();`  
 或  
 `DepartmentInfo m = (DepartmentInfo)ObModel.Create(typeof(DepartmentInfo));`  
   
-##2).  
+## 2).  
 `m.Name = "Name";`  
   
-##3).  
+## 3).  
 `Department term = new Department().Of();`  
 或  
 `Department term = ObModel.Create<Department>(new Department());`  
 或  
 `Department term = (Department)ObModel.Create(typeof(Department), new Department());`  
   
-##4).  
+## 4).  
 `IObHelper<DepartmentInfo, Department> dal = term.Helper<DepartmentInfo, Department>(connectionString, providerName);`  
 或  
 `IObHelper<DepartmentInfo, Department> dal = ObHelper.Create<DepartmentInfo, Department>(term, connectionString, providerName);`  
   
-##5).  
+## 5).  
 `dal.Update(m, o => o.Id == 1);`  
