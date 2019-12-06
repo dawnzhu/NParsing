@@ -2,11 +2,11 @@
 =============================
 
 **主要更新功能(V1.1.2)**
-----------------------------------------------
+  
 ### 1.数据库执行出错，SQL语句会随错误抛出  
 `ObException.CurrentExeSql`  
 
-### 2.支持类似linq的书写方式  
+### 2.支持类似linq的lambda表达式书写方式  
 `IObHelper<TM, TT> dal = ObHelper.Create<TM, TT>(connectionString, providerName);`  
 
 #### 1).查询  
@@ -24,11 +24,12 @@
 ### 4.支持调用SQL语句返回模型对象或对象列表  
 ```
 IObHelper<TM, TT> dal = ObHelper.Create<TM, TT>(connectionString, providerName);
-IList<TM> m = dal.SqlText(sqlText, params).ToModel();
+TM m = dal.SqlText(sqlText, params).ToModel();
 IList<TM> list = dal.SqlText(sqlText, params).ToList();
 ````
   
 ### 5.简化模型类和条件类  
+例：更新数据代码  
 ```
 /// <summary>
 /// 部门模型类
@@ -73,7 +74,6 @@ public class DepartmentBase : ObTermBase
 }
 ```
   
-例：更新数据代码  
 #### 1).  
 `DepartmentInfo m = new DepartmentInfo().Of();`  
 或  
