@@ -2,6 +2,7 @@ using System;
 using System.Data.SqlClient;
 using System.Reflection;
 using DotNet.Standard.NParsing.ComponentModel;
+using DotNet.Standard.NParsing.DbUtilities;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Interface;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -81,11 +82,10 @@ namespace DotNet.Standard.NParsing.UnitTest
             var emp = new EmployeInfo().Of();
             emp.Age = 18;
             var employe = new Employe("Employes").Of();
-            var join  = employe.Join(o => new
-            {
-                o.Department,
-                o.Department.Director
-            });
+            /*var join = employe.Join();
+            join.AddJoin(o => o.Department);*/
+            ObJoinBase join = null;
+            join = (ObJoinBase)employe.Join(join).AddJoin(o => o.Department);
             //join.AddJoin(o => o.Department.Director);
             var sort = employe.OrderBy(o => new
             {

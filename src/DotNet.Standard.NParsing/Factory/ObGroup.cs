@@ -59,6 +59,28 @@ namespace DotNet.Standard.NParsing.Factory
         #region 扩展方法
 
         /// <summary>
+        /// 创建一个空属性分组
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IObGroup<TSource> GroupBy<TSource>(this TSource source)
+            where TSource : ObTermBase
+        {
+            return ObGroup_Create(source);
+        }
+
+        public static IObGroup<TSource> GroupBy<TSource>(this TSource source, ObGroupBase obGroupBase)
+            where TSource : ObTermBase
+        {
+            if (!(obGroupBase is IObGroup<TSource> group))
+            {
+                group = ObGroup_Create(source);
+            }
+            return group;
+        }
+
+        /// <summary>
         /// 创建单个属性分组
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
@@ -147,6 +169,19 @@ namespace DotNet.Standard.NParsing.Factory
                     obGroup.AddGroupBy(obProperty);
             }
             return obGroup;
+        }
+
+        private static IObGroup<TSource> ObGroup_Create<TSource>(TSource source)
+            where TSource : ObTermBase
+        {
+            var type = typeof(TSource);
+            var className = CLASS_NAME + "`1[[" + type.FullName + "," + type.Assembly.FullName + "]]";
+            var t = Assembly.Load(ASSEMBLY_STRING).GetType(className);
+            var parameters = new object[]
+            {
+                source
+            };
+            return (IObGroup<TSource>)Activator.CreateInstance(t, parameters);
         }
 
         /// <summary>

@@ -51,10 +51,20 @@ namespace DotNet.Standard.NParsing.Factory
         /// <typeparam name="TSource"></typeparam>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static IObJoin Join<TSource>(this TSource source)
+        public static IObJoin<TSource> Join<TSource>(this TSource source)
             where TSource : ObTermBase
         {
             return ObJoin_Create(source);
+        }
+
+        public static IObJoin<TSource> Join<TSource>(this TSource source, ObJoinBase obJoinBase)
+            where TSource : ObTermBase
+        {
+            if (!(obJoinBase is IObJoin<TSource> join))
+            {
+                join = ObJoin_Create(source);
+            }
+            return join;
         }
 
         /// <summary>

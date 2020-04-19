@@ -89,6 +89,28 @@ namespace DotNet.Standard.NParsing.Factory
         #region 扩展方法
 
         /// <summary>
+        /// 创建一个空属性排序
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static IObSort<TSource> OrderBy<TSource>(this TSource source)
+            where TSource : ObTermBase
+        {
+            return ObSort_Create(source);
+        }
+
+        public static IObSort<TSource> OrderBy<TSource>(this TSource source, ObSortBase obSortBase)
+            where TSource : ObTermBase
+        {
+            if (!(obSortBase is IObSort<TSource> sort))
+            {
+                sort = ObSort_Create(source);
+            }
+            return sort;
+        }
+
+        /// <summary>
         /// 创建单个属性排序
         /// </summary>
         /// <typeparam name="TSource"></typeparam>
@@ -200,6 +222,19 @@ namespace DotNet.Standard.NParsing.Factory
                     obSort.AddOrderByDescending(obProperty);
             }
             return obSort;
+        }
+
+        private static IObSort<TSource> ObSort_Create<TSource>(TSource source)
+            where TSource : ObTermBase
+        {
+            var type = typeof(TSource);
+            var className = CLASS_NAME + "`1[[" + type.FullName + "," + type.Assembly.FullName + "]]";
+            var t = Assembly.Load(ASSEMBLY_STRING).GetType(className);
+            var parameters = new object[]
+            {
+                source
+            };
+            return (IObSort<TSource>)Activator.CreateInstance(t, parameters);
         }
 
         private static IObSort<TSource> ObSort_Create<TSource>(TSource source, ObProperty obProperty, bool isAsc)
