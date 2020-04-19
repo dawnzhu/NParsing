@@ -76,6 +76,44 @@ namespace DotNet.Standard.NParsing.SQLServer
                     case DbFunc.Sum:
                         columnName = $"SUM({columnName})";
                         break;
+                    case DbFunc.Replace:
+                        columnName += $"REPLACE({columnName})";
+                        break;
+                    case DbFunc.SubString:
+                        columnName += $"SUBSTRING({columnName})";
+                        break;
+                    case DbFunc.IndexOf:
+                        var indCvs = columnName.Split(',');
+                        columnName += $"CHARINDEX({indCvs[1]},{indCvs[0]})-1";
+                        break;
+                    case DbFunc.ToInt16:
+                        columnName += $"CONVERT(SMALLINT, {columnName})";
+                        break;
+                    case DbFunc.ToInt32:
+                        columnName += $"CONVERT(INT, {columnName})";
+                        break;
+                    case DbFunc.ToInt64:
+                        columnName += $"CONVERT(BIGINT, {columnName})";
+                        break;
+                    case DbFunc.ToSingle:
+                        columnName += $"CONVERT(FLOAT(24), {columnName})";
+                        break;
+                    case DbFunc.ToDouble:
+                        columnName += $"CONVERT(FLOAT(53), {columnName})";
+                        break;
+                    case DbFunc.ToDecimal:
+                        var cvs = columnName.Split(',');
+                        columnName += $"CONVERT(DECIMAL({cvs[1]}, {cvs[2]}), {cvs[0]})";
+                        break;
+                    case DbFunc.ToDateTime:
+                        columnName += $"CONVERT(DATETIME, {columnName})";
+                        break;
+                    case DbFunc.ToString:
+                        columnName += $"CONVERT(VARCHAR, {columnName})";
+                        break;
+                    case DbFunc.Format:
+                        columnName += $"FORMAT({columnName})";
+                        break;
                 }
                 strSqlOrder += dbSort.IsAsc ? columnName : columnName + " DESC";
             }

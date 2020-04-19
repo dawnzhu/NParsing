@@ -107,6 +107,43 @@ namespace DotNet.Standard.NParsing.SQLite
                     case DbFunc.Sum:
                         columnNames += $"SUM({columnValue})";
                         break;
+                    case DbFunc.Replace:
+                        columnNames += $"REPLACE({columnValue})";
+                        break;
+                    case DbFunc.SubString:
+                        columnNames += $"SUBSTRING({columnValue})";
+                        break;
+                    case DbFunc.IndexOf:
+                        columnNames += "-1";
+                        break;
+                    case DbFunc.ToInt16:
+                        columnNames += $"CONVERT(SMALLINT, {columnValue})";
+                        break;
+                    case DbFunc.ToInt32:
+                        columnNames += $"CONVERT(INT, {columnValue})";
+                        break;
+                    case DbFunc.ToInt64:
+                        columnNames += $"CONVERT(BIGINT, {columnValue})";
+                        break;
+                    case DbFunc.ToSingle:
+                        columnNames += $"CONVERT(FLOAT, {columnValue})";
+                        break;
+                    case DbFunc.ToDouble:
+                        columnNames += $"CONVERT(DOUBLE, {columnValue})";
+                        break;
+                    case DbFunc.ToDecimal:
+                        var cvs = columnValue.Split(',');
+                        columnNames += $"CONVERT(DECIMAL({cvs[1]}, {cvs[2]}), {cvs[0]})";
+                        break;
+                    case DbFunc.ToDateTime:
+                        columnNames += $"CONVERT(DATETIME, {columnValue})";
+                        break;
+                    case DbFunc.ToString:
+                        columnNames += $"CONVERT(VARCHAR, {columnValue})";
+                        break;
+                    case DbFunc.Format:
+                        columnNames += $"FORMAT({columnValue})";
+                        break;
                 }
                 columnNames += renaming ? $" AS {TableName}_{PropertyName}" : "";
                 brothers = iObProperty.Brothers;

@@ -198,7 +198,8 @@ namespace DotNet.Standard.NParsing.Factory
                     //设置属性的Get 
                     propertyBuilder.SetGetMethod(methodGet);
                 }
-                else if(propertyType.Contains(typeof(ObTermBase)))
+                //else if(propertyType.Contains(typeof(ObTermBase)))
+                else if (typeof(ObTermBase).IsAssignableFrom(propertyType))
                 {
                     //动态创建字段和属性
                     var propertyBuilder = typeBuilderProxy.DefineProperty(propertyName, PropertyAttributes.None, propertyType, null);
@@ -222,16 +223,6 @@ namespace DotNet.Standard.NParsing.Factory
             //创建类实例
             var instance = Activator.CreateInstance(proxyClassType, args);
             return instance;
-        }
-
-        public static IList<Type> Types(this Type type)
-        {
-            var list = new List<Type> {type};
-            if (type.BaseType  != null && type.BaseType != typeof(object))
-            {
-                list.AddRange(Types(type.BaseType));
-            }
-            return list;
         }
 
         public static TSource Of<TSource>(this TSource source) where TSource : ObTermBase

@@ -10,15 +10,17 @@ namespace DotNet.Standard.NParsing.DbUtilities
     public class ObSql<TModel> : IObSql<TModel> where TModel : class, new()
     {
         private readonly IDbHelper _iDbHelper;
+        //private readonly IObRedefine _iObRedefine;
         private readonly IObTransaction _iObTransaction;
         private readonly CommandType _commandType;
         private readonly string _commandText;
         private readonly DbParameter[] _commandParameters;
 
-        public ObSql(IDbHelper iDbHelper, IObTransaction iObTransaction, CommandType commandType, string commandText,
+        public ObSql(IDbHelper iDbHelper/*, IObRedefine iObRedefine*/, IObTransaction iObTransaction, CommandType commandType, string commandText,
             params DbParameter[] commandParameters)
         {
             _iDbHelper = iDbHelper;
+            //_iObRedefine = iObRedefine;
             _iObTransaction = iObTransaction;
             _commandType = commandType;
             _commandText = commandText;

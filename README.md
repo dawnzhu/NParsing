@@ -1,6 +1,26 @@
 ﻿基于.NET Standard开发的跨平台ORM框架
 =============================
 
+### **主要更新功能(V1.1.3)**
+  
+### 1.删除和更新数据允许多表关联  
+`ObJoin`  
+
+### 2.增加多个内置函数  
+```
+Replace
+SubString
+IndexOf
+ToInt16
+ToInt32
+ToInt64
+ToSingle
+ToDouble
+ToDecimal
+ToDateTime
+ToString
+````
+
 ### **主要更新功能(V1.1.2)**
   
 ### 1.数据库执行出错，SQL语句会随错误抛出  

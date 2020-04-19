@@ -27,7 +27,7 @@ namespace DotNet.Standard.NParsing.UnitTest
             var employe = new Employe("Employes").Of();
             var dal = employe.Helper<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
             /*var dal = ObHelper.Create<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
-            var list = dal.SqlText("SELECT * FROM Employes WHERE ID=@ID", new SqlParameter("@ID", 1)).ToList();*/
+            var list = dal.SqlText("SELECT e.ID Id, e.Name Name, e.DepartmentID DepartmentId, d.ID Department_Id, d.Name Department_Name FROM Employes e LEFT JOIN Departments d ON d.ID=e.DepartmentID WHERE e.ID=@ID", new SqlParameter("@ID", 1)).ToList(); 
             //var dal = ObHelper.Create<EmployeInfo, Employe>(new Employe().Proxy(), "database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
             /*try
             {
@@ -42,7 +42,7 @@ namespace DotNet.Standard.NParsing.UnitTest
             }*/
             var query = dal
                 .Where(o => o.DepartmentId.In(1, 2, 3))
-                .GroupBy(o => new
+                /*.GroupBy(o => new
                 {
                     o.Gender,
                     o.Department.Id,
@@ -50,7 +50,7 @@ namespace DotNet.Standard.NParsing.UnitTest
                 })
                 .Select(o => new
                 {
-                    Age = o.Avg(k => k.Age).As(k => k.Age),
+                    Age = o.Avg( k => k.Age).As(k => k.Age),
                     Name = o.Min(k => k.Id)
                 })
                 .Where(o => o.Age > 20)
@@ -59,7 +59,7 @@ namespace DotNet.Standard.NParsing.UnitTest
                     o.Name,
                     o.Department.Id
                 })
-                .OrderBy(o => o.Department.Name)
+                .OrderBy(o => o.Department.Name)*/
                 .Join(o => new
                 {
                     o.Department,
@@ -72,6 +72,27 @@ namespace DotNet.Standard.NParsing.UnitTest
             var list = query.ToList(2, 2, out var count);
             var a = list;*/
 
+        }
+
+        [TestMethod]
+        public void TestMethod2()
+        {
+            var emp = new EmployeInfo().Of();
+            emp.Age = 18;
+            var employe = new Employe("Employes").Of();
+            var dal = employe.Helper<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
+            //dal.Update(emp, o => o.Department.DirectorId == 1);
+            /*dal.Join(o => new
+           {
+               o.Department,
+               o.Department.Director
+           }).Update(emp, o => o.Department.DirectorId == 1);*/
+             //Convert.ToDouble()
+             var list = dal.Where(o => o.Age == 18).Select(o => new
+             {
+                 Name = o.ToString(e => e.CreateTime, 111)
+             }).ToList();
+             //dal.Delete()
         }
     }
 }

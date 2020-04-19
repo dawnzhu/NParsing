@@ -139,6 +139,11 @@ namespace DotNet.Standard.NParsing.Interface
     public interface IObHelper<TModel>
     {
         /// <summary>
+        /// 关联
+        /// </summary>
+        IObJoin ObJoin { get; }
+
+        /// <summary>
         /// 创建数据表
         /// </summary>
         /// <returns></returns>
@@ -195,6 +200,10 @@ namespace DotNet.Standard.NParsing.Interface
         int Delete(IObTransaction iObTransaction);
         int Delete(IObParameter iObParameter);
         int Delete(IObTransaction iObTransaction, IObParameter iObParameter);
+        int Delete(IObJoin iObJoin);
+        int Delete(IObTransaction iObTransaction, IObJoin iObJoin);
+        int Delete(IObJoin iObJoin, IObParameter iObParameter);
+        int Delete(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter);
 
         /// <summary>
         /// 更新一个数据库对象
@@ -207,6 +216,10 @@ namespace DotNet.Standard.NParsing.Interface
         int Update(IObTransaction iObTransaction, TModel model);
         int Update(TModel model, IObParameter iObParameter);
         int Update(IObTransaction iObTransaction, TModel model, IObParameter iObParameter);
+        int Update(TModel model, IObJoin iObJoin);
+        int Update(IObTransaction iObTransaction, TModel model, IObJoin iObJoin);
+        int Update(TModel model, IObJoin iObJoin, IObParameter iObParameter);
+        int Update(IObTransaction iObTransaction, TModel model, IObJoin iObJoin, IObParameter iObParameter);
 
         /// <summary>
         /// 查询
@@ -297,7 +310,7 @@ namespace DotNet.Standard.NParsing.Interface
         IObSelect<TModel, TTerm> OrderBy(Func<TTerm, ObProperty> keySelector);
         IObSelect<TModel, TTerm> OrderByDescending<TKey>(Func<TTerm, TKey> keySelector);
         IObSelect<TModel, TTerm> OrderByDescending(Func<TTerm, ObProperty> keySelector);
-        IObSelect<TModel, TTerm> Join<TKey>(Func<TTerm, TKey> keySelector);
-        IObSelect<TModel, TTerm> Join(Func<TTerm, ObTermBase> keySelector);
+        IObHelper<TModel, TTerm> Join<TKey>(Func<TTerm, TKey> keySelector);
+        IObHelper<TModel, TTerm> Join(Func<TTerm, ObTermBase> keySelector);
     }
 }

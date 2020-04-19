@@ -44,7 +44,6 @@ namespace DotNet.Standard.NParsing.Interface
         /// <summary>
         /// SQL条件语句
         /// </summary>
-        /// <param name="dbParameters">回带数据库参数</param>
         /// <returns></returns>
         public virtual string ToString(ref IList<DbParameter> dbParameters)
         {
@@ -52,6 +51,22 @@ namespace DotNet.Standard.NParsing.Interface
         }
 
         public virtual string ToString(char separator, ref IList<DbParameter> dbParameters)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// SQL条件语句
+        /// </summary>
+        /// <param name="dbParameters">回带数据库参数</param>
+        /// <param name="tables"></param>
+        /// <returns></returns>
+        public virtual string ToString(ref IList<DbParameter> dbParameters, out IList<string> tables)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual string ToString(char separator, ref IList<DbParameter> dbParameters, out IList<string> tables)
         {
             throw new NotImplementedException();
         }

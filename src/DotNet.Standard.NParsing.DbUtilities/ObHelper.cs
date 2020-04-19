@@ -73,7 +73,6 @@
 * 修改内容：增加模型类名称重定义功能
 */
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -243,6 +242,17 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
     public class ObHelper<TModel> : IObHelper<TModel> where TModel : class, new()
     {
+        private IObJoin _iObJoin;
+        public IObJoin ObJoin
+        {
+            get => _iObJoin;
+            protected set
+            {
+                _iObJoin = value;
+                SqlBuilder.JoinModels = _iObJoin.JoinModels;
+            }
+        }
+
         protected IDbHelper ReadDbHelper { get; }
         protected IDbHelper WriteDbHelper { get; }
         protected ISqlBuilder<TModel> SqlBuilder { get; }
@@ -631,6 +641,76 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         #endregion
 
+        #region 删除除所有数据 public int Delete(IObJoin iObJoin)
+
+        public int Delete(IObJoin iObJoin)
+        {
+            using (var dbHelper = new DbHelper(WriteDbHelper))
+            {
+                IList<DbParameter> dbParameters = new List<DbParameter>();
+                ObJoin = iObJoin;
+                string sql = SqlBuilder.Delete(ref dbParameters);
+                return dbHelper.ExecuteNonQuery(sql, ((List<DbParameter>)dbParameters).ToArray());
+            }
+        }
+
+        #endregion
+
+        #region 删除除所有数据 public int Delete(IObTransaction iObTransaction, IObJoin iObJoin)
+
+        public int Delete(IObTransaction iObTransaction, IObJoin iObJoin)
+        {
+            IList<DbParameter> dbParameters = new List<DbParameter>();
+            ObJoin = iObJoin;
+            string sql = SqlBuilder.Delete(ref dbParameters);
+            return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sql,
+                ((List<DbParameter>)dbParameters).ToArray());
+        }
+
+        #endregion
+
+        #region 从数据库删除一个对象 public int Delete(IObJoin iObJoin, IObParameter iObParameter)
+
+        /// <summary>
+        /// 从数据库删除一个对象
+        /// </summary>
+        /// <param name="iObJoin"></param>
+        /// <param name="iObParameter">条件</param>
+        /// <returns></returns>
+        public int Delete(IObJoin iObJoin, IObParameter iObParameter)
+        {
+            iObParameter = ObConvert.ToObParameter(ProviderName, iObParameter);
+            using (var dbHelper = new DbHelper(WriteDbHelper))
+            {
+                IList<DbParameter> dbParameters = new List<DbParameter>();
+                ObJoin = iObJoin;
+                string sql = SqlBuilder.Delete(iObParameter, ref dbParameters);
+                return dbHelper.ExecuteNonQuery(sql, ((List<DbParameter>)dbParameters).ToArray());
+            }
+        }
+
+        #endregion
+
+        #region 从数据库删除一个对象 public int Delete(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter)
+
+        /// <summary>
+        /// 从数据库删除一个对象
+        /// </summary>
+        /// <param name="iObTransaction"></param>
+        /// <param name="iObJoin"></param>
+        /// <param name="iObParameter">条件</param>
+        /// <returns></returns>
+        public int Delete(IObTransaction iObTransaction, IObJoin iObJoin, IObParameter iObParameter)
+        {
+            iObParameter = ObConvert.ToObParameter(iObTransaction.ProviderName, iObParameter);
+            IList<DbParameter> dbParameters = new List<DbParameter>();
+            ObJoin = iObJoin;
+            string sql = SqlBuilder.Delete(iObParameter, ref dbParameters);
+            return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
+        }
+
+        #endregion
+
 
         #region 更新所有数据 public int Update(TModel model)
 
@@ -695,7 +775,79 @@ namespace DotNet.Standard.NParsing.DbUtilities
             string sql = SqlBuilder.Update(model, iObParameter, ref dbParameters);
             return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
         }
-        
+
+        #endregion
+
+        #region 更新所有数据 public int Update(TModel model, IObJoin iObJoin)
+
+        public int Update(TModel model, IObJoin iObJoin)
+        {
+            using (var dbHelper = new DbHelper(WriteDbHelper))
+            {
+                IList<DbParameter> dbParameters = new List<DbParameter>();
+                ObJoin = iObJoin;
+                string sql = SqlBuilder.Update(model, ref dbParameters);
+                return dbHelper.ExecuteNonQuery(sql, ((List<DbParameter>)dbParameters).ToArray());
+            }
+        }
+
+        #endregion
+
+        #region 更新所有数据 public int Update(IObTransaction iObTransaction, TModel model, IObJoin iObJoin)
+
+        public int Update(IObTransaction iObTransaction, TModel model, IObJoin iObJoin)
+        {
+            IList<DbParameter> dbParameters = new List<DbParameter>();
+            ObJoin = iObJoin;
+            string sql = SqlBuilder.Update(model, ref dbParameters);
+            return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sql,
+                ((List<DbParameter>)dbParameters).ToArray());
+        }
+
+        #endregion
+
+        #region 更新一个数据库对象 public int Update(M model, IObJoin iObJoin, IObParameter iObParameter)
+
+        /// <summary>
+        /// 更新一个数据库对象
+        /// </summary>
+        /// <param name="model">对象</param>
+        /// <param name="iObJoin"></param>
+        /// <param name="iObParameter">条件</param>
+        /// <returns></returns>
+        public int Update(TModel model, IObJoin iObJoin, IObParameter iObParameter)
+        {
+            iObParameter = ObConvert.ToObParameter(ProviderName, iObParameter);
+            using (var dbHelper = new DbHelper(WriteDbHelper))
+            {
+                IList<DbParameter> dbParameters = new List<DbParameter>();
+                ObJoin = iObJoin;
+                string sql = SqlBuilder.Update(model, iObParameter, ref dbParameters);
+                return dbHelper.ExecuteNonQuery(sql, ((List<DbParameter>)dbParameters).ToArray());
+            }
+        }
+
+        #endregion
+
+        #region 更新一个数据库对象 public int Update(IObTransaction iObTransaction, M model, IObParameter iObParameter)
+
+        /// <summary>
+        /// 更新一个数据库对象
+        /// </summary>
+        /// <param name="iObTransaction"></param>
+        /// <param name="model">对象</param>
+        /// <param name="iObJoin"></param>
+        /// <param name="iObParameter">条件</param>
+        /// <returns></returns>
+        public int Update(IObTransaction iObTransaction, TModel model, IObJoin iObJoin, IObParameter iObParameter)
+        {
+            iObParameter = ObConvert.ToObParameter(iObTransaction.ProviderName, iObParameter);
+            IList<DbParameter> dbParameters = new List<DbParameter>();
+            ObJoin = iObJoin;
+            string sql = SqlBuilder.Update(model, iObParameter, ref dbParameters);
+            return DbHelper.ExecuteNonQuery(WriteDbHelper, iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
+        }
+
         #endregion
 
 
@@ -1365,18 +1517,37 @@ namespace DotNet.Standard.NParsing.DbUtilities
             return select;
         }
 
-        public IObSelect<TModel, TTerm> Join<TKey>(Func<TTerm, TKey> keySelector)
+        public IObHelper<TModel, TTerm> Join<TKey>(Func<TTerm, TKey> keySelector)
         {
-            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
-            select.Join(keySelector);
-            return select;
+            var iObJoin = new ObJoin();
+            var list = new List<ObTermBase>();
+            var key = keySelector(Term);
+            if (key is ObTermBase value)
+            {
+                list.Add(value);
+            }
+            else
+            {
+                foreach (var propertyInfo in key.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                {
+                    var k = propertyInfo.GetValue(key);
+                    if (k is ObTermBase value2)
+                    {
+                        list.Add(value2);
+                    }
+                }
+            }
+            iObJoin.AddJoin(list.ToArray());
+            ObJoin = iObJoin;
+            return this;
         }
 
-        public IObSelect<TModel, TTerm> Join(Func<TTerm, ObTermBase> keySelector)
+        public IObHelper<TModel, TTerm> Join(Func<TTerm, ObTermBase> keySelector)
         {
-            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
-            select.Join(keySelector);
-            return select;
+            var iObJoin = new ObJoin();
+            iObJoin.AddJoin(keySelector(Term));
+            ObJoin = iObJoin;
+            return this;
         }
     }
 }

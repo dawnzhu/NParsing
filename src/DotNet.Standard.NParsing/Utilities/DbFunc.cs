@@ -9,6 +9,18 @@
         Min,
         Sum,
         RowNumber,
-        Custom
+        Custom,
+        Replace,
+        SubString,
+        IndexOf,
+        ToInt16,
+        ToInt32,
+        ToInt64,
+        ToSingle,
+        ToDouble,
+        ToDecimal,
+        ToDateTime,
+        ToString,
+        Format
     }
 }

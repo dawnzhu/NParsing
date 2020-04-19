@@ -5,6 +5,8 @@
 * 功能说明：数据库函数显示字段成生实现类
 * ----------------------------------
  */
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -105,30 +107,9 @@ namespace DotNet.Standard.NParsing.SQLServer
                     if (propertyInfo.ToColumnName() == iObProperty.ColumnName)
                     {
                         obSettledValue = propertyInfo.GetSettledValue();
-                        /*var psAttribute = (ObSettledAttribute)propertyInfo.GetCustomAttributes(typeof(ObSettledAttribute), true).FirstOrDefault();
-                        if (psAttribute != null)
-                        {
-                            /*obSettledValue = psAttribute.Value;#1#
-                            if (propertyInfo.PropertyType.IsEnum())
-                            {
-                                obSettledValue = Convert.ToDecimal(psAttribute.Value).ToString(CultureInfo.InvariantCulture);
-                            }
-                            else if (psAttribute.Value is string ||
-                                     psAttribute.Value is char ||
-                                     psAttribute.Value is bool ||
-                                     psAttribute.Value is DateTime)
-                            {
-                                obSettledValue = string.Format("'{0}'", psAttribute.Value);
-                            }
-                            else
-                            {
-                                obSettledValue = psAttribute.Value.ToString();
-                            }
-                        }*/
                         break;
                     }
                 }
-                //var tableName = ModelType.ToTableName();
                 var columnValue = obSettledValue ?? string.Format("{0}{2}{1}", iObProperty.TableName, iObProperty.ColumnName, separator);
                 brothers = iObProperty.Brothers;
                 brotherIndex = iObProperty.FuncBrotherCount;
@@ -177,6 +158,44 @@ namespace DotNet.Standard.NParsing.SQLServer
                     case DbFunc.Custom:
                         columnNames += $"{iObProperty.FuncName}({columnValue})";
                         break;
+                    case DbFunc.Replace:
+                        columnNames += $"REPLACE({columnValue})";
+                        break;
+                    case DbFunc.SubString:
+                        columnNames += $"SUBSTRING({columnValue})";
+                        break;
+                    case DbFunc.IndexOf:
+                        var indCvs = columnValue.Split(',');
+                        columnNames += $"CHARINDEX({indCvs[1]},{indCvs[0]})-1";
+                        break;
+                    case DbFunc.ToInt16:
+                        columnNames += $"CONVERT(SMALLINT, {columnValue})";
+                        break;
+                    case DbFunc.ToInt32:
+                        columnNames += $"CONVERT(INT, {columnValue})";
+                        break;
+                    case DbFunc.ToInt64:
+                        columnNames += $"CONVERT(BIGINT, {columnValue})";
+                        break;
+                    case DbFunc.ToSingle:
+                        columnNames += $"CONVERT(FLOAT(24), {columnValue})";
+                        break;
+                    case DbFunc.ToDouble:
+                        columnNames += $"CONVERT(FLOAT(53), {columnValue})";
+                        break;
+                    case DbFunc.ToDecimal:
+                        var decCvs = columnValue.Split(',');
+                        columnNames += $"CONVERT(DECIMAL({decCvs[1]}, {decCvs[2]}), {decCvs[0]})";
+                        break;
+                    case DbFunc.ToDateTime:
+                        columnNames += $"CONVERT(DATETIME, {columnValue})";
+                        break;
+                    case DbFunc.ToString:
+                        columnNames += $"CONVERT(VARCHAR, {columnValue})";
+                        break;
+                    case DbFunc.Format:
+                        columnNames += $"FORMAT({columnValue})";
+                        break;
                 }
                 asString = renaming ? $" AS {iObProperty.AsProperty.TableName}_{iObProperty.AsProperty.PropertyName}" : "";
                 isAll = iObProperty.AriSymbol == DbAriSymbol.Null;
@@ -222,6 +241,45 @@ namespace DotNet.Standard.NParsing.SQLServer
                 brothers = iObValue.Brothers;
                 isAll = iObValue.AriSymbol == DbAriSymbol.Null;
             }
+            else if (value is Type type)
+            {
+                var parameterName = "";
+                if (type == typeof(short))
+                {
+                    parameterName = "SMALLINT";
+                }
+                else if (type == typeof(int))
+                {
+                    parameterName = "INT";
+                }
+                else if (type == typeof(long))
+                {
+                    parameterName = "BIGINT";
+                }
+                else if (type == typeof(float))
+                {
+                    parameterName = "FLOAT(24)";
+                }
+                else if (type == typeof(double))
+                {
+                    parameterName = "FLOAT(53)";
+                }
+                else if (type == typeof(decimal))
+                {
+                    parameterName = "DECIMAL(38,8)";
+                }
+                else if (type == typeof(DateTime))
+                {
+                    parameterName = "DATETIME";
+                }
+                else if (type == typeof(string))
+                {
+                    parameterName = "VARCHAR";
+                }
+                columnNames += parameterName;
+                brothers = new List<object>();
+                isAll = false;
+            }
             else
             {
                 var parameterName = "@NPaValue";
@@ -259,7 +317,6 @@ namespace DotNet.Standard.NParsing.SQLServer
                     sqlParameter.Value = value;
                     dbParameter.Add(sqlParameter);
                 }
-                //return parameterName;
                 columnNames += parameterName;
                 brothers = new List<object>();
                 isAll = false;
@@ -267,52 +324,6 @@ namespace DotNet.Standard.NParsing.SQLServer
             var iBrotherCount = brothers.Count;
             isAll = isAll && iBrotherCount > brotherIndex;
             columnNames = CreateSql(columnNames, brothers, brotherIndex, iBrotherCount, ref dbParameter);
-            /*for (int i = brotherIndex; i < iBrotherCount; i++)
-            {
-                var brother = brothers[i];
-                DbAriSymbol ariSymbol;
-                int brothersCount;
-                if (brother is IObProperty)
-                {
-                    ariSymbol = ((IObProperty) brother).AriSymbol;
-                    brothersCount = ((IObProperty)brother).Brothers.Count;
-                }
-                else
-                {
-                    ariSymbol = ((IObValue)brother).AriSymbol;
-                    brothersCount = ((IObValue)brother).Brothers.Count;
-                }
-                switch (ariSymbol)
-                {
-                    case DbAriSymbol.Plus:
-                        columnNames += "+";
-                        break;
-                    case DbAriSymbol.Minus:
-                        columnNames += "-";
-                        break;
-                    case DbAriSymbol.Multiply:
-                        columnNames += "*";
-                        break;
-                    case DbAriSymbol.Except:
-                        columnNames += "/";
-                        break;
-                    case DbAriSymbol.Mod:
-                        columnNames += "%";
-                        break;
-                    case DbAriSymbol.And:
-                        columnNames += "&";
-                        break;
-                    case DbAriSymbol.Or:
-                        columnNames += "|";
-                        break;
-                }
-                string andorWhere = "{0}";
-                if (brothersCount > 0)
-                {
-                    andorWhere = "(" + andorWhere + ")";
-                }
-                columnNames += string.Format(andorWhere, CreateSql(brother, ref dbParameter));
-            }*/
             if (isAll)
                 return "(" + columnNames + ")" + asString;
             return columnNames + asString;

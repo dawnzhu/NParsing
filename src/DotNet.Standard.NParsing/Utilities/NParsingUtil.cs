@@ -5,6 +5,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using DotNet.Standard.NParsing.ComponentModel;
 using DotNet.Standard.Common.Utilities;
 
@@ -390,6 +391,8 @@ namespace DotNet.Standard.NParsing.Utilities
                     {
                         var propertyName = property.Name;
                         object value = null;
+                        //var columnName = columnNames.FirstOrDefault(cname => cname.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
+                        //var indexOf = columnNames.IndexOf(columnName);
                         var indexOf = columnNames.IndexOf(propertyName);
                         if (indexOf > -1 && dr[indexOf] != DBNull.Value)
                         {
@@ -407,7 +410,7 @@ namespace DotNet.Standard.NParsing.Utilities
                             property.SetValue(model, Activator.CreateInstance(t), null);
                             oValue = property.GetValue(model, null);
                         }
-                        DataFill(dr, columnNames, oValue, t.GetProperties(BindingFlags.Instance | BindingFlags.Public), propertyNames);
+                        DataFill(dr, columnNames, oValue, t.GetProperties(BindingFlags.Instance | BindingFlags.Public), property.Name, propertyNames);
                     }
                 }
                 catch (Exception er)
@@ -484,6 +487,8 @@ namespace DotNet.Standard.NParsing.Utilities
                     {
                         var propertyName = tableName + "_" + property.Name;
                         object value = null;
+                        //var columnName = columnNames.FirstOrDefault(cname => cname.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
+                        //var indexOf = columnNames.IndexOf(columnName);
                         var indexOf = columnNames.IndexOf(propertyName);
                         if (indexOf > -1 && dr[indexOf] != DBNull.Value)
                         {
@@ -568,6 +573,32 @@ namespace DotNet.Standard.NParsing.Utilities
                 }
             }
         }
+
+        /*/// <summary>
+        /// 使用Emit替换反射属性赋值，提高性能，但得升级.NET Standard 2.1
+        /// </summary>
+        /// <param name="property"></param>
+        /// <param name="obj"></param>
+        /// <param name="value"></param>
+        public static void EmitSetValue(this PropertyInfo property, object obj, object value)
+        {
+            var type = obj.GetType();
+            var dynamicMethod = new DynamicMethod("EmitCallable", null, new[] { type, typeof(object) }, type.Module);
+            var iLGenerator = dynamicMethod.GetILGenerator();
+            var callMethod = type.GetMethod("set_" + property.Name, BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public);
+            var parameterInfo = callMethod.GetParameters()[0];
+            var local = iLGenerator.DeclareLocal(parameterInfo.ParameterType, true);
+            iLGenerator.Emit(OpCodes.Ldarg_1);
+            iLGenerator.Emit(parameterInfo.ParameterType.IsValueType ? OpCodes.Unbox_Any : OpCodes.Castclass, parameterInfo.ParameterType);
+            iLGenerator.Emit(OpCodes.Stloc, local);
+            iLGenerator.Emit(OpCodes.Ldarg_0);
+            iLGenerator.Emit(OpCodes.Ldloc, local);
+            iLGenerator.EmitCall(OpCodes.Callvirt, callMethod, null);
+            iLGenerator.Emit(OpCodes.Ret);
+            //var emitSetter = dynamicMethod.CreateDelegate(typeof(Action<object, object>)) as Action<object, object>;
+            //emitSetter(obj, value);
+            dynamicMethod.Invoke(obj, BindingFlags.Instance, null, new object[] {obj, value}, null);
+        }*/
 
         #endregion
 

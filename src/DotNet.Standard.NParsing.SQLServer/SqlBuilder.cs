@@ -443,7 +443,8 @@ namespace DotNet.Standard.NParsing.SQLServer
 
         public string Delete(IObParameter iObParameter, ref IList<DbParameter> dbParameters)
         {
-            string sql = $"DELETE FROM {TableName}";
+            string strJoin = JoinString(ModelType, ref dbParameters, out _, out _);
+            string sql = $"DELETE {ModelType.ToUTableName(TableName)} FROM {ModelType.ToUTableName(TableName)} {strJoin}";
             if (iObParameter != null)
             {
                 string strWhere = iObParameter.ToString(ref dbParameters);
@@ -468,6 +469,7 @@ namespace DotNet.Standard.NParsing.SQLServer
         {
             //Type t = model.GetType();
             string strSet = string.Empty;
+            string strJoin = JoinString(ModelType, ref dbParameters, out _, out _);
             var iObModel = model as IObModel;
             foreach (PropertyInfo property in ModelType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
@@ -525,7 +527,7 @@ namespace DotNet.Standard.NParsing.SQLServer
                     dbParameters.Add(sqlParameter);
                 }
             }
-            string sql = $"UPDATE {TableName} {strSet}";
+            string sql = $"UPDATE {ModelType.ToUTableName(TableName)} {strSet}  FROM {ModelType.ToUTableName(TableName)} {strJoin}";
             if (iObParameter != null)
             {
                 string strWhere = iObParameter.ToString(ref dbParameters);
