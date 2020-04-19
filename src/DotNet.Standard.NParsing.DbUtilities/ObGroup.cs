@@ -5,6 +5,11 @@
 * 功能说明：创建分组接口实现(数据库GROUP BY)
 * ----------------------------------
  */
+
+using System;
+using System.Collections.Generic;
+using System.Reflection;
+using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Utilities;
 using DotNet.Standard.NParsing.Interface;
 
@@ -46,6 +51,58 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 DbGroups.Add(new DbGroup(obProperty.TableName, obProperty.ColumnName, obProperty.PropertyName));
                 ObGroupProperties.Add(obProperty);
             }
+            return this;
+        }
+    }
+
+    public class ObGroup<TTerm> : ObGroup, IObGroup<TTerm>
+        where TTerm : ObTermBase
+    {
+        private readonly TTerm _term;
+        public ObGroup(TTerm term)
+        {
+            _term = term;
+        }
+
+        public ObGroup(TTerm term, ObProperty obProperty) : base(obProperty)
+        {
+            _term = term;
+        }
+
+        public IObGroup<TTerm> AddGroupBy(Func<TTerm, ObProperty> keySelector)
+        {
+            var property = keySelector(_term);
+            base.AddGroupBy(property);
+            return this;
+        }
+
+        public IObGroup<TTerm> AddGroupBy(Func<TTerm, ObProperty[]> keySelector)
+        {
+            var property = keySelector(_term);
+            base.AddGroupBy(property);
+            return this;
+        }
+
+        public IObGroup<TTerm> AddGroupBy<TKey>(Func<TTerm, TKey> keySelector)
+        {
+            var list = new List<ObProperty>();
+            var key = keySelector(_term);
+            if (key is ObProperty value)
+            {
+                list.Add(value);
+            }
+            else
+            {
+                foreach (var propertyInfo in key.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                {
+                    var k = propertyInfo.GetValue(key);
+                    if (k is ObProperty value2)
+                    {
+                        list.Add(value2);
+                    }
+                }
+            }
+            base.AddGroupBy(list.ToArray());
             return this;
         }
     }

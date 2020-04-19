@@ -29,6 +29,7 @@
 * 修改内容：代码整理
 */
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using DotNet.Standard.NParsing.Interface;
 
@@ -94,16 +95,16 @@ namespace DotNet.Standard.NParsing.Factory
         /// <param name="source"></param>
         /// <param name="keySelector"></param>
         /// <returns></returns>
-        public static IObSort OrderBy<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
+        public static IObSort<TSource> OrderBy<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
             where TSource : ObTermBase
         {
-            return ObSort_Create(keySelector(source), true);
+            return ObSort_Create(source, keySelector(source), true);
         }
 
-        public static IObSort OrderByDescending<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
+        public static IObSort<TSource> OrderByDescending<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
             where TSource : ObTermBase
         {
-            return ObSort_Create(keySelector(source), false);
+            return ObSort_Create(source, keySelector(source), false);
         }
 
         /// <summary>
@@ -113,18 +114,64 @@ namespace DotNet.Standard.NParsing.Factory
         /// <param name="source"></param>
         /// <param name="keySelector"></param>
         /// <returns></returns>
-        public static IObSort OrderBy<TSource>(this TSource source, Func<TSource, ObProperty[]> keySelector)
+        public static IObSort<TSource> OrderBy<TSource>(this TSource source, Func<TSource, ObProperty[]> keySelector)
+            where TSource : ObTermBase
         {
-            var obPropertys = keySelector(source);
-            return ObSort_Create(obPropertys, true);
+            return ObSort_Create(source, keySelector(source), true);
         }
 
-        public static IObSort OrderByDescending<TSource>(this TSource source, Func<TSource, ObProperty[]> keySelector)
+        public static IObSort<TSource> OrderBy<TSource, TKey>(this TSource source, Func<TSource, TKey> keySelector)
+            where TSource : ObTermBase
         {
-            var obPropertys = keySelector(source);
-            return ObSort_Create(obPropertys, false);
+            var list = new List<ObProperty>();
+            var key = keySelector(source);
+            if (key is ObProperty value)
+            {
+                list.Add(value);
+            }
+            else
+            {
+                foreach (var propertyInfo in key.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                {
+                    var k = propertyInfo.GetValue(key);
+                    if (k is ObProperty value2)
+                    {
+                        list.Add(value2);
+                    }
+                }
+            }
+            return ObSort_Create(source, list.ToArray(), true);
         }
-        
+
+        public static IObSort<TSource> OrderByDescending<TSource>(this TSource source, Func<TSource, ObProperty[]> keySelector)
+            where TSource : ObTermBase
+        {
+            return ObSort_Create(source, keySelector(source), false);
+        }
+
+        public static IObSort<TSource> OrderByDescending<TSource, TKey>(this TSource source, Func<TSource, TKey> keySelector)
+            where TSource : ObTermBase
+        {
+            var list = new List<ObProperty>();
+            var key = keySelector(source);
+            if (key is ObProperty value)
+            {
+                list.Add(value);
+            }
+            else
+            {
+                foreach (var propertyInfo in key.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                {
+                    var k = propertyInfo.GetValue(key);
+                    if (k is ObProperty value2)
+                    {
+                        list.Add(value2);
+                    }
+                }
+            }
+            return ObSort_Create(source, list.ToArray(), false);
+        }
+
         #endregion
 
         private static IObSort ObSort_Create(ObProperty obProperty, bool isAsc)
@@ -149,6 +196,39 @@ namespace DotNet.Standard.NParsing.Factory
             {
                 if (obSort == null)
                     obSort = ObSort_Create(obProperty, isAsc);
+                else
+                    obSort.AddOrderByDescending(obProperty);
+            }
+            return obSort;
+        }
+
+        private static IObSort<TSource> ObSort_Create<TSource>(TSource source, ObProperty obProperty, bool isAsc)
+            where TSource : ObTermBase
+        {
+            var type = typeof(TSource);
+            var className = CLASS_NAME + "`1[[" + type.FullName + "," + type.Assembly.FullName + "]]";
+            var t = Assembly.Load(ASSEMBLY_STRING).GetType(className);
+            var parameters = new object[]
+            {
+                source,
+                obProperty,
+                isAsc
+            };
+            return (IObSort<TSource>)Activator.CreateInstance(t, parameters);
+        }
+
+        private static IObSort<TSource> ObSort_Create<TSource>(TSource source, ObProperty[] obPropertys, bool isAsc)
+            where TSource : ObTermBase
+        {
+#if DEBUG
+            if (obPropertys.Length == 0)
+                throw new Exception("至少要有一个ObProperty参数");
+#endif
+            IObSort<TSource> obSort = null;
+            foreach (var obProperty in obPropertys)
+            {
+                if (obSort == null)
+                    obSort = ObSort_Create(source, obProperty, isAsc);
                 else
                     obSort.AddOrderByDescending(obProperty);
             }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Utilities;
@@ -49,5 +50,25 @@ namespace DotNet.Standard.NParsing.Interface
         /// 标识
         /// </summary>
         string Key { get; }
+    }
+
+    public interface IObGroup<out TTerm> : IObGroup
+        where TTerm : ObTermBase
+    {
+        /// <summary>
+        /// 添加一个分组参数
+        /// </summary>
+        /// <param name="keySelector"></param>
+        /// <returns></returns>
+        IObGroup<TTerm> AddGroupBy(Func<TTerm, ObProperty> keySelector);
+
+        /// <summary>
+        /// 添加多个分组参数
+        /// </summary>
+        /// <param name="keySelector"></param>
+        /// <returns></returns>
+        IObGroup<TTerm> AddGroupBy(Func<TTerm, ObProperty[]> keySelector);
+
+        IObGroup<TTerm> AddGroupBy<TKey>(Func<TTerm, TKey> keySelector);
     }
 }

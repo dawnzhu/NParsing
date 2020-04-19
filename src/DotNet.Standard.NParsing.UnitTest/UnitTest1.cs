@@ -1,5 +1,6 @@
 using System;
 using System.Data.SqlClient;
+using System.Reflection;
 using DotNet.Standard.NParsing.ComponentModel;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Interface;
@@ -80,18 +81,29 @@ namespace DotNet.Standard.NParsing.UnitTest
             var emp = new EmployeInfo().Of();
             emp.Age = 18;
             var employe = new Employe("Employes").Of();
+            var join  = employe.Join(o => new
+            {
+                o.Department,
+                o.Department.Director
+            });
+            //join.AddJoin(o => o.Department.Director);
+            var sort = employe.OrderBy(o => new
+            {
+                o.Age,
+                o.Gender
+            });
+            //sort.AddOrderBy(o => o.Gender);
+            var group = employe.GroupBy(o => new
+            {
+                o.Age,
+                o.Gender
+            });
+            //group.AddGroupBy(o => o.Gender);
             var dal = employe.Helper<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
-            //dal.Update(emp, o => o.Department.DirectorId == 1);
-            dal.Join(o => new
-           {
-               o.Department
-           }).Update(emp, o => o.Department.DirectorId == 1);
-             //Convert.ToDouble()
-             var list = dal.Where(o => o.Age == 18).Select(o => new
-             {
-                 Name = o.ToString(e => e.CreateTime, 111)
-             }).ToList();
-             //dal.Delete()
+
+            var a = dal.Query(join, group, sort).ToList();
+
+
         }
     }
 }

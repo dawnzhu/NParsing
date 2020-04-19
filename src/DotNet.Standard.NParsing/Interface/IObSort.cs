@@ -5,6 +5,8 @@
 * 功能说明：创建排序接口(数据库ORDER BY)
 * ----------------------------------
  */
+
+using System;
 using System.Collections.Generic;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Utilities;
@@ -58,5 +60,34 @@ namespace DotNet.Standard.NParsing.Interface
         /// 标识
         /// </summary>
         string Key { get; }
+    }
+
+    public interface IObSort<out TTerm> : IObSort
+        where TTerm : ObTermBase
+    {
+        /// <summary>
+        /// 添加一个排序参数
+        /// </summary>
+        /// <param name="keySelector"></param>
+        /// <returns></returns>
+        IObSort<TTerm> AddOrderBy(Func<TTerm, ObProperty> keySelector);
+        IObSort<TTerm> AddOrderByDescending(Func<TTerm, ObProperty> keySelector);
+
+        /// <summary>
+        /// 添加多个排序参数
+        /// </summary>
+        /// <param name="keySelector"></param>
+        /// <returns></returns>
+        IObSort<TTerm> AddOrderBy(Func<TTerm, ObProperty[]> keySelector);
+        IObSort<TTerm> AddOrderByDescending(Func<TTerm, ObProperty[]> keySelector);
+
+        /// <summary>
+        /// 添加多个排序参数
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="keySelector"></param>
+        /// <returns></returns>
+        IObSort<TTerm> AddOrderBy<TKey>(Func<TTerm, TKey> keySelector);
+        IObSort<TTerm> AddOrderByDescending<TKey>(Func<TTerm, TKey> keySelector);
     }
 }

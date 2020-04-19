@@ -11,6 +11,7 @@
 * 修改内容：代码整理
 */
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using DotNet.Standard.NParsing.Interface;
 
@@ -64,10 +65,10 @@ namespace DotNet.Standard.NParsing.Factory
         /// <param name="source"></param>
         /// <param name="keySelector"></param>
         /// <returns></returns>
-        public static IObGroup GroupBy<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
+        public static IObGroup<TSource> GroupBy<TSource>(this TSource source, Func<TSource, ObProperty> keySelector)
             where TSource : ObTermBase
         {
-            return ObGroup_Create(keySelector(source));
+            return ObGroup_Create(source, keySelector(source));
         }
 
         /// <summary>
@@ -77,11 +78,41 @@ namespace DotNet.Standard.NParsing.Factory
         /// <param name="source"></param>
         /// <param name="keySelector"></param>
         /// <returns></returns>
-        public static IObGroup GroupBy<TSource>(this TSource source, Func<TSource, ObProperty[]> keySelector)
+        public static IObGroup<TSource> GroupBy<TSource>(this TSource source, Func<TSource, ObProperty[]> keySelector)
             where TSource : ObTermBase
         {
-            var obPropertys = keySelector(source);
-            return ObGroup_Create(obPropertys);
+            return ObGroup_Create(source, keySelector(source));
+        }
+
+        /// <summary>
+        /// 创建多个属性分组
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="keySelector"></param>
+        /// <returns></returns>
+        public static IObGroup<TSource> GroupBy<TSource, TKey>(this TSource source, Func<TSource, TKey> keySelector)
+            where TSource : ObTermBase
+        {
+            var list = new List<ObProperty>();
+            var key = keySelector(source);
+            if (key is ObProperty value)
+            {
+                list.Add(value);
+            }
+            else
+            {
+                foreach (var propertyInfo in key.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                {
+                    var k = propertyInfo.GetValue(key);
+                    if (k is ObProperty value2)
+                    {
+                        list.Add(value2);
+                    }
+                }
+            }
+            return ObGroup_Create(source, list.ToArray());
         }
 
         #endregion
@@ -112,6 +143,44 @@ namespace DotNet.Standard.NParsing.Factory
             {
                 if (obGroup == null)
                     obGroup = ObGroup_Create(obProperty);
+                else
+                    obGroup.AddGroupBy(obProperty);
+            }
+            return obGroup;
+        }
+
+        /// <summary>
+        /// 创建分组
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="obProperty"></param>
+        /// <returns></returns>
+        private static IObGroup<TSource> ObGroup_Create<TSource>(TSource source, ObProperty obProperty)
+            where TSource : ObTermBase
+        {
+            var type = typeof(TSource);
+            var className = CLASS_NAME + "`1[[" + type.FullName + "," + type.Assembly.FullName + "]]";
+            var t = Assembly.Load(ASSEMBLY_STRING).GetType(className);
+            var parameters = new object[]
+            {
+                source,
+                obProperty
+            };
+            return (IObGroup<TSource>)Activator.CreateInstance(t, parameters);
+        }
+
+        private static IObGroup<TSource> ObGroup_Create<TSource>(TSource source, ObProperty[] obPropertys)
+            where TSource : ObTermBase
+        {
+#if DEBUG
+            if (obPropertys.Length == 0)
+                throw new Exception("至少要有一个ObProperty参数");
+#endif
+            IObGroup<TSource> obGroup = null;
+            foreach (var obProperty in obPropertys)
+            {
+                if (obGroup == null)
+                    obGroup = ObGroup_Create(source, obProperty);
                 else
                     obGroup.AddGroupBy(obProperty);
             }
