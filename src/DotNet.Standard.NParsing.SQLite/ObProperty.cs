@@ -5,10 +5,14 @@
 * 功能说明：数据库函数显示字段成生实现类
 * ----------------------------------
  */
+
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.Reflection;
+using DotNet.Standard.Common.Utilities;
 using DotNet.Standard.NParsing.Utilities;
 using DotNet.Standard.NParsing.Interface;
 
@@ -49,44 +53,46 @@ namespace DotNet.Standard.NParsing.SQLite
             return CreateSql(this, false, separator, ref dbParameters);
         }
 
+        private string CreateSql(object value, ref IList<DbParameter> dbParameter)
+        {
+            return CreateSql(value, false, '.', ref dbParameter);
+        }
+
         private string CreateSql(object value, bool renaming, char separator, ref IList<DbParameter> dbParameter)
         {
             IList<object> brothers;
+            var brotherIndex = 0;
             var columnNames = string.Empty;
             bool isAll;
+            var asString = "";
             if (value is IObProperty iObProperty)
             {
                 string obSettledValue = null;
                 foreach (var propertyInfo in iObProperty.ModelType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
                 {
-                    if (propertyInfo.ToColumnName() == ColumnName)
+                    if (propertyInfo.ToColumnName() == iObProperty.ColumnName)
                     {
                         obSettledValue = propertyInfo.GetSettledValue();
-                        /*var psAttribute = (ObSettledAttribute)propertyInfo.GetCustomAttributes(typeof(ObSettledAttribute), true).FirstOrDefault();
-                        if (psAttribute != null)
-                        {
-                            /*obSettledValue = psAttribute.Value;#1#
-                            if (propertyInfo.PropertyType.IsEnum())
-                            {
-                                obSettledValue = Convert.ToDecimal(psAttribute.Value).ToString(CultureInfo.InvariantCulture);
-                            }
-                            else if (psAttribute.Value is string ||
-                                     psAttribute.Value is char ||
-                                     psAttribute.Value is bool ||
-                                     psAttribute.Value is DateTime)
-                            {
-                                obSettledValue = string.Format("'{0}'", psAttribute.Value);
-                            }
-                            else
-                            {
-                                obSettledValue = psAttribute.Value.ToString();
-                            }
-                        }*/
                         break;
                     }
                 }
-                //var tableName = ModelType.ToTableName();
                 var columnValue = obSettledValue ?? string.Format("{0}{2}{1}", iObProperty.TableName, iObProperty.ColumnName, separator);
+                brothers = iObProperty.Brothers;
+                brotherIndex = iObProperty.FuncBrotherCount;
+                if (iObProperty.CustomParams == null)
+                {
+                    columnValue = CreateSql(columnValue, brothers, 0, brotherIndex, ref dbParameter);
+                }
+                else
+                {
+                    columnValue = "";
+                    foreach (var customParam in iObProperty.CustomParams)
+                    {
+                        if (columnValue.Length > 0)
+                            columnValue += ",";
+                        columnValue += CreateSql(customParam, ref dbParameter);
+                    }
+                }
                 switch (DbFunc)
                 {
                     case DbFunc.Null:
@@ -145,38 +151,150 @@ namespace DotNet.Standard.NParsing.SQLite
                         columnNames += $"FORMAT({columnValue})";
                         break;
                 }
-                columnNames += renaming ? $" AS {TableName}_{PropertyName}" : "";
-                brothers = iObProperty.Brothers;
+                asString = renaming ? $" AS {iObProperty.AsProperty.TableName}_{iObProperty.AsProperty.PropertyName}" : "";
                 isAll = iObProperty.AriSymbol == DbAriSymbol.Null;
             }
-            else
+            else if (value is IObValue iObValue)
             {
-                var iObValue = (IObValue)value;
                 var parameterName = "$NPaValue";
+                SQLiteParameter sqlParameter = null;
 
                 #region 防止重复参数名
 
-                int i = 0;
+                var i = 0;
                 foreach (var parameter in dbParameter)
                 {
-                    var pn = parameter.ParameterName;
-                    if (pn.Length > parameterName.Length && pn.Substring(0, parameterName.Length).Equals(parameterName))
+                    if (parameter.ParameterName.StartsWith(parameterName))
+                    {
+                        if (parameter.Value.Equals(iObValue.Value))
+                        {
+                            sqlParameter = (SQLiteParameter)parameter;
+                            parameterName = parameter.ParameterName;
+                            break;
+                        }
                         i++;
-                    else if (pn.Length == parameterName.Length && pn.Equals(parameterName))
-                        i++;
+                    }
                 }
-                parameterName += i == 0 ? "" : i.ToString();
 
                 #endregion
 
-                dbParameter.Add(new SQLiteParameter(parameterName, iObValue.Value));
+                if (sqlParameter == null)
+                {
+                    parameterName += i == 0 ? "" : i.ToString();
+                    sqlParameter = new SQLiteParameter { ParameterName = parameterName };
+                    if (iObValue.Value.IsString())
+                    {
+                        var vv = iObValue.Value.ToString();
+                        sqlParameter.DbType = DbType.String;
+                        sqlParameter.Size = vv.Length == 0 ? 1 : vv.Length;
+                    }
+                    sqlParameter.Value = iObValue.Value;
+                    dbParameter.Add(sqlParameter);
+                }
                 columnNames += parameterName;
                 brothers = iObValue.Brothers;
                 isAll = iObValue.AriSymbol == DbAriSymbol.Null;
             }
-            int iBrotherCount = brothers.Count;
-            isAll = isAll && iBrotherCount > 0;
-            for (int i = 0; i < iBrotherCount; i++)
+            else if (value is Type type)
+            {
+                var parameterName = "";
+                if (type == typeof(short))
+                {
+                    parameterName = "SMALLINT";
+                }
+                else if (type == typeof(int))
+                {
+                    parameterName = "INT";
+                }
+                else if (type == typeof(long))
+                {
+                    parameterName = "BIGINT";
+                }
+                else if (type == typeof(float))
+                {
+                    parameterName = "FLOAT";
+                }
+                else if (type == typeof(double))
+                {
+                    parameterName = "DOUBLE";
+                }
+                else if (type == typeof(decimal))
+                {
+                    parameterName = "DECIMAL(38,8)";
+                }
+                else if (type == typeof(DateTime))
+                {
+                    parameterName = "DATETIME";
+                }
+                else if (type == typeof(string))
+                {
+                    parameterName = "VARCHAR";
+                }
+                columnNames += parameterName;
+                brothers = new List<object>();
+                isAll = false;
+            }
+            else
+            {
+                var parameterName = "$NPaValue";
+                SQLiteParameter sqlParameter = null;
+
+                #region 防止重复参数名
+
+                var i = 0;
+                foreach (var parameter in dbParameter)
+                {
+                    if (parameter.ParameterName.StartsWith(parameterName))
+                    {
+                        if (parameter.Value.Equals(value))
+                        {
+                            sqlParameter = (SQLiteParameter)parameter;
+                            parameterName = parameter.ParameterName;
+                            break;
+                        }
+                        i++;
+                    }
+                }
+
+                #endregion
+
+                if (sqlParameter == null)
+                {
+                    parameterName += i == 0 ? "" : i.ToString();
+                    sqlParameter = new SQLiteParameter { ParameterName = parameterName };
+                    if (value.IsString())
+                    {
+                        var vv = value.ToString();
+                        sqlParameter.DbType = DbType.String;
+                        sqlParameter.Size = vv.Length == 0 ? 1 : vv.Length;
+                    }
+                    sqlParameter.Value = value;
+                    dbParameter.Add(sqlParameter);
+                }
+                columnNames += parameterName;
+                brothers = new List<object>();
+                isAll = false;
+            }
+            var iBrotherCount = brothers.Count;
+            isAll = isAll && iBrotherCount > brotherIndex;
+            columnNames = CreateSql(columnNames, brothers, brotherIndex, iBrotherCount, ref dbParameter);
+            if (isAll)
+                return "(" + columnNames + ")" + asString;
+            return columnNames + asString;
+        }
+
+        /// <summary>
+        /// 算术运算
+        /// </summary>
+        /// <param name="columnValue"></param>
+        /// <param name="brothers"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="dbParameter"></param>
+        /// <returns></returns>
+        private string CreateSql(string columnValue, IList<object> brothers, int start, int end, ref IList<DbParameter> dbParameter)
+        {
+            for (var i = start; i < end; i++)
             {
                 var brother = brothers[i];
                 DbAriSymbol ariSymbol;
@@ -194,37 +312,35 @@ namespace DotNet.Standard.NParsing.SQLite
                 switch (ariSymbol)
                 {
                     case DbAriSymbol.Plus:
-                        columnNames += "+";
+                        columnValue += "+";
                         break;
                     case DbAriSymbol.Minus:
-                        columnNames += "-";
+                        columnValue += "-";
                         break;
                     case DbAriSymbol.Multiply:
-                        columnNames += "*";
+                        columnValue += "*";
                         break;
                     case DbAriSymbol.Except:
-                        columnNames += "/";
+                        columnValue += "/";
                         break;
                     case DbAriSymbol.Mod:
-                        columnNames += "%";
+                        columnValue += "%";
                         break;
                     case DbAriSymbol.And:
-                        columnNames += "&";
+                        columnValue += "&";
                         break;
                     case DbAriSymbol.Or:
-                        columnNames += "|";
+                        columnValue += "|";
                         break;
                 }
-                string andorWhere = "{0}";
+                var andorWhere = "{0}";
                 if (brothersCount > 0)
                 {
                     andorWhere = "(" + andorWhere + ")";
                 }
-                columnNames += string.Format(andorWhere, CreateSql(brother, renaming, separator, ref dbParameter));
+                columnValue += string.Format(andorWhere, CreateSql(brother, ref dbParameter));
             }
-            if (isAll)
-                return "(" + columnNames + ")";
-            return columnNames;
+            return columnValue;
         }
     }
 }
