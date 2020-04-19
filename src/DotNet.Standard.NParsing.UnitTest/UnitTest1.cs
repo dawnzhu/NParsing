@@ -82,11 +82,10 @@ namespace DotNet.Standard.NParsing.UnitTest
             var employe = new Employe("Employes").Of();
             var dal = employe.Helper<EmployeInfo, Employe>("database=NSmart.Demo01;server=.;uid=sa;pwd=1;Pooling=true;Connection Timeout=300;", "DotNet.Standard.NParsing.SQLServer");
             //dal.Update(emp, o => o.Department.DirectorId == 1);
-            /*dal.Join(o => new
+            dal.Join(o => new
            {
-               o.Department,
-               o.Department.Director
-           }).Update(emp, o => o.Department.DirectorId == 1);*/
+               o.Department
+           }).Update(emp, o => o.Department.DirectorId == 1);
              //Convert.ToDouble()
              var list = dal.Where(o => o.Age == 18).Select(o => new
              {

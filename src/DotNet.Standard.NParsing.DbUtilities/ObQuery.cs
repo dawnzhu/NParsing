@@ -42,7 +42,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
             protected set
             {
                 _iObJoin = value;
-                _iSqlBuilder.JoinModels = _iObJoin.JoinModels;
+                if (value != null)
+                {
+                    _iSqlBuilder.JoinModels = value.JoinModels;
+                }
             }
         }
 
@@ -57,10 +60,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             PageSize = 0;
             _iDbHelper = iDbHelper;
             _iSqlBuilder = iSqlBuilder;
-            if (iJoin != null)
-            {
-                _iSqlBuilder.JoinModels = iJoin.JoinModels;
-            }
+            ObJoin = iJoin;
             _providerName = providerName;
             _iObTransaction = iObTransaction;
             ObParameter = iObParameter;

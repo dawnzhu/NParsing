@@ -249,7 +249,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
             protected set
             {
                 _iObJoin = value;
-                SqlBuilder.JoinModels = _iObJoin.JoinModels;
+                if (value != null)
+                {
+                    SqlBuilder.JoinModels = value.JoinModels;
+                }
             }
         }
 
