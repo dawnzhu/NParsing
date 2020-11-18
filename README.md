@@ -1,6 +1,23 @@
 ﻿基于.NET Standard开发的跨平台ORM框架
 =============================
 
+### **主要更新功能(V2.0.0)**
+  
+### 不创建条件类，实现以lambda表达试方式的增删改查
+`IObHelper<Model> dal = ObHelper.Create<Model>(connectionString, providerName);`  
+
+#### 1).查询  
+`IList<Model> list = dal.Where(o => o.Name.Contains("a")).GroupBy(o => o.Name).Select(o => new {Id = o.Max(k => k.Id)}).OrderBy(o => o.Name).ToList();`  
+
+#### 2).增加  
+`dal.Add(new Model(){Id = 1, Name="abc"});`  
+
+#### 3).更新  
+`dal.Update(new Model(){Name=""}, o => o.Id == 1);`  
+
+#### 4).删除  
+`dal.Delete(o => o.Id == 1);`  
+
 ### **主要更新功能(V1.2.0)**
   
 ### 1.删除和更新数据允许多表关联  
