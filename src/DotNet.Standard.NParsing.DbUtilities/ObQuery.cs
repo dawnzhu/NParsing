@@ -25,32 +25,32 @@ namespace DotNet.Standard.NParsing.DbUtilities
     public class ObQuery<TModel> : IObQuery<TModel> where TModel : class, new()
     {
         private readonly IDbHelper _iDbHelper;
-        private readonly ISqlBuilder<TModel> _iSqlBuilder;
+        protected readonly ISqlBuilder<TModel> SqlBuilder;
         private readonly string _providerName;
         private readonly IObTransaction _iObTransaction;
         private  IObJoin _iObJoin;
         private readonly string _key;
         private readonly string _sqlExtra;
         private readonly string _sqlVersion;
-        public IObParameter ObParameter { get; protected set; }
-        public IObParameter ObGroupParameter { get; protected set; }
-        public IObGroup ObGroup { get; protected set; }
-        public IObSort ObSort { get; protected set; }
+        public IObParameter ObParameter { get; set; }
+        public IObParameter ObGroupParameter { get; set; }
+        public IObGroup ObGroup { get; set; }
+        public IObSort ObSort { get; set; }
         public IObJoin ObJoin
         {
             get => _iObJoin;
-            protected set
+            set
             {
                 _iObJoin = value;
                 if (value != null)
                 {
-                    _iSqlBuilder.JoinModels = value.JoinModels;
+                    SqlBuilder.JoinModels = value.JoinModels;
                 }
             }
         }
 
-        public ObQuery(IDbHelper iDbHelper, ISqlBuilder<TModel> iSqlBuilder, string providerName, IObTransaction iObTransaction)
-            : this(iDbHelper, iSqlBuilder, providerName, iObTransaction, null, null, null, null, null)
+        public ObQuery(IDbHelper iDbHelper, ISqlBuilder<TModel> iSqlBuilder, string providerName, IObJoin iJoin)
+            : this(iDbHelper, iSqlBuilder, providerName, null, iJoin, null, null, null, null)
         {
         }
 
@@ -59,7 +59,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
         {
             PageSize = 0;
             _iDbHelper = iDbHelper;
-            _iSqlBuilder = iSqlBuilder;
+            SqlBuilder = iSqlBuilder;
             ObJoin = iJoin;
             _providerName = providerName;
             _iObTransaction = iObTransaction;
@@ -234,12 +234,12 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 iObParameter?.ToString(ref dbParameters);
                 if (topSize.HasValue)
                 {
-                    _iSqlBuilder.TopParameters(topSize.Value, ref dbParameters);
+                    SqlBuilder.TopParameters(topSize.Value, ref dbParameters);
                 }
             }
             else
             {
-                sql = _iSqlBuilder.Select(topSize, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out columnNames);
+                sql = SqlBuilder.Select(topSize, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out columnNames);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames});
             }
 #if DEBUG
@@ -253,7 +253,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             if (_iObTransaction != null)
             {
                 dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
-                models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
+                models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames);
                 if (!dr.IsClosed)
                 {
                     dr.Close();
@@ -265,7 +265,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 using (var dbHelper = new DbHelper(_iDbHelper))
                 {
                     dr = dbHelper.ExecuteReader(sql, ((List<DbParameter>)dbParameters).ToArray());
-                    models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
+                    models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames);
                 }
             }
 
@@ -329,7 +329,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             }
             else
             {
-                countsql = _iSqlBuilder.CountSelect(iObParameter, iObGroup, iObParameter2, ref dbParameters);
+                countsql = SqlBuilder.CountSelect(iObParameter, iObGroup, iObParameter2, ref dbParameters);
                 ObCache.Add(_key + "Count", new ObSqlcache { Version = _sqlVersion, SqlText = countsql });
             }
             dbParameters = new List<DbParameter>();
@@ -339,11 +339,11 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 sql = sc.SqlText;
                 columnNames = sc.ColumnNames;
                 iObParameter?.ToString(ref dbParameters);
-                _iSqlBuilder.PageParameters(pageSize, pageIndex, ref dbParameters);
+                SqlBuilder.PageParameters(pageSize, pageIndex, ref dbParameters);
             }
             else
             {
-                sql = _iSqlBuilder.Select(pageSize, pageIndex, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out columnNames);
+                sql = SqlBuilder.Select(pageSize, pageIndex, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out columnNames);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames });
             }
 #if DEBUG
@@ -357,7 +357,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             {
                 count = Convert.ToInt32(DbHelper.ExecuteScalar(_iDbHelper, _iObTransaction.DbTransaction, countsql, ((List<DbParameter>)dbParameters).ToArray()));
                 dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
-                models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
+                models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames);
                 if (!dr.IsClosed)
                 {
                     dr.Close();
@@ -370,7 +370,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 {
                     count = Convert.ToInt32(dbHelper.ExecuteScalar(countsql, ((List<DbParameter>)dbParameters).ToArray()));
                     dr = dbHelper.ExecuteReader(sql, ((List<DbParameter>)dbParameters).ToArray());
-                    models = dr.ToList<TModel>(_iSqlBuilder.ObRedefine.Models, columnNames);
+                    models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames);
                 }
             }
 
@@ -494,12 +494,12 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 iObParameter?.ToString(ref dbParameters);
                 if (topSize.HasValue)
                 {
-                    _iSqlBuilder.TopParameters(topSize.Value, ref dbParameters);
+                    SqlBuilder.TopParameters(topSize.Value, ref dbParameters);
                 }
             }
             else
             {
-                sql = _iSqlBuilder.Select(topSize, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out var columnNames);
+                sql = SqlBuilder.Select(topSize, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out var columnNames);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames });
             }
 #if DEBUG
@@ -579,7 +579,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             }
             else
             {
-                countsql = _iSqlBuilder.CountSelect(iObParameter, iObGroup, iObParameter2, ref dbParameters);
+                countsql = SqlBuilder.CountSelect(iObParameter, iObGroup, iObParameter2, ref dbParameters);
                 ObCache.Add(_key + "Count", new ObSqlcache { Version = _sqlVersion, SqlText = countsql });
             }
             dbParameters = new List<DbParameter>();
@@ -589,11 +589,11 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 sql = sc.SqlText;
                 //columnNames = sc.ColumnNames;
                 iObParameter?.ToString(ref dbParameters);
-                _iSqlBuilder.PageParameters(pageSize, pageIndex, ref dbParameters);
+                SqlBuilder.PageParameters(pageSize, pageIndex, ref dbParameters);
             }
             else
             {
-                sql = _iSqlBuilder.Select(pageSize, pageIndex, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out var columnNames);
+                sql = SqlBuilder.Select(pageSize, pageIndex, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out var columnNames);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames });
             }
 #if DEBUG
@@ -672,7 +672,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             }
             else
             {
-                sql = _iSqlBuilder.Select(iObProperty, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters);
+                sql = SqlBuilder.Select(iObProperty, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql });
             }
 #if DEBUG
@@ -728,7 +728,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             }
             else
             {
-                sql = _iSqlBuilder.ExistsSelect(iObParameter, ref dbParameters);
+                sql = SqlBuilder.ExistsSelect(iObParameter, ref dbParameters);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql });
             }
 #if DEBUG
@@ -792,7 +792,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             }
             else
             {
-                sql = _iSqlBuilder.CountSelect(iObParameter, iObGroup, iObParameter2, ref dbParameters);
+                sql = SqlBuilder.CountSelect(iObParameter, iObGroup, iObParameter2, ref dbParameters);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql });
             }
 #if DEBUG

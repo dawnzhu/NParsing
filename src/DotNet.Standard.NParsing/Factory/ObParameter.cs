@@ -63,6 +63,19 @@ namespace DotNet.Standard.NParsing.Factory
             return (ObParameterBase)Activator.CreateInstance(t, parameters);
         }
 
+        public static ObParameterBase Create(bool equal)
+        {
+            Type t = Assembly.Load(ASSEMBLY_STRING).GetType(CLASS_NAME);
+            var parameters = new object[]
+            {
+                "1",
+                "0",
+                equal ? DbSymbol.Equal : DbSymbol.NotEqual,
+                "1.0"
+            };
+            return (ObParameterBase)Activator.CreateInstance(t, parameters);
+        }
+
         /// <summary>
         /// 创建子条件
         /// </summary>

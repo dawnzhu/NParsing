@@ -22,27 +22,27 @@ namespace DotNet.Standard.NParsing.Interface
         /// <summary>
         /// 过虑条件参数
         /// </summary>
-        IObParameter ObParameter { get; }
+        IObParameter ObParameter { get; set; }
 
         /// <summary>
         /// 分组后过虑条件参数
         /// </summary>
-        IObParameter ObGroupParameter { get; }
+        IObParameter ObGroupParameter { get; set; }
 
         /// <summary>
         /// 分组
         /// </summary>
-        IObGroup ObGroup { get; }
+        IObGroup ObGroup { get; set; }
 
         /// <summary>
         /// 排序
         /// </summary>
-        IObSort ObSort { get; }
+        IObSort ObSort { get; set; }
 
         /// <summary>
         /// 关联
         /// </summary>
-        IObJoin ObJoin { get; }
+        IObJoin ObJoin { get; set; }
 
         /// <summary>
         /// 获得一个对像

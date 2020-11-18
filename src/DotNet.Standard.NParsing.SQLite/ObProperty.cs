@@ -311,19 +311,19 @@ namespace DotNet.Standard.NParsing.SQLite
                 }
                 switch (ariSymbol)
                 {
-                    case DbAriSymbol.Plus:
+                    case DbAriSymbol.Add:
                         columnValue += "+";
                         break;
-                    case DbAriSymbol.Minus:
+                    case DbAriSymbol.Subtract:
                         columnValue += "-";
                         break;
                     case DbAriSymbol.Multiply:
                         columnValue += "*";
                         break;
-                    case DbAriSymbol.Except:
+                    case DbAriSymbol.Divide:
                         columnValue += "/";
                         break;
-                    case DbAriSymbol.Mod:
+                    case DbAriSymbol.Modulo:
                         columnValue += "%";
                         break;
                     case DbAriSymbol.And:
@@ -332,13 +332,31 @@ namespace DotNet.Standard.NParsing.SQLite
                     case DbAriSymbol.Or:
                         columnValue += "|";
                         break;
+                    case DbAriSymbol.ExclusiveOr:
+                        columnValue += "^";
+                        break;
+                    case DbAriSymbol.Not:
+                        columnValue = "~" + columnValue;
+                        break;
+                    case DbAriSymbol.LeftShift:
+                        columnValue += "<<";
+                        break;
+                    case DbAriSymbol.RightShift:
+                        columnValue += ">>";
+                        break;
+                    case DbAriSymbol.Negate:
+                        columnValue = "-" + columnValue;
+                        break;
                 }
-                var andorWhere = "{0}";
-                if (brothersCount > 0)
+                if (ariSymbol != DbAriSymbol.Not && ariSymbol != DbAriSymbol.Negate)
                 {
-                    andorWhere = "(" + andorWhere + ")";
+                    var andorWhere = "{0}";
+                    if (brothersCount > 0)
+                    {
+                        andorWhere = "(" + andorWhere + ")";
+                    }
+                    columnValue += string.Format(andorWhere, CreateSql(brother, ref dbParameter));
                 }
-                columnValue += string.Format(andorWhere, CreateSql(brother, ref dbParameter));
             }
             return columnValue;
         }

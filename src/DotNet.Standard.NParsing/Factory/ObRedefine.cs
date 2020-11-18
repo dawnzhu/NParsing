@@ -30,7 +30,7 @@ namespace DotNet.Standard.NParsing.Factory
             return Create(typeof(TModel), null, rename);
         }
 
-        internal static IObRedefine Create(Type mt, string rename)
+        public static IObRedefine Create(Type mt, string rename)
         {
             return Create(mt, null, rename);
         }

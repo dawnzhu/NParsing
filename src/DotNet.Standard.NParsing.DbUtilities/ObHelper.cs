@@ -76,6 +76,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq.Expressions;
 using System.Reflection;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Interface;
@@ -1402,6 +1403,86 @@ namespace DotNet.Standard.NParsing.DbUtilities
         //}
 
         //#endregion
+
+        public int Delete(Expression<Func<TModel, bool>> keySelector)
+        {
+            var queryable = new ObQueryable<TModel>(WriteDbHelper, SqlBuilder, ProviderName, ObJoin);
+            queryable.Where(keySelector);
+            return Delete(queryable.ObParameter);
+        }
+
+        public int Update(TModel model, Expression<Func<TModel, bool>> keySelector)
+        {
+            var queryable = new ObQueryable<TModel>(WriteDbHelper, SqlBuilder, ProviderName, ObJoin);
+            queryable.Where(keySelector);
+            return Update(model, queryable.ObParameter);
+        }
+
+        public IObQueryable<TModel> Queryable()
+        {
+            var queryable = new ObQueryable<TModel>(ReadDbHelper, SqlBuilder, ProviderName, ObJoin);
+            return queryable;
+        }
+
+        public IObQueryable<TModel> Where(Expression<Func<TModel, bool>> keySelector)
+        {
+            var queryable = new ObQueryable<TModel>(ReadDbHelper, SqlBuilder, ProviderName, ObJoin);
+            queryable.Where(keySelector);
+            return queryable;
+        }
+
+        public IObQueryable<TModel> OrderBy<TKey>(Expression<Func<TModel, TKey>> keySelector)
+        {
+            var queryable = new ObQueryable<TModel>(ReadDbHelper, SqlBuilder, ProviderName, ObJoin);
+            queryable.OrderBy(keySelector);
+            return queryable;
+        }
+
+        public IObQueryable<TModel> OrderByDescending<TKey>(Expression<Func<TModel, TKey>> keySelector)
+        {
+            var queryable = new ObQueryable<TModel>(ReadDbHelper, SqlBuilder, ProviderName, ObJoin);
+            queryable.OrderByDescending(keySelector);
+            return queryable;
+        }
+
+        public IObQueryable<TModel> GroupBy<TKey>(Expression<Func<TModel, TKey>> keySelector)
+        {
+            var queryable = new ObQueryable<TModel>(ReadDbHelper, SqlBuilder, ProviderName, ObJoin);
+            queryable.GroupBy(keySelector);
+            return queryable;
+        }
+
+        public IObQueryable<TModel> DistinctBy<TKey>(Expression<Func<TModel, TKey>> keySelector)
+        {
+            var queryable = new ObQueryable<TModel>(ReadDbHelper, SqlBuilder, ProviderName, ObJoin);
+            queryable.DistinctBy(keySelector);
+            return queryable;
+        }
+
+        public IObHelper<TModel> Join()
+        {
+            if (ObJoin == null)
+            {
+                ObJoin = new ObJoin();
+            }
+            return this;
+        }
+
+        public IObHelper<TModel> Join<TKey>(Expression<Func<TModel, TKey>> keySelector)
+        {
+            if (ObJoin == null)
+            {
+                ObJoin = new ObJoin();
+            }
+            var queryable = new ObQueryable<TModel>(ReadDbHelper, SqlBuilder, ProviderName, ObJoin);
+            queryable.Join(keySelector);
+            foreach (var joinModel in queryable.ObJoin.JoinModels)
+            {
+                ObJoin.JoinModels.Add(joinModel);
+            }
+            return this;
+        }
+
     }
 
     public class ObHelper<TModel, TTerm> : ObHelper<TModel>, IObHelper<TModel, TTerm>
@@ -1439,8 +1520,11 @@ namespace DotNet.Standard.NParsing.DbUtilities
         /// <returns></returns>
         public int Delete(Func<TTerm, IObParameter> keySelector)
         {
-            var iObParameter = keySelector(Term);
-            return Delete(iObParameter);
+            /*var iObParameter = keySelector(Term);
+            return Delete(iObParameter);*/
+            var queryable = new ObQueryable<TModel, TTerm>(WriteDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.Where(keySelector);
+            return Delete(queryable.ObParameter);
         }
 
         #endregion
@@ -1455,74 +1539,83 @@ namespace DotNet.Standard.NParsing.DbUtilities
         /// <returns></returns>
         public int Update(TModel model, Func<TTerm, IObParameter> keySelector)
         {
-            var iObParameter = keySelector(Term);
-            return Update(model, iObParameter);
+            /*var iObParameter = keySelector(Term);
+            return Update(model, iObParameter);*/
+            var queryable = new ObQueryable<TModel, TTerm>(WriteDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.Where(keySelector);
+            return Update(model, queryable.ObParameter);
         }
 
         #endregion
 
-        public IObSelect<TModel, TTerm> Where(Func<TTerm, IObParameter> keySelector)
+        public new IObQueryable<TModel, TTerm> Queryable()
         {
-            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
-            select.Where(keySelector);
-            return select;
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            return queryable;
         }
 
-        public IObSelect<TModel, TTerm> GroupBy<TKey>(Func<TTerm, TKey> keySelector)
+        public IObQueryable<TModel, TTerm> Where(Func<TTerm, IObParameter> keySelector)
         {
-            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
-            select.GroupBy(keySelector);
-            return select;
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.Where(keySelector);
+            return queryable;
         }
 
-        public IObSelect<TModel, TTerm> GroupBy(Func<TTerm, ObProperty> keySelector)
+        public IObQueryable<TModel, TTerm> GroupBy<TKey>(Func<TTerm, TKey> keySelector)
         {
-            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
-            select.GroupBy(keySelector);
-            return select;
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.GroupBy(keySelector);
+            return queryable;
         }
 
-        public IObSelect<TModel, TTerm> DistinctBy<TKey>(Func<TTerm, TKey> keySelector)
+        public IObQueryable<TModel, TTerm> GroupBy(Func<TTerm, ObProperty> keySelector)
+        {
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.GroupBy(keySelector);
+            return queryable;
+        }
+
+        public IObQueryable<TModel, TTerm> DistinctBy<TKey>(Func<TTerm, TKey> keySelector)
         {
             return GroupBy(keySelector);
         }
 
-        public IObSelect<TModel, TTerm> DistinctBy(Func<TTerm, ObProperty> keySelector)
+        public IObQueryable<TModel, TTerm> DistinctBy(Func<TTerm, ObProperty> keySelector)
         {
             return GroupBy(keySelector);
         }
 
-        public IObSelect<TModel, TTerm> OrderBy<TKey>(Func<TTerm, TKey> keySelector)
+        public IObQueryable<TModel, TTerm> OrderBy<TKey>(Func<TTerm, TKey> keySelector)
         {
-            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
-            select.OrderBy(keySelector);
-            return select;
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.OrderBy(keySelector);
+            return queryable;
         }
 
-        public IObSelect<TModel, TTerm> OrderBy(Func<TTerm, ObProperty> keySelector)
+        public IObQueryable<TModel, TTerm> OrderBy(Func<TTerm, ObProperty> keySelector)
         {
-            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
-            select.OrderBy(keySelector);
-            return select;
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.OrderBy(keySelector);
+            return queryable;
         }
 
-        public IObSelect<TModel, TTerm> OrderByDescending<TKey>(Func<TTerm, TKey> keySelector)
+        public IObQueryable<TModel, TTerm> OrderByDescending<TKey>(Func<TTerm, TKey> keySelector)
         {
-            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
-            select.OrderByDescending(keySelector);
-            return select;
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.OrderByDescending(keySelector);
+            return queryable;
         }
 
-        public IObSelect<TModel, TTerm> OrderByDescending(Func<TTerm, ObProperty> keySelector)
+        public IObQueryable<TModel, TTerm> OrderByDescending(Func<TTerm, ObProperty> keySelector)
         {
-            var select = new ObSelect<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, null);
-            select.OrderByDescending(keySelector);
-            return select;
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.OrderByDescending(keySelector);
+            return queryable;
         }
 
         public IObHelper<TModel, TTerm> Join<TKey>(Func<TTerm, TKey> keySelector)
         {
-            var iObJoin = new ObJoin();
+            /*var iObJoin = new ObJoin();
             var list = new List<ObTermBase>();
             var key = keySelector(Term);
             if (key is ObTermBase value)
@@ -1541,15 +1634,35 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 }
             }
             iObJoin.AddJoin(list.ToArray());
-            ObJoin = iObJoin;
+            ObJoin = iObJoin;*/
+            if (ObJoin == null)
+            {
+                ObJoin = new ObJoin();
+            }
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.Join(keySelector);
+            foreach (var joinModel in queryable.ObJoin.JoinModels)
+            {
+                ObJoin.JoinModels.Add(joinModel);
+            }
             return this;
         }
 
         public IObHelper<TModel, TTerm> Join(Func<TTerm, ObTermBase> keySelector)
         {
-            var iObJoin = new ObJoin();
+            /*var iObJoin = new ObJoin();
             iObJoin.AddJoin(keySelector(Term));
-            ObJoin = iObJoin;
+            ObJoin = iObJoin;*/
+            if (ObJoin == null)
+            {
+                ObJoin = new ObJoin();
+            }
+            var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
+            queryable.Join(keySelector);
+            foreach (var joinModel in queryable.ObJoin.JoinModels)
+            {
+                ObJoin.JoinModels.Add(joinModel);
+            }
             return this;
         }
     }

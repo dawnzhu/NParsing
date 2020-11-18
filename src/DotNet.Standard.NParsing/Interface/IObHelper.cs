@@ -73,6 +73,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq.Expressions;
 using DotNet.Standard.NParsing.Factory;
 
 namespace DotNet.Standard.NParsing.Interface
@@ -292,6 +293,18 @@ namespace DotNet.Standard.NParsing.Interface
 
         IObSql<TModel> SqlStoredProcedure(string commandText, params DbParameter[] commandParameters);
         IObSql<TModel> SqlStoredProcedure(IObTransaction iObTransaction, string commandText, params DbParameter[] commandParameters);
+
+        IObQueryable<TModel> Queryable();
+        int Delete(Expression<Func<TModel, bool>> keySelector);
+        int Update(TModel model, Expression<Func<TModel, bool>> keySelector);
+
+        IObQueryable<TModel> Where(Expression<Func<TModel, bool>> keySelector);
+        IObQueryable<TModel> OrderBy<TKey>(Expression<Func<TModel, TKey>> keySelector);
+        IObQueryable<TModel> OrderByDescending<TKey>(Expression<Func<TModel, TKey>> keySelector);
+        IObQueryable<TModel> GroupBy<TKey>(Expression<Func<TModel, TKey>> keySelector);
+        IObQueryable<TModel> DistinctBy<TKey>(Expression<Func<TModel, TKey>> keySelector);
+        IObHelper<TModel> Join();
+        IObHelper<TModel> Join<TKey>(Expression<Func<TModel, TKey>> keySelector);
     }
 
     public interface IObHelper<TModel, out TTerm> : IObHelper<TModel>
@@ -299,17 +312,18 @@ namespace DotNet.Standard.NParsing.Interface
         where TTerm : ObTermBase
     {
         TTerm Term { get; }
+        new IObQueryable<TModel, TTerm> Queryable();
         int Delete(Func<TTerm, IObParameter> keySelector);
         int Update(TModel model, Func<TTerm, IObParameter> keySelector);
-        IObSelect<TModel, TTerm> Where(Func<TTerm, IObParameter> keySelector);
-        IObSelect<TModel, TTerm> GroupBy<TKey>(Func<TTerm, TKey> keySelector);
-        IObSelect<TModel, TTerm> GroupBy(Func<TTerm, ObProperty> keySelector);
-        IObSelect<TModel, TTerm> DistinctBy<TKey>(Func<TTerm, TKey> keySelector);
-        IObSelect<TModel, TTerm> DistinctBy(Func<TTerm, ObProperty> keySelector);
-        IObSelect<TModel, TTerm> OrderBy<TKey>(Func<TTerm, TKey> keySelector);
-        IObSelect<TModel, TTerm> OrderBy(Func<TTerm, ObProperty> keySelector);
-        IObSelect<TModel, TTerm> OrderByDescending<TKey>(Func<TTerm, TKey> keySelector);
-        IObSelect<TModel, TTerm> OrderByDescending(Func<TTerm, ObProperty> keySelector);
+        IObQueryable<TModel, TTerm> Where(Func<TTerm, IObParameter> keySelector);
+        IObQueryable<TModel, TTerm> GroupBy<TKey>(Func<TTerm, TKey> keySelector);
+        IObQueryable<TModel, TTerm> GroupBy(Func<TTerm, ObProperty> keySelector);
+        IObQueryable<TModel, TTerm> DistinctBy<TKey>(Func<TTerm, TKey> keySelector);
+        IObQueryable<TModel, TTerm> DistinctBy(Func<TTerm, ObProperty> keySelector);
+        IObQueryable<TModel, TTerm> OrderBy<TKey>(Func<TTerm, TKey> keySelector);
+        IObQueryable<TModel, TTerm> OrderBy(Func<TTerm, ObProperty> keySelector);
+        IObQueryable<TModel, TTerm> OrderByDescending<TKey>(Func<TTerm, TKey> keySelector);
+        IObQueryable<TModel, TTerm> OrderByDescending(Func<TTerm, ObProperty> keySelector);
         IObHelper<TModel, TTerm> Join<TKey>(Func<TTerm, TKey> keySelector);
         IObHelper<TModel, TTerm> Join(Func<TTerm, ObTermBase> keySelector);
     }

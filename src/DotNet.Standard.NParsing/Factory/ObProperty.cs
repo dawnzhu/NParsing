@@ -126,7 +126,7 @@ namespace DotNet.Standard.NParsing.Factory
                 : new ObProperty(typeof(TModel), typeof(TModel).ToTableName(iObRedefine.Models), propertyName);
         }
 
-        internal static ObProperty Create(Type mt, IObRedefine iObRedefine, string propertyName)
+        public static ObProperty Create(Type mt, IObRedefine iObRedefine, string propertyName)
         {
             return iObRedefine == null
                 ? new ObProperty(mt, mt.ToTableName(), propertyName)
@@ -140,11 +140,11 @@ namespace DotNet.Standard.NParsing.Factory
             if (value is ObProperty property)
             {
                 obProperty.Brothers.Add(property);
-                property.AriSymbol = DbAriSymbol.Plus;
+                property.AriSymbol = DbAriSymbol.Add;
             }
             else
             {
-                var obValue = new ObValue(DbAriSymbol.Plus, value);
+                var obValue = new ObValue(DbAriSymbol.Add, value);
                 obProperty.Brothers.Add(obValue);
             }
             return obProperty;
@@ -155,11 +155,11 @@ namespace DotNet.Standard.NParsing.Factory
             if (value is ObProperty property)
             {
                 obProperty.Brothers.Add(property);
-                property.AriSymbol = DbAriSymbol.Minus;
+                property.AriSymbol = DbAriSymbol.Subtract;
             }
             else
             {
-                var obValue = new ObValue(DbAriSymbol.Minus, value);
+                var obValue = new ObValue(DbAriSymbol.Subtract, value);
                 obProperty.Brothers.Add(obValue);
             }
             return obProperty;
@@ -185,11 +185,11 @@ namespace DotNet.Standard.NParsing.Factory
             if (value is ObProperty property)
             {
                 obProperty.Brothers.Add(property);
-                property.AriSymbol = DbAriSymbol.Except;
+                property.AriSymbol = DbAriSymbol.Divide;
             }
             else
             {
-                var obValue = new ObValue(DbAriSymbol.Except, value);
+                var obValue = new ObValue(DbAriSymbol.Divide, value);
                 obProperty.Brothers.Add(obValue);
             }
             return obProperty;
@@ -199,11 +199,11 @@ namespace DotNet.Standard.NParsing.Factory
             if (value is ObProperty property)
             {
                 obProperty.Brothers.Add(property);
-                property.AriSymbol = DbAriSymbol.Mod;
+                property.AriSymbol = DbAriSymbol.Modulo;
             }
             else
             {
-                var obValue = new ObValue(DbAriSymbol.Mod, value);
+                var obValue = new ObValue(DbAriSymbol.Modulo, value);
                 obProperty.Brothers.Add(obValue);
             }
             return obProperty;
@@ -236,6 +236,49 @@ namespace DotNet.Standard.NParsing.Factory
                 var obValue = new ObValue(DbAriSymbol.Or, value);
                 obProperty.Brothers.Add(obValue);
             }
+            return obProperty;
+        }
+
+        public static ObProperty operator ^(ObProperty obProperty, object value)
+        {
+            if (value is ObProperty property)
+            {
+                obProperty.Brothers.Add(property);
+                property.AriSymbol = DbAriSymbol.ExclusiveOr;
+            }
+            else
+            {
+                var obValue = new ObValue(DbAriSymbol.ExclusiveOr, value);
+                obProperty.Brothers.Add(obValue);
+            }
+            return obProperty;
+        }
+
+        public static ObProperty operator ~(ObProperty obProperty)
+        {
+            var obValue = new ObValue(DbAriSymbol.Not, null);
+            obProperty.Brothers.Add(obValue);
+            return obProperty;
+        }
+
+        public static ObProperty operator -(ObProperty obProperty)
+        {
+            var obValue = new ObValue(DbAriSymbol.Negate, null);
+            obProperty.Brothers.Add(obValue);
+            return obProperty;
+        }
+
+        public static ObProperty operator <<(ObProperty obProperty, int value)
+        {
+            var obValue = new ObValue(DbAriSymbol.LeftShift, value);
+            obProperty.Brothers.Add(obValue);
+            return obProperty;
+        }
+
+        public static ObProperty operator >>(ObProperty obProperty, int value)
+        {
+            var obValue = new ObValue(DbAriSymbol.RightShift, value);
+            obProperty.Brothers.Add(obValue);
             return obProperty;
         }
 
