@@ -1418,7 +1418,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             return Update(model, queryable.ObParameter);
         }
 
-        public IObQueryable<TModel> Queryable()
+        public virtual IObQueryable<TModel> Queryable()
         {
             var queryable = new ObQueryable<TModel>(ReadDbHelper, SqlBuilder, ProviderName, ObJoin);
             return queryable;
@@ -1548,7 +1548,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         #endregion
 
-        public new IObQueryable<TModel, TTerm> Queryable()
+        public override IObQueryable<TModel> Queryable()
         {
             var queryable = new ObQueryable<TModel, TTerm>(ReadDbHelper, SqlBuilder, ProviderName, Term, ObJoin);
             return queryable;

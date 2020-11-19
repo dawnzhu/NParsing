@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -307,9 +308,19 @@ namespace DotNet.Standard.NParsing.DbUtilities
                         obProperty = CreateProperty(mcallExp.Object ?? mcallExp.Arguments[1]);
                         if (mcallExp.Arguments[0] is NewArrayExpression arrExp)
                         {
-                            var value = arrExp.Expressions.Select(o => ((ConstantExpression)o).Value).ToArray();
+                            var value = arrExp.Expressions.Select(o => ((ConstantExpression) o).Value).ToArray();
                             return not ? obProperty.NotIn(value) : obProperty.In(value);
                         }
+                        else if (mcallExp.Arguments[0] is MemberExpression meExp)
+                        {
+                            var value = CreateValue(meExp);
+                            if (value is ICollection vs)
+                            {
+                                value = vs.Cast<object>().ToArray();
+                            }
+                            return not ? obProperty.NotIn(value) : obProperty.In(value);
+                        }
+                        //TODO
                         else //if(mcallExp.Arguments[0] is ConstantExpression coExp)
                         {
                             return not ? obProperty.NotLike(CreateValue(mcallExp.Arguments[0])) : obProperty.Like(CreateValue(mcallExp.Arguments[0]));
@@ -405,6 +416,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
             if (exp is MemberExpression meExp)
             {
+                if (meExp.Expression is ConstantExpression)
+                {
+                    return Expression.Lambda(meExp).Compile().DynamicInvoke();
+                }
                 var tableName = typeof(TModel).ToTableName(SqlBuilder.ObRedefine.Models);
                 var ts = meExp.ToString()
                     .Replace(".FirstOrDefault()", "").Replace(".First()", "")

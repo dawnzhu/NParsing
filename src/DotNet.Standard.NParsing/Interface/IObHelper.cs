@@ -312,7 +312,7 @@ namespace DotNet.Standard.NParsing.Interface
         where TTerm : ObTermBase
     {
         TTerm Term { get; }
-        new IObQueryable<TModel, TTerm> Queryable();
+        //new IObQueryable<TModel> Queryable();
         int Delete(Func<TTerm, IObParameter> keySelector);
         int Update(TModel model, Func<TTerm, IObParameter> keySelector);
         IObQueryable<TModel, TTerm> Where(Func<TTerm, IObParameter> keySelector);
