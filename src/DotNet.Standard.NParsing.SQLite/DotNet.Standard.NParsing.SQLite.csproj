@@ -9,6 +9,11 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/dawnzhu/NParsing/tree/master/src/DotNet.Standard.NParsing.SQLite</RepositoryUrl>
+    <PackageReleaseNotes>SQLite support class library.</PackageReleaseNotes>
+    <Copyright>Copyright 2020</Copyright>
+    <RepositoryType>Public</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

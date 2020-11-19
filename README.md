@@ -3,7 +3,7 @@
 
 ### **主要更新功能(V2.0.0)**
   
-### 不创建条件类，实现以lambda表达试方式的增删改查
+### 不创建条件类，实现以lambda表达式方式的增删改查
 `IObHelper<Model> dal = ObHelper.Create<Model>(connectionString, providerName);`  
 
 #### 1).查询  

@@ -9,6 +9,11 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <Copyright>Copyright 2020</Copyright>
+    <RepositoryUrl>https://github.com/dawnzhu/NParsing/tree/master/src/DotNet.Standard.NParsing.DbUtilities</RepositoryUrl>
+    <PackageReleaseNotes>Tool class library.</PackageReleaseNotes>
+    <RepositoryType>Public</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>

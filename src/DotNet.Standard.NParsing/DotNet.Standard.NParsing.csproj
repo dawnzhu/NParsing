@@ -9,6 +9,12 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Version>2.0.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl></PackageProjectUrl>
+    <PackageReleaseNotes>Main class library.</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/dawnzhu/NParsing/tree/master/src/DotNet.Standard.NParsing</RepositoryUrl>
+    <Copyright>Copyright 2020</Copyright>
+    <RepositoryType>Public</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
