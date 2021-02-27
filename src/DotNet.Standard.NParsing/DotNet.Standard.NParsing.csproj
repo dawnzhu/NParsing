@@ -7,13 +7,13 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Version>2.0.1</Version>
+    <Version>2.0.2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl></PackageProjectUrl>
     <PackageReleaseNotes>Main class library.</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/dawnzhu/NParsing/tree/master/src/DotNet.Standard.NParsing</RepositoryUrl>
-    <Copyright>Copyright 2020</Copyright>
+    <Copyright>Copyright 2021</Copyright>
     <RepositoryType>Public</RepositoryType>
   </PropertyGroup>
 
@@ -23,7 +23,7 @@
 
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath></OutputPath>
+    <OutputPath>..\..\..\Debug</OutputPath>
   </PropertyGroup>
 
 

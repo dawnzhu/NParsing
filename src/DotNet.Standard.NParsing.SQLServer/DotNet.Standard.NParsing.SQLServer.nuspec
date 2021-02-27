@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>SQLServer support class library.</releaseNotes>
-    <copyright>Copyright 2020</copyright>
+    <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
         <dependency id="DotNet.Standard.NParsing" version="2.0.1"/>

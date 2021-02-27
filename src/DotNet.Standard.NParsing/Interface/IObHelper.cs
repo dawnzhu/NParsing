@@ -307,7 +307,7 @@ namespace DotNet.Standard.NParsing.Interface
         IObHelper<TModel> Join<TKey>(Expression<Func<TModel, TKey>> keySelector);
     }
 
-    public interface IObHelper<TModel, out TTerm> : IObHelper<TModel>
+    public interface IObHelper<TModel, TTerm> : IObHelper<TModel>
         where TModel : ObModelBase
         where TTerm : ObTermBase
     {

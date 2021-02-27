@@ -23,7 +23,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
-    <OutputPath></OutputPath>
+    <OutputPath>..\..\..\Debug</OutputPath>
   </PropertyGroup>
 
 

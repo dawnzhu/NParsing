@@ -171,6 +171,104 @@ namespace DotNet.Standard.NParsing.DbUtilities
             return this;
         }
 
+        public IObQueryable<TModel> Where(IObQueryable<TModel> queryable)
+        {
+            ObParameter = queryable.ObParameter;
+            ObGroupParameter = queryable.ObGroupParameter;
+            ObGroup = queryable.ObGroup;
+            ObSort = queryable.ObSort;
+            ObJoin = queryable.ObJoin;
+            return this;
+        }
+
+        public IObQueryable<TModel> And(IObQueryable<TModel> queryable)
+        {
+            ObParameter = (ObParameterBase)ObParameter && (ObParameterBase)queryable.ObParameter;
+            if (ObGroup != null && queryable.ObGroupParameter != null)
+            {
+                ObGroupParameter = (ObParameterBase)ObGroupParameter && (ObParameterBase)queryable.ObGroupParameter;
+            }
+            return this;
+        }
+
+        public IObQueryable<TModel> Or(IObQueryable<TModel> queryable)
+        {
+            ObParameter = Factory.ObParameter.Create((ObParameterBase)ObParameter || (ObParameterBase)queryable.ObParameter);
+            if (ObGroup != null && queryable.ObGroupParameter != null)
+            {
+                ObGroupParameter = Factory.ObParameter.Create((ObParameterBase)ObGroupParameter || (ObParameterBase)queryable.ObGroupParameter);
+            }
+            return this;
+        }
+
+        public IObQueryable<TModel> OrderBy(IObQueryable<TModel> queryable)
+        {
+            if (ObSort == null)
+            {
+                ObSort = new ObSort();
+            }
+            ObSort.Add(queryable.ObSort);
+            return this;
+        }
+
+        /*public IObQueryable<TModel> OrderBy(IObQueryable<TModel> queryable)
+        {
+            if (ObSort == null)
+            {
+                ObSort = new ObSort();
+            }
+            ObSort.AddOrderBy(queryable.ObSort.List.Where(o => o.IsAsc).Select(o => o.ObProperty).ToArray());
+            return this;
+        }
+
+        public IObQueryable<TModel> OrderByDescending(IObQueryable<TModel> queryable)
+        {
+            if (ObSort == null)
+            {
+                ObSort = new ObSort();
+            }
+            ObSort.AddOrderByDescending(queryable.ObSort.List.Where(o => !o.IsAsc).Select(o => o.ObProperty).ToArray());
+            return this;
+        }*/
+
+        public IObQueryable<TModel> GroupBy(IObQueryable<TModel> queryable)
+        {
+            if (ObGroup == null)
+            {
+                ObGroup = new ObGroup();
+            }
+            ObGroup.AddGroupBy(queryable.ObGroup.ObGroupProperties.Select(o => (ObProperty)o).ToArray());
+            return this;
+        }
+
+        public IObQueryable<TModel> DistinctBy(IObQueryable<TModel> queryable)
+        {
+            return GroupBy(queryable);
+        }
+
+        public IObQueryable<TModel> Join(IObQueryable<TModel> queryable)
+        {
+            if (ObJoin == null)
+            {
+                ObJoin = new ObJoin();
+            }
+            foreach (var obJoinJoinModel in queryable.ObJoin.JoinModels)
+            {
+                ObJoin.JoinModels.Add(obJoinJoinModel);
+            }
+            return this;
+        }
+
+        public IObQueryable<TModel> Select(IObQueryable<TModel> queryable)
+        {
+            if (ObGroup == null)
+            {
+                ObGroup = new ObGroup();
+            }
+            ObGroup.AddGroupBy(queryable.ObGroup.ObProperties.Select(o => (ObProperty)o).ToArray());
+            return this;
+        }
+
         private object CreateJoin(Expression exp)
         {
             if (exp is NewExpression newExp)
@@ -416,7 +514,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
             if (exp is MemberExpression meExp)
             {
-                if (meExp.Expression is ConstantExpression)
+                if (meExp.Expression is ConstantExpression 
+                    || meExp.Expression is MemberExpression)
                 {
                     return Expression.Lambda(meExp).Compile().DynamicInvoke();
                 }
@@ -967,6 +1066,84 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 ObJoin = new ObJoin();
             }
             ObJoin.AddJoin(keySelector(Term));
+            return this;
+        }
+
+        public IObQueryable<TModel, TTerm> Where(IObQueryable<TModel, TTerm> queryable)
+        {
+            ObParameter = queryable.ObParameter;
+            ObGroupParameter = queryable.ObGroupParameter;
+            ObGroup = queryable.ObGroup;
+            ObSort = queryable.ObSort;
+            ObJoin = queryable.ObJoin;
+            return this;
+        }
+
+        public IObQueryable<TModel, TTerm> And(IObQueryable<TModel, TTerm> queryable)
+        {
+            ObParameter = (ObParameterBase)ObParameter && (ObParameterBase)queryable.ObParameter;
+            if (ObGroup != null && queryable.ObGroupParameter != null)
+            {
+                ObGroupParameter = (ObParameterBase)ObGroupParameter && (ObParameterBase)queryable.ObGroupParameter;
+            }
+            return this;
+        }
+
+        public IObQueryable<TModel, TTerm> Or(IObQueryable<TModel, TTerm> queryable)
+        {
+            ObParameter = Factory.ObParameter.Create((ObParameterBase)ObParameter || (ObParameterBase)queryable.ObParameter);
+            if (ObGroup != null && queryable.ObGroupParameter != null)
+            {
+                ObGroupParameter = Factory.ObParameter.Create((ObParameterBase)ObGroupParameter || (ObParameterBase)queryable.ObGroupParameter);
+            }
+            return this;
+        }
+
+        public IObQueryable<TModel, TTerm> OrderBy(IObQueryable<TModel, TTerm> queryable)
+        {
+            if (ObSort == null)
+            {
+                ObSort = new ObSort();
+            }
+            ObSort.Add(queryable.ObSort);
+            return this;
+        }
+
+        public IObQueryable<TModel, TTerm> GroupBy(IObQueryable<TModel, TTerm> queryable)
+        {
+            if (ObGroup == null)
+            {
+                ObGroup = new ObGroup();
+            }
+            ObGroup.AddGroupBy(queryable.ObGroup.ObGroupProperties.Select(o => (ObProperty)o).ToArray());
+            return this;
+        }
+
+        public IObQueryable<TModel, TTerm> DistinctBy(IObQueryable<TModel, TTerm> queryable)
+        {
+            return GroupBy(queryable);
+        }
+
+        public IObQueryable<TModel, TTerm> Select(IObQueryable<TModel, TTerm> queryable)
+        {
+            if (ObJoin == null)
+            {
+                ObJoin = new ObJoin();
+            }
+            foreach (var obJoinJoinModel in queryable.ObJoin.JoinModels)
+            {
+                ObJoin.JoinModels.Add(obJoinJoinModel);
+            }
+            return this;
+        }
+
+        public IObQueryable<TModel, TTerm> Join(IObQueryable<TModel, TTerm> queryable)
+        {
+            if (ObGroup == null)
+            {
+                ObGroup = new ObGroup();
+            }
+            ObGroup.AddGroupBy(queryable.ObGroup.ObProperties.Select(o => (ObProperty)o).ToArray());
             return this;
         }
     }

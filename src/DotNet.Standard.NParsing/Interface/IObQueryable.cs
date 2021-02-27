@@ -16,9 +16,20 @@ namespace DotNet.Standard.NParsing.Interface
         IObQueryable<TModel> OrderByDescending<TKey>(Expression<Func<TModel, TKey>> keySelector);
         IObQueryable<TModel> Join();
         IObQueryable<TModel> Join<TKey>(Expression<Func<TModel, TKey>> keySelector);
+
+        IObQueryable<TModel> Where(IObQueryable<TModel> queryable);
+        IObQueryable<TModel> And(IObQueryable<TModel> queryable);
+        IObQueryable<TModel> Or(IObQueryable<TModel> queryable);
+        IObQueryable<TModel> OrderBy(IObQueryable<TModel> queryable);
+        //IObQueryable<TModel> OrderBy(IObQueryable<TModel> queryable);
+        //IObQueryable<TModel> OrderByDescending(IObQueryable<TModel> queryable);
+        IObQueryable<TModel> GroupBy(IObQueryable<TModel> queryable);
+        IObQueryable<TModel> DistinctBy(IObQueryable<TModel> queryable);
+        IObQueryable<TModel> Select(IObQueryable<TModel> queryable);
+        IObQueryable<TModel> Join(IObQueryable<TModel> queryable);
     }
 
-    public interface IObQueryable<TModel, out TTerm> : IObQueryable<TModel>
+    public interface IObQueryable<TModel, TTerm> : IObQueryable<TModel>
         where TModel : ObModelBase
         where TTerm : ObTermBase
     {
@@ -41,5 +52,16 @@ namespace DotNet.Standard.NParsing.Interface
         IObQueryable<TModel, TTerm> OrderByDescending(Func<TTerm, ObProperty> keySelector);
         IObQueryable<TModel, TTerm> Join<TKey>(Func<TTerm, TKey> keySelector);
         IObQueryable<TModel, TTerm> Join(Func<TTerm, ObTermBase> keySelector);
+
+        IObQueryable<TModel, TTerm> Where(IObQueryable<TModel, TTerm> queryable);
+        IObQueryable<TModel, TTerm> And(IObQueryable<TModel, TTerm> queryable);
+        IObQueryable<TModel, TTerm> Or(IObQueryable<TModel, TTerm> queryable);
+        IObQueryable<TModel, TTerm> OrderBy(IObQueryable<TModel, TTerm> queryable);
+        //IObQueryable<TModel> OrderBy(IObQueryable<TModel> queryable);
+        //IObQueryable<TModel> OrderByDescending(IObQueryable<TModel> queryable);
+        IObQueryable<TModel, TTerm> GroupBy(IObQueryable<TModel, TTerm> queryable);
+        IObQueryable<TModel, TTerm> DistinctBy(IObQueryable<TModel, TTerm> queryable);
+        IObQueryable<TModel, TTerm> Select(IObQueryable<TModel, TTerm> queryable);
+        IObQueryable<TModel, TTerm> Join(IObQueryable<TModel, TTerm> queryable);
     }
 }

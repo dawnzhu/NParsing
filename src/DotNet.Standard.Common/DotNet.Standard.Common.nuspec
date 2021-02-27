@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Common class library.</releaseNotes>
-    <copyright>Copyright 2020</copyright>
+    <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework=".NETStandard2.0"/>
     </dependencies>
