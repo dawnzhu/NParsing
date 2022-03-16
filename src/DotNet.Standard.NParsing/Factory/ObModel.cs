@@ -3,10 +3,16 @@
  * 创建时间：2019-11-02 09:47:56
  * 版 本 号：1.0.5
  * 功能说明：使用动态代理，简化模型类和条件类
+ * --------------------------------------------------
+ * 修改标识：增加方法
+ * 修 改 人：朱晓春(zhi_dian@163.com)
+ * 日    期：2022-03-15 14:38:00
+ * 版 本 号：2.0.3
+ * 修改内容：新增判断对象属性是否被赋值扩展方法
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using DotNet.Standard.Common.Utilities;
@@ -134,6 +140,79 @@ namespace DotNet.Standard.NParsing.Factory
         public static object CreateProxyByEmit(ObModelBase source)
         {
             return Create(source.GetType(), source);
+        }
+
+        /// <summary>
+        /// 判断对象属性是否被赋值
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="keySelector"></param>
+        /// <returns></returns>
+        public static bool IsPropertyValid<TModel, TKey>(this TModel model, Expression<Func<TModel, TKey>> keySelector)
+            where TModel : ObModelBase
+        {
+            if (!(keySelector.Body is MemberExpression meExp))
+            {
+                throw new Exception("只支持对象属性表达式");
+            }
+            var ret = GetSubModel(model, keySelector.Body, out var subModel);
+            switch (ret)
+            {
+                case 2:
+                    return subModel.IsPropertyValid(meExp.Member.Name);
+                case 3:
+                    return subModel != null;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
+        /// 获取值对象
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="expression"></param>
+        /// <param name="subModel"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        private static int GetSubModel<TModel>(TModel model, Expression expression, out ObModelBase subModel, int index = -1)
+            where TModel : ObModelBase
+        {
+            index++;
+            if (!(expression is MemberExpression meExp))
+            {
+                subModel = model;
+                return 2;
+            }
+            var m = GetSubModel(model, meExp.Expression, out subModel, index);
+            if (subModel == null)
+            {
+                //subModel = null;
+                return m;
+            }
+            var property = subModel.GetType().GetProperty(meExp.Member.Name);
+            var obj = property?.GetValue(subModel);
+            if (index == 0)
+            {
+                if (property != null && typeof(ObModelBase).IsAssignableFrom(property.PropertyType))
+                {
+                    subModel = (ObModelBase)obj;
+                    return 3;
+                }
+                //subModel = m;
+                //递归到最后属性，返回父类对象
+                return 2;
+            }
+            if (obj is ObModelBase om)
+            {
+                subModel = om;
+                return 2;
+            }
+            subModel = null;
+            return 1;
         }
     }
 
