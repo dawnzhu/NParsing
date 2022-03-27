@@ -1,5 +1,4 @@
-.vs/
-.vs/NParsing/
+.vs/*
 src/DotNet.Standard.Common/bin/
 src/DotNet.Standard.Common/obj/
 src/DotNet.Standard.NParsing/bin/
