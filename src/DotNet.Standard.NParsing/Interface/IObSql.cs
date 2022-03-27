@@ -24,6 +24,12 @@ namespace DotNet.Standard.NParsing.Interface
         DataTable ToTable();
 
         /// <summary>
+        /// 获得多个数据表
+        /// </summary>
+        /// <returns></returns>
+        DataTableCollection ToTables();
+
+        /// <summary>
         /// 获得一个值
         /// </summary>
         /// <param name="iObProperty"></param>

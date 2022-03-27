@@ -112,6 +112,29 @@ namespace DotNet.Standard.NParsing.DbUtilities
             return ds.Tables[0];
         }
 
+        public DataTableCollection ToTables()
+        {
+            DataSet ds;
+
+            #region 读取数据
+
+            if (_iObTransaction != null)
+            {
+                ds = DbHelper.ExecuteDataset(_iDbHelper, _iObTransaction.DbTransaction, _commandType, _commandText, _commandParameters);
+            }
+            else
+            {
+                using (var dbHelper = new DbHelper(_iDbHelper))
+                {
+                    ds = dbHelper.ExecuteDataset(_commandType, _commandText, _commandParameters);
+                }
+            }
+
+            #endregion
+
+            return ds.Tables;
+        }
+
         public object Scalar()
         {
             object obj;

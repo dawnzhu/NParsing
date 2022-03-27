@@ -30,10 +30,16 @@ namespace DotNet.Standard.NParsing.ComponentModel
         /// </summary>
         public bool Modifiable { get; set; }
 
+        /// <summary>
+        /// 描述
+        /// </summary>
+        public string Description { get; set; }
+
         public ObPropertyAttribute()
         {
             Nullable = true;
             Modifiable = true;
+            Description = "";
         }
     }
 }
