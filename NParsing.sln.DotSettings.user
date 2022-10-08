@@ -12,7 +12,17 @@
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/AutoDetectedNamingRules/=Interfaces/@EntryIndexedValue">&lt;Policy Inspect="True" Prefix="I" Suffix="" Style="AaBb" /&gt;</s:String>
 	<s:Boolean x:Key="/Default/CodeStyle/Naming/CSharpNaming/ApplyAutoDetectedRules/@EntryValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/CodeStyle/Naming/CSharpAutoNaming/IsNamingAutoDetectionCompleted/@EntryValue">True</s:Boolean>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d9201cd1_002D4a9e_002D4671_002Dbc6e_002Dcf633a45f083/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestMethod1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=429a5709_002Da417_002D46af_002D9c0f_002Dfa035866caba/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestMethod1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;MSTest::180DFBCF-B1FB-4BAC-8581-F27E5633D25D::.NETCoreApp,Version=v3.1::DotNet.Standard.NParsing.UnitTest.UnitTest1.TestMethod1&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=9e4a1db0_002D22d5_002D4f55_002D9165_002D0f8696531954/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="TestMethod1 #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;MSTest::180DFBCF-B1FB-4BAC-8581-F27E5633D25D::.NETCoreApp,Version=v3.1::DotNet.Standard.NParsing.UnitTest.UnitTest1.TestMethod1&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=d9201cd1_002D4a9e_002D4671_002Dbc6e_002Dcf633a45f083/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="TestMethod1" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;MSTest::180DFBCF-B1FB-4BAC-8581-F27E5633D25D::.NETCoreApp,Version=v3.1::DotNet.Standard.NParsing.UnitTest.UnitTest1.TestMethod1&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;

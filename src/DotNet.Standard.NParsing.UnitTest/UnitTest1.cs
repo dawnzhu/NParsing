@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
@@ -43,16 +44,26 @@ namespace DotNet.Standard.NParsing.UnitTest
                 Console.WriteLine(e);
                 throw;
             }*/
+            //var a = 1;
+            var aa = new DataTable();
+            aa.Columns.Add("aa");
+            aa.Rows.Add(1);
+            var bb = 1;
+            var cc = new[] {1, 2, 3};
+
             var query = dal
-                .Where(o => o.Department.Id == 1)
-                .GroupBy(o => o.Name)
+                .Where(o => o.Department.Id == Convert.ToInt32(aa.Rows[0][0]) && cc.Contains(o.Id))
+                .GroupBy(o => new {o.Department.Id, o.Name})
                 .Join(o => new {
                     o,
                     o.Department
                 }).Select(o => new {
-                    o.FirstOrDefault().Name,
-                    Id = o.Average(a => a.Id),
+                    //o.FirstOrDefault().Name,
+                    DepartmentId = o.Min(a => a.DepartmentId),
+                    Dimission = o.Avg(a => a.Age),
                     Age = o.Max(a => a.Age),
+                    RowNumber = o.RowNumber(a => a.OrderBy(b => b.Department.Id).ThenByDescending(b => b.Name)),
+                    //Dimission = o.Custom("dbo.A", a => new object[]{a.Dimission}),
                     Department = new
                     {
                         Id = o.Sum(a => a.Department.Id),

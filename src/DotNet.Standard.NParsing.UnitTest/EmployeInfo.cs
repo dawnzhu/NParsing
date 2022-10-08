@@ -57,6 +57,8 @@ namespace DotNet.Standard.NParsing.UnitTest
     [ObModel(Name = "Employes2")]
     public class EmployeInfo : EmployeBaseInfo
     {
+        [ObSettled(Value = 0)]
+        public int RowNumber { get; set; }
         /// <summary>
         /// 性别
         /// </summary>	

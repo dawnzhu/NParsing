@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Interface;
 using DotNet.Standard.NParsing.Utilities;
@@ -414,7 +415,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                             var value = CreateValue(meExp);
                             if (value is ICollection vs)
                             {
-                                value = vs.Cast<object>().ToArray();
+                                return not ? obProperty.NotIn(vs.Cast<object>().ToArray()) : obProperty.In(vs.Cast<object>().ToArray());
                             }
                             return not ? obProperty.NotIn(value) : obProperty.In(value);
                         }
@@ -514,8 +515,18 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
             if (exp is MemberExpression meExp)
             {
-                if (meExp.Expression is ConstantExpression 
-                    || meExp.Expression is MemberExpression)
+                if (meExp.Expression is MemberExpression meExpExp)
+                {
+                    while (meExpExp.Expression is MemberExpression)
+                    {
+                        meExpExp = (MemberExpression)meExpExp.Expression;
+                    }
+                    if (meExpExp.Expression is ConstantExpression)
+                    {
+                        return Expression.Lambda(meExp).Compile().DynamicInvoke();
+                    }
+                }
+                if (meExp.Expression is ConstantExpression)
                 {
                     return Expression.Lambda(meExp).Compile().DynamicInvoke();
                 }
@@ -527,7 +538,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 ts[0] = tableName;
                 ts.RemoveAt(ts.Count - 1);
                 var obRedefine = Factory.ObRedefine.Create(meExp.Expression.Type, string.Join("_", ts));
-                return ObProperty.Create(meExp.Expression.Type, obRedefine, meExp.Member.Name);
+                var obProperty = ObProperty.Create(meExp.Expression.Type, obRedefine, meExp.Member.Name);
+                return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
             }
 
             if (exp is MethodCallExpression mcallExp)
@@ -544,74 +556,156 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     }*/
                     case "Substring":
                     {
-                        var obProperty = CreateProperty(mcallExp.Object);
+                        /*var obProperty = CreateProperty(mcallExp.Object);
                         var value = mcallExp.Arguments.Select(o => (int)((ConstantExpression)o).Value).ToArray();
                             obProperty = ObFunc.SubString(obProperty, value[0], value[1]);
-                        return obProperty;
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Object);
+                        if (value is ObProperty obProperty)
+                        {
+                            var v = mcallExp.Arguments.Select(o => (int)((ConstantExpression)o).Value).ToArray();
+                            obProperty = ObFunc.SubString(obProperty, v[0], v[1]);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
                     }
                     case "Replace":
                     {
-                        var obProperty = CreateProperty(mcallExp.Object);
+                        /*var obProperty = CreateProperty(mcallExp.Object);
                         var value = mcallExp.Arguments.Select(o => (string) ((ConstantExpression) o).Value).ToArray();
                         obProperty = ObFunc.Replace(obProperty, value[0], value[1]);
-                        return obProperty;
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Object);
+                        if (value is ObProperty obProperty)
+                        {
+                            var v = mcallExp.Arguments.Select(o => (string)((ConstantExpression)o).Value).ToArray();
+                            obProperty = ObFunc.Replace(obProperty, v[0], v[1]);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
                     }
                     case "IndexOf":
                     {
-                        var obProperty = CreateProperty(mcallExp.Object);
+                        /*var obProperty = CreateProperty(mcallExp.Object);
                         var value = mcallExp.Arguments.Select(o => (string)((ConstantExpression)o).Value).ToArray();
                         obProperty = ObFunc.IndexOf(obProperty, value[0]);
-                        return obProperty;
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Object);
+                        if (value is ObProperty obProperty)
+                        {
+                            var v = mcallExp.Arguments.Select(o => (string)((ConstantExpression)o).Value).ToArray();
+                            obProperty = ObFunc.IndexOf(obProperty, v[0]);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
                     }
                     case "ToString":
                     {
-                        var obProperty = CreateProperty(mcallExp.Object);
-                        obProperty = mcallExp.Arguments.Count > 0 
-                            ? ObFunc.ToString(obProperty, CreateValue(mcallExp.Arguments[0]).ToString()) 
-                            : ObFunc.ToString(obProperty);
-                        return obProperty;
-                    }
+                            /*var obProperty = CreateProperty(mcallExp.Object);
+                            obProperty = mcallExp.Arguments.Count > 0 
+                                ? ObFunc.ToString(obProperty, CreateValue(mcallExp.Arguments[0]).ToString()) 
+                                : ObFunc.ToString(obProperty);
+                            return obProperty;*/
+                            var value = CreateValue(mcallExp.Object);
+                            if (value is ObProperty obProperty)
+                            {
+                                obProperty = mcallExp.Arguments.Count > 0
+                                    ? ObFunc.ToString(obProperty, CreateValue(mcallExp.Arguments[0]).ToString())
+                                    : ObFunc.ToString(obProperty);
+                                return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                            }
+                            break;
+                        }
                     case "ToInt16":
                     {
-                        var obProperty = CreateProperty(mcallExp.Arguments[0]);
+                        /*var obProperty = CreateProperty(mcallExp.Arguments[0]);
                         obProperty = ObFunc.ToInt16(obProperty);
-                        return obProperty;
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Arguments[0]);
+                        if (value is ObProperty obProperty)
+                        {
+                            obProperty = ObFunc.ToInt16(obProperty);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
                     }
                     case "ToInt32":
                     {
-                        var obProperty = CreateProperty(mcallExp.Arguments[0]);
+                        /*var obProperty = CreateProperty(mcallExp.Arguments[0]);
                         obProperty = ObFunc.ToInt32(obProperty);
-                        return obProperty;
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Arguments[0]);
+                        if (value is ObProperty obProperty)
+                        {
+                            obProperty = ObFunc.ToInt32(obProperty);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
                     }
                     case "ToInt64":
                     {
-                        var obProperty = CreateProperty(mcallExp.Arguments[0]);
+                        /*var obProperty = CreateProperty(mcallExp.Arguments[0]);
                         obProperty = ObFunc.ToInt64(obProperty);
-                        return obProperty;
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Arguments[0]);
+                        if (value is ObProperty obProperty)
+                        {
+                            obProperty = ObFunc.ToInt64(obProperty);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
                     }
                     case "ToSingle":
                     {
-                        var obProperty = CreateProperty(mcallExp.Arguments[0]);
+                        /*var obProperty = CreateProperty(mcallExp.Arguments[0]);
                         obProperty = ObFunc.ToSingle(obProperty);
-                        return obProperty;
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Arguments[0]);
+                        if (value is ObProperty obProperty)
+                        {
+                            obProperty = ObFunc.ToSingle(obProperty);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
                     }
                     case "ToDouble":
                     {
-                        var obProperty = CreateProperty(mcallExp.Arguments[0]);
+                        /*var obProperty = CreateProperty(mcallExp.Arguments[0]);
                         obProperty = ObFunc.ToDouble(obProperty);
-                        return obProperty;
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Arguments[0]);
+                        if (value is ObProperty obProperty)
+                        {
+                            obProperty = ObFunc.ToDouble(obProperty);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
                     }
-                    /*case "ToDecimal":
+                    case "ToDecimal":
                     {
-                        var obProperty = CreateProperty(mcallExp.Arguments[0]);
+                        /*var obProperty = CreateProperty(mcallExp.Arguments[0]);
                         obProperty = ObFunc.ToDecimal(obProperty);
-                        return obProperty;
-                    }*/
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Arguments[0]);
+                        if (value is ObProperty obProperty)
+                        {
+                            obProperty = ObFunc.ToDecimal(obProperty, 38, 15);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
+                    }
                     case "ToDateTime":
                     {
-                        var obProperty = CreateProperty(mcallExp.Arguments[0]);
+                        /*var obProperty = CreateProperty(mcallExp.Arguments[0]);
                         obProperty = ObFunc.ToDateTime(obProperty);
-                        return obProperty;
+                        return obProperty;*/
+                        var value = CreateValue(mcallExp.Arguments[0]);
+                        if (value is ObProperty obProperty)
+                        {
+                            obProperty = ObFunc.ToDateTime(obProperty);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
+                        break;
                     }
                     /*case "Format":
                     {
@@ -619,30 +713,77 @@ namespace DotNet.Standard.NParsing.DbUtilities
                         obProperty = ObFunc.ToString(obProperty, mcallExp.Arguments[0].ToString());
                         return obProperty;
                     }*/
+                    case "RowNumber":
+                    { 
+                        //return ObFunc.RowNumber()
+                        var obProperty = CreateProperty(path);
+                        if (((LambdaExpression) mcallExp.Arguments[1]).Body is MethodCallExpression callExp)
+                        {
+                            var obSort = new ObSort();
+                            var ms = Regex.Matches(callExp.ToString(), @"OrderByDescending|ThenByDescending|OrderBy|ThenBy");
+                            for (var i = 0; i < callExp.Arguments.Count; i++)
+                            {
+                                var property = i == 0
+                                    ? CreateProperty(((LambdaExpression) ((MethodCallExpression)callExp.Arguments[i]).Arguments[1]).Body)
+                                    : CreateProperty(((LambdaExpression) callExp.Arguments[i]).Body);
+                                if (ms[i].Value.EndsWith("By"))
+                                {
+                                    obSort.AddOrderBy(property);
+                                }
+                                else if(ms[i].Value.EndsWith("ByDescending"))
+                                {
+                                    obSort.AddOrderByDescending(property);
+                                }
+                            }
+                            obProperty = ObFunc.RowNumber(obProperty, obSort);
+                        }
+                        return obProperty;
+                    }
+                    case "Custom":
+                    {
+                        var obProperty = CreateProperty(path);
+                        var func = CreateValue(mcallExp.Arguments[1]).ToString();
+                        if (((LambdaExpression)mcallExp.Arguments[2]).Body is NewArrayExpression arrExp2)
+                        {
+                            var value = arrExp2.Expressions.Select(o => CreateValue(o)).ToArray();
+                            obProperty = ObFunc.Custom(obProperty, func, value);
+                        }
+                        if (((LambdaExpression)mcallExp.Arguments[2]).Body is NewExpression meExp2)
+                        {
+                            var value = CreateValue(meExp2);
+                            if (value is ICollection vs)
+                            {
+                                obProperty = ObFunc.Custom(obProperty, func, vs.Cast<object>().ToArray());
+                            }
+                            else
+                            {
+                                obProperty = ObFunc.Custom(obProperty, func, value);
+                            }
+                        }
+                        if (((LambdaExpression)mcallExp.Arguments[2]).Body is MemberExpression meExp3)
+                        {
+                            var value = CreateValue(meExp3);
+                            if (value is ICollection vs)
+                            {
+                                obProperty = ObFunc.Custom(obProperty, func, vs.Cast<object>().ToArray());
+                            }
+                            else
+                            {
+                                obProperty = ObFunc.Custom(obProperty, func, value).As(CreateProperty(path));
+                            }
+                        }
+                        return obProperty;
+                    }
+                    case "Avg":
                     case "Average":
                     {
                         var obProperty = CreateProperty(((LambdaExpression) mcallExp.Arguments[1]).Body);
                         obProperty = ObFunc.Avg(obProperty);
-                        return obProperty;
+                        return obProperty.As(CreateProperty(path));
                     }
                     case "Count":
                     {
-                        var type = typeof(TModel); 
-                        var tableName = type.ToTableName(SqlBuilder.ObRedefine.Models);
-                        var ts = (tableName + path).Split('.').ToList();
-                        var memberName = ts[ts.Count - 1];
-                        ts.RemoveAt(ts.Count - 1);
-                        foreach (var t in ts)
-                        {
-                            foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
-                            {
-                                if (propertyInfo.Name != t) continue;
-                                type = propertyInfo.PropertyType;
-                                break;
-                            }
-                        }
-                        var obRedefine = Factory.ObRedefine.Create(type, string.Join("_", ts));
-                        var obProperty = ObProperty.Create(type, obRedefine, memberName);
+                        var obProperty = CreateProperty(path);
                         obProperty = ObFunc.Count(obProperty);
                         return obProperty;
                     }
@@ -650,65 +791,106 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     {
                         var obProperty = CreateProperty(((LambdaExpression)mcallExp.Arguments[1]).Body);
                         obProperty = ObFunc.Max(obProperty);
-                        return obProperty;
+                        return obProperty.As(CreateProperty(path));
                     }
                     case "Min":
                     {
                         var obProperty = CreateProperty(((LambdaExpression)mcallExp.Arguments[1]).Body);
                         obProperty = ObFunc.Min(obProperty);
-                        return obProperty;
+                        return obProperty.As(CreateProperty(path));
                     }
                     case "Sum":
                     {
                         var obProperty = CreateProperty(((LambdaExpression)mcallExp.Arguments[1]).Body);
                         obProperty = ObFunc.Sum(obProperty);
-                        return obProperty;
+                        return obProperty.As(CreateProperty(path));
                     }
                 }
+                return Expression.Lambda(mcallExp).Compile().DynamicInvoke();
             }
 
             if (exp is UnaryExpression unExp)
             {
-                var obProperty = CreateProperty(unExp.Operand);
-                switch (unExp.NodeType)
+                var value = CreateValue(unExp.Operand);
+                if (value is ObProperty obProperty)
                 {
-                    case ExpressionType.Convert:
-                        if (unExp.Type == typeof(string))
-                        {
-                            obProperty = ObFunc.ToString(obProperty);
-                        }
-                        if (unExp.Type == typeof(short))
-                        {
-                            obProperty = ObFunc.ToInt16(obProperty);
-                        }
-                        if (unExp.Type == typeof(int))
-                        {
-                            obProperty = ObFunc.ToInt32(obProperty);
-                        }
-                        if (unExp.Type == typeof(long))
-                        {
-                            obProperty = ObFunc.ToInt64(obProperty);
-                        }
-                        if (unExp.Type == typeof(float))
-                        {
-                            obProperty = ObFunc.ToSingle(obProperty);
-                        }
-                        if (unExp.Type == typeof(double))
-                        {
-                            obProperty = ObFunc.ToDouble(obProperty);
-                        }
-                        if (unExp.Type == typeof(DateTime))
-                        {
-                            obProperty = ObFunc.ToDateTime(obProperty);
-                        }
-                        return obProperty;
-                    case ExpressionType.Not:
-                        obProperty = ~obProperty;
-                        return obProperty;
-                    case ExpressionType.Negate:
-                        obProperty = -obProperty;
-                        return obProperty;
+                    switch (unExp.NodeType)
+                    {
+                        case ExpressionType.Convert:
+                            if (unExp.Type == typeof(string))
+                            {
+                                obProperty = ObFunc.ToString(obProperty);
+                            }
+                            if (unExp.Type == typeof(short))
+                            {
+                                obProperty = ObFunc.ToInt16(obProperty);
+                            }
+                            if (unExp.Type == typeof(int))
+                            {
+                                obProperty = ObFunc.ToInt32(obProperty);
+                            }
+                            if (unExp.Type == typeof(long))
+                            {
+                                obProperty = ObFunc.ToInt64(obProperty);
+                            }
+                            if (unExp.Type == typeof(float))
+                            {
+                                obProperty = ObFunc.ToSingle(obProperty);
+                            }
+                            if (unExp.Type == typeof(double))
+                            {
+                                obProperty = ObFunc.ToDouble(obProperty);
+                            }
+                            if (unExp.Type == typeof(DateTime))
+                            {
+                                obProperty = ObFunc.ToDateTime(obProperty);
+                            }
+                            return obProperty;
+                        case ExpressionType.Not:
+                            obProperty = ~obProperty;
+                            return obProperty;
+                        case ExpressionType.Negate:
+                            obProperty = -obProperty;
+                            return obProperty;
+                    }
                 }
+                else
+                {
+                    switch (unExp.NodeType)
+                    {
+                        case ExpressionType.Convert:
+                            if (unExp.Type == typeof(string))
+                            {
+                                value = Convert.ToString(value);
+                            }
+                            if (unExp.Type == typeof(short))
+                            {
+                                value = Convert.ToInt16(value);
+                            }
+                            if (unExp.Type == typeof(int))
+                            {
+                                value = Convert.ToInt32(value);
+                            }
+                            if (unExp.Type == typeof(long))
+                            {
+                                value = Convert.ToInt64(value);
+                            }
+                            if (unExp.Type == typeof(float))
+                            {
+                                value = Convert.ToSingle(value);
+                            }
+                            if (unExp.Type == typeof(double))
+                            {
+                                value = Convert.ToDouble(value);
+                            }
+                            if (unExp.Type == typeof(DateTime))
+                            {
+                                value = Convert.ToDateTime(value);
+                            }
+                            return value;
+                    }
+                }
+                return value;
             }
             return null;
         }
@@ -779,6 +961,27 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     return 8;
             }
             return 0;
+        }
+
+        private ObProperty CreateProperty(string path)
+        {
+            var type = typeof(TModel);
+            var tableName = type.ToTableName(SqlBuilder.ObRedefine.Models);
+            var ts = (tableName + path).Split('.').ToList();
+            var memberName = ts[ts.Count - 1];
+            ts.RemoveAt(ts.Count - 1);
+            foreach (var t in ts)
+            {
+                foreach (var propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                {
+                    if (propertyInfo.Name != t) continue;
+                    type = propertyInfo.PropertyType;
+                    break;
+                }
+            }
+            var obRedefine = Factory.ObRedefine.Create(type, string.Join("_", ts));
+            var obProperty = ObProperty.Create(type, obRedefine, memberName);
+            return obProperty;
         }
     }
 
