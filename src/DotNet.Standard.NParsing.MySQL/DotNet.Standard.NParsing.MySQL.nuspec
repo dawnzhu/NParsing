@@ -14,7 +14,7 @@
     <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="DotNet.Standard.NParsing" version="2.0.1"/>
+        <dependency id="DotNet.Standard.NParsing" version="2.1.0"/>
         <dependency id="MySql.Data" version="8.0.21"/>
       </group>
     </dependencies>
