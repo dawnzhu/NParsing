@@ -52,18 +52,19 @@ namespace DotNet.Standard.NParsing.UnitTest
             var cc = new[] {1, 2, 3};
 
             var query = dal
-                .Where(o => o.Department.Id == Convert.ToInt32(aa.Rows[0][0]) && cc.Contains(o.Id))
+                .Where(o => o.Department.Id == Convert.ToInt32(aa.Rows[0][0]) && o.IfNull(a=>a.Gender, Gender.MALE) == Gender.MALE)
                 .GroupBy(o => new {o.Department.Id, o.Name})
                 .Join(o => new {
                     o,
                     o.Department
                 }).Select(o => new {
                     //o.FirstOrDefault().Name,
-                    DepartmentId = o.Min(a => a.DepartmentId),
+                    //Age = o.FirstOrDefault().Custom("dbo.A", a => new object[] {a.Age})
+                    DepartmentId = o.IfNull(b => b.Min(a => a.DepartmentId), 0),
                     Dimission = o.Avg(a => a.Age),
                     Age = o.Max(a => a.Age),
                     RowNumber = o.RowNumber(a => a.OrderBy(b => b.Department.Id).ThenByDescending(b => b.Name)),
-                    //Dimission = o.Custom("dbo.A", a => new object[]{a.Dimission}),
+                    //Dimission = o.Custom("dbo.A", a => new object[] { a.Max(d => d.Age) }),
                     Department = new
                     {
                         Id = o.Sum(a => a.Department.Id),

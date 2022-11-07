@@ -351,86 +351,20 @@ namespace DotNet.Standard.NParsing.Factory
             return iObProperty;
         }
 
-        #endregion
-
-        #region 虚拟扩展方法
-
-        public static object RowNumber<TSource>(this IEnumerable<TSource> source, Func<IEnumerable<TSource>, IOrderedEnumerable<TSource>> keySelector)
-            where TSource : ObModelBase
+        public static ObProperty IfNull<T>(ObProperty obProperty, T value)
         {
-            return null;
-        }
-
-        public static object Custom<TSource>(this IEnumerable<TSource> source, string func, Func<TSource, object[]> keySelector)
-            where TSource : ObModelBase
-        {
-            return null;
-        }
-
-        public static object Custom<TSource, TKey>(this IEnumerable<TSource> source, string func, Func<TSource, TKey> keySelector)
-            where TSource : ObModelBase
-        {
-            return null;
-        }
-
-        public static double Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, int> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
-        }
-
-        public static double? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, int?> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
-        }
-
-        public static double Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, long> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
-        }
-
-        public static double? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, long?> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
-        }
-
-        public static float Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, float> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
-        }
-
-        public static float? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
-        }
-
-        public static double Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, double> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
-        }
-
-        public static double? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, double?> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
-        }
-
-        public static decimal Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
-        }
-
-        public static decimal? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> keySelector)
-            where TSource : ObModelBase
-        {
-            return 0;
+            /*if (obProperty.DbFunc == DbFunc.Null)
+            {
+                obProperty.DbFunc = DbFunc.ToDecimal;
+                obProperty.FuncBrotherCount = obProperty.Brothers.Count;
+                return obProperty;
+            }*/
+            var iObProperty = new ObProperty(obProperty)
+            {
+                DbFunc = DbFunc.IfNull,
+                CustomParams = new object[] { obProperty, value }
+            };
+            return iObProperty;
         }
 
         #endregion
@@ -841,7 +775,134 @@ namespace DotNet.Standard.NParsing.Factory
             return obProperty;
         }
 
+        public static ObProperty<TSource> IfNull<TSource, T>(this TSource source, Func<TSource, ObProperty> keySelector, T value)
+            where TSource : ObTermBase
+        {
+            var iObProperty = keySelector(source);
+            /*if (iObProperty.DbFunc == DbFunc.Null)
+            {
+                iObProperty.DbFunc = DbFunc.Replace;
+                iObProperty.FuncBrotherCount = iObProperty.Brothers.Count;
+                return new ObProperty<TSource>(source, iObProperty);
+            }*/
+            var obProperty = new ObProperty<TSource>(source, iObProperty)
+            {
+                DbFunc = DbFunc.IfNull,
+                CustomParams = new object[] { iObProperty, value }
+            };
+            return obProperty;
+        }
+
         #endregion
 
+    }
+
+    public static class ObFuncExt
+    {
+        #region 虚拟扩展方法
+
+        public static object RowNumber<TSource>(this IEnumerable<TSource> source, Func<IEnumerable<TSource>, IOrderedEnumerable<TSource>> keySelector)
+            where TSource : ObModelBase
+        {
+            return null;
+        }
+
+        public static object Custom<TSource>(this IEnumerable<TSource> source, string func, Func<IEnumerable<TSource>, object[]> keySelector)
+            where TSource : ObModelBase
+        {
+            return null;
+        }
+
+        public static object Custom<TSource, TKey>(this IEnumerable<TSource> source, string func, Func<IEnumerable<TSource>, TKey> keySelector)
+            where TSource : ObModelBase
+        {
+            return null;
+        }
+
+        public static object Custom<TSource>(this TSource source, string func, Func<TSource, object[]> keySelector)
+            where TSource : ObModelBase
+        {
+            return null;
+        }
+
+        public static object Custom<TSource, TKey>(this TSource source, string func, Func<TSource, TKey> keySelector)
+            where TSource : ObModelBase
+        {
+            return null;
+        }
+
+        public static double Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, int> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static double? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, int?> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static double Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, long> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static double? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, long?> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static float Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, float> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static float? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, float?> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static double Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, double> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static double? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, double?> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static decimal Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static decimal? Avg<TSource>(this IEnumerable<TSource> source, Func<TSource, decimal?> keySelector)
+            where TSource : ObModelBase
+        {
+            return 0;
+        }
+
+        public static T IfNull<TSource, T>(this IEnumerable<TSource> source, Func<IEnumerable<TSource>, T> keySelector, T value)
+            where TSource : ObModelBase
+        {
+            return default(T);
+        }
+
+        public static T IfNull<TSource, T>(this TSource source, Func<TSource, T> keySelector, T value)
+            where TSource : ObModelBase
+        {
+            return default(T);
+        }
+
+        #endregion
     }
 }

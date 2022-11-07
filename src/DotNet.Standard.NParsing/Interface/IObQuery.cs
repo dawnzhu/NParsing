@@ -20,6 +20,11 @@ namespace DotNet.Standard.NParsing.Interface
     public interface IObQuery<TModel>
     {
         /// <summary>
+        /// 是否创建空对象
+        /// </summary>
+        bool CreateEmptyObject { get; set; }
+
+        /// <summary>
         /// 过虑条件参数
         /// </summary>
         IObParameter ObParameter { get; set; }

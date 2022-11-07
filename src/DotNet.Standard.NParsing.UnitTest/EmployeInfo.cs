@@ -63,7 +63,7 @@ namespace DotNet.Standard.NParsing.UnitTest
         /// 性别
         /// </summary>	
         [ObProperty(Name = "Gender", Length = 4, Nullable = false)]
-        public virtual int Gender { get; set; }
+        public virtual Gender Gender { get; set; }
 
         /// <summary>
         /// 创建时间
@@ -134,5 +134,12 @@ namespace DotNet.Standard.NParsing.UnitTest
 
         public virtual Department Department { get; }
 
+    }
+
+    public enum Gender
+    {
+        MALE = 1,
+
+        FEMALE = 2
     }
 }

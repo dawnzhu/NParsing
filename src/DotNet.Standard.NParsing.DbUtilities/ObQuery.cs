@@ -32,6 +32,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
         private readonly string _key;
         private readonly string _sqlExtra;
         private readonly string _sqlVersion;
+        public bool CreateEmptyObject { get; set; }
         public IObParameter ObParameter { get; set; }
         public IObParameter ObGroupParameter { get; set; }
         public IObGroup ObGroup { get; set; }
@@ -50,12 +51,18 @@ namespace DotNet.Standard.NParsing.DbUtilities
         }
 
         public ObQuery(IDbHelper iDbHelper, ISqlBuilder<TModel> iSqlBuilder, string providerName, IObJoin iJoin)
-            : this(iDbHelper, iSqlBuilder, providerName, null, iJoin, null, null, null, null)
+            : this(iDbHelper, iSqlBuilder, providerName, null, iJoin, null, null, null, null, true)
         {
         }
 
         public ObQuery(IDbHelper iDbHelper, ISqlBuilder<TModel> iSqlBuilder, string providerName,
             IObTransaction iObTransaction, IObJoin iJoin, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObGroupParameter, IObSort iObSort)
+            : this(iDbHelper, iSqlBuilder, providerName, iObTransaction, iJoin, iObParameter, iObGroup, iObGroupParameter, iObSort, true)
+        { 
+        }
+
+        public ObQuery(IDbHelper iDbHelper, ISqlBuilder<TModel> iSqlBuilder, string providerName,
+            IObTransaction iObTransaction, IObJoin iJoin, IObParameter iObParameter, IObGroup iObGroup, IObParameter iObGroupParameter, IObSort iObSort, bool createEmptyObject)
         {
             PageSize = 0;
             _iDbHelper = iDbHelper;
@@ -67,6 +74,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             ObGroupParameter = iObGroupParameter;
             ObGroup = iObGroup;
             ObSort = iObSort;
+            CreateEmptyObject = createEmptyObject;
             _key = typeof(TModel).ToTableName(iSqlBuilder.ObRedefine.Models, out _sqlExtra, out _sqlVersion) + "|";
             if(iObParameter != null)
                 _key += iObParameter.Key + "|";
@@ -253,7 +261,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             if (_iObTransaction != null)
             {
                 dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
-                models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames);
+                models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames, CreateEmptyObject);
                 if (!dr.IsClosed)
                 {
                     dr.Close();
@@ -265,7 +273,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 using (var dbHelper = new DbHelper(_iDbHelper))
                 {
                     dr = dbHelper.ExecuteReader(sql, ((List<DbParameter>)dbParameters).ToArray());
-                    models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames);
+                    models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames, CreateEmptyObject);
                 }
             }
 
@@ -357,7 +365,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             {
                 count = Convert.ToInt32(DbHelper.ExecuteScalar(_iDbHelper, _iObTransaction.DbTransaction, countsql, ((List<DbParameter>)dbParameters).ToArray()));
                 dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, sql, ((List<DbParameter>)dbParameters).ToArray());
-                models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames);
+                models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames, CreateEmptyObject);
                 if (!dr.IsClosed)
                 {
                     dr.Close();
@@ -370,7 +378,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 {
                     count = Convert.ToInt32(dbHelper.ExecuteScalar(countsql, ((List<DbParameter>)dbParameters).ToArray()));
                     dr = dbHelper.ExecuteReader(sql, ((List<DbParameter>)dbParameters).ToArray());
-                    models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames);
+                    models = dr.ToList<TModel>(SqlBuilder.ObRedefine.Models, columnNames, CreateEmptyObject);
                 }
             }
 

@@ -330,8 +330,9 @@ namespace DotNet.Standard.NParsing.Utilities
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="dr"></param>
+        /// <param name="createEmptyObject">是否创建空对象</param>
         /// <returns></returns>
-        public static IList<TModel> ToList<TModel>(this IDataReader dr) where TModel : new()
+        public static IList<TModel> ToList<TModel>(this IDataReader dr, bool createEmptyObject) where TModel : new()
         {
             var list = new List<TModel>();
             IList<string> columnNames = new List<string>();
@@ -344,7 +345,7 @@ namespace DotNet.Standard.NParsing.Utilities
                 var model = new TModel();
                 if (!dr.IsClosed)
                 {
-                    DataFill(dr, columnNames, model, propertyInfos, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/);
+                    DataFill(dr, columnNames, model, propertyInfos, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/, createEmptyObject);
                 }
                 list.Add(model);
             }
@@ -355,8 +356,9 @@ namespace DotNet.Standard.NParsing.Utilities
         /// 填充数据对象
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
+        /// <param name="createEmptyObject">是否创建空对象</param>
         /// <param name="dr"></param>
-        public static TModel ToModel<TModel>(this IDataReader dr) where TModel : new()
+        public static TModel ToModel<TModel>(this IDataReader dr, bool createEmptyObject) where TModel : new()
         {
             var model = new TModel();
             if (!dr.IsClosed)
@@ -366,7 +368,7 @@ namespace DotNet.Standard.NParsing.Utilities
                     columnNames.Add(dr.GetName(i));
                 var propertyInfos = typeof(TModel).GetProperties(BindingFlags.Instance | BindingFlags.Public);
                 var propertyNames = new Dictionary<string, string>();
-                DataFill(dr/*, tableNames*/, columnNames, model, propertyInfos, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/);
+                DataFill(dr/*, tableNames*/, columnNames, model, propertyInfos, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/, createEmptyObject);
             }
             return model;
         }
@@ -379,8 +381,10 @@ namespace DotNet.Standard.NParsing.Utilities
         /// <param name="model">对象</param>
         /// <param name="propertyInfos">对象属性集</param>
         /// <param name="propertyNames"></param>
-        private static void DataFill(IDataRecord dr, IList<string> columnNames, object model, IEnumerable<PropertyInfo> propertyInfos, IDictionary<string, string> propertyNames/*, IDictionary<string, int> sqlTableNames*/)
+        /// <param name="createEmptyObject">是否创建空对象</param>
+        private static bool DataFill(IDataRecord dr, IList<string> columnNames, object model, IEnumerable<PropertyInfo> propertyInfos, IDictionary<string, string> propertyNames/*, IDictionary<string, int> sqlTableNames*/, bool createEmptyObject)
         {
+            var count = 0;
             foreach (var property in propertyInfos)
             {
                 try
@@ -400,6 +404,7 @@ namespace DotNet.Standard.NParsing.Utilities
                                 ? dr[indexOf] is string s ? Enum.Parse(t, s) : Enum.ToObject(t, dr[indexOf])
                                 : Convert.ChangeType(dr[indexOf], t);
                             //value = dr[indexOf].ToChangeType(t);
+                            count++;
                         }
                         property.SetValue(model, value, null);
                     }
@@ -410,7 +415,15 @@ namespace DotNet.Standard.NParsing.Utilities
                             property.SetValue(model, Activator.CreateInstance(t), null);
                             oValue = property.GetValue(model, null);
                         }
-                        DataFill(dr, columnNames, oValue, t.GetProperties(BindingFlags.Instance | BindingFlags.Public), property.Name, propertyNames);
+                        if(DataFill(dr, columnNames, oValue, t.GetProperties(BindingFlags.Instance | BindingFlags.Public), property.Name, propertyNames, createEmptyObject))
+                        {
+                            count++;
+                        }
+                        else
+                        {
+                            property.SetValue(model, null, null);
+                            oValue = null;
+                        }
                     }
                 }
                 catch (Exception er)
@@ -418,6 +431,7 @@ namespace DotNet.Standard.NParsing.Utilities
                     throw new Exception(property.ToColumnName() + er.Message);
                 }
             }
+            return createEmptyObject || count > 0;
         }
 
         /// <summary>
@@ -427,8 +441,9 @@ namespace DotNet.Standard.NParsing.Utilities
         /// <param name="dr"></param>
         /// <param name="tableNames"></param>
         /// <param name="columnNames"></param>
+        /// <param name="createEmptyObject">是否创建空对象</param>
         /// <returns></returns>
-        public static IList<TModel> ToList<TModel>(this IDataReader dr, IDictionary<string, string> tableNames, IList<string> columnNames) where TModel : new()
+        public static IList<TModel> ToList<TModel>(this IDataReader dr, IDictionary<string, string> tableNames, IList<string> columnNames, bool createEmptyObject) where TModel : new()
         {
             var list = new List<TModel>();
             var propertyInfos = typeof(TModel).GetProperties(BindingFlags.Instance | BindingFlags.Public);
@@ -439,7 +454,7 @@ namespace DotNet.Standard.NParsing.Utilities
                 var model = new TModel();
                 if (!dr.IsClosed)
                 {
-                    DataFill(dr, columnNames, model, propertyInfos, tableName, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/);
+                    DataFill(dr, columnNames, model, propertyInfos, tableName, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/, createEmptyObject);
                 }
                 list.Add(model);
             }
@@ -453,7 +468,8 @@ namespace DotNet.Standard.NParsing.Utilities
         /// <param name="dr"></param>
         /// <param name="tableNames"></param>
         /// <param name="columnNames"></param>
-        public static TModel ToModel<TModel>(this IDataReader dr, IDictionary<string, string> tableNames, IList<string> columnNames) where TModel : new()
+        /// <param name="createEmptyObject">是否创建空对象</param>
+        public static TModel ToModel<TModel>(this IDataReader dr, IDictionary<string, string> tableNames, IList<string> columnNames, bool createEmptyObject) where TModel : new()
         {
             var model = new TModel();
             if (!dr.IsClosed)
@@ -461,7 +477,7 @@ namespace DotNet.Standard.NParsing.Utilities
                 var propertyInfos = typeof(TModel).GetProperties(BindingFlags.Instance | BindingFlags.Public);
                 var tableName = typeof(TModel).ToTableName(tableNames);
                 var propertyNames = new Dictionary<string, string>();
-                DataFill(dr/*, tableNames*/, columnNames, model, propertyInfos, tableName, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/);
+                DataFill(dr/*, tableNames*/, columnNames, model, propertyInfos, tableName, propertyNames/*, new Dictionary<string, int> { { tableName, 1 } }*/, createEmptyObject);
             }
             return model;
         }
@@ -475,8 +491,10 @@ namespace DotNet.Standard.NParsing.Utilities
         /// <param name="propertyInfos">对象属性集</param>
         /// <param name="tableName">当前表名</param>
         /// <param name="propertyNames"></param>
-        private static void DataFill(IDataRecord dr, IList<string> columnNames, object model, IEnumerable<PropertyInfo> propertyInfos, string tableName, IDictionary<string, string> propertyNames/*, IDictionary<string, int> sqlTableNames*/)
+        /// <param name="createEmptyObject">是否创建空对象</param>
+        private static bool DataFill(IDataRecord dr, IList<string> columnNames, object model, IEnumerable<PropertyInfo> propertyInfos, string tableName, IDictionary<string, string> propertyNames/*, IDictionary<string, int> sqlTableNames*/, bool createEmptyObject)
         {
+            var count = 0;
             foreach (var property in propertyInfos)
             {
                 try
@@ -496,6 +514,7 @@ namespace DotNet.Standard.NParsing.Utilities
                                 ? dr[indexOf] is string s ? Enum.Parse(t, s) : Enum.ToObject(t, dr[indexOf])
                                 : Convert.ChangeType(dr[indexOf], t);
                             //value = dr[indexOf].ToChangeType(t);
+                            count++;
                         }
                         property.SetValue(model, value, null);
                     }
@@ -507,8 +526,16 @@ namespace DotNet.Standard.NParsing.Utilities
                             oValue = property.GetValue(model, null);
                         }
                         var newTableName = tableName + "_" + property.Name;
-                        DataFill(dr, columnNames, oValue, t.GetProperties(BindingFlags.Instance | BindingFlags.Public), newTableName,
-                            propertyNames);
+                        if(DataFill(dr, columnNames, oValue, t.GetProperties(BindingFlags.Instance | BindingFlags.Public), newTableName,
+                            propertyNames, createEmptyObject))
+                        {
+                            count++;
+                        }
+                        else
+                        {
+                            property.SetValue(model, null, null);
+                            oValue = null;
+                        }
                     }
                 }
                 catch (Exception er)
@@ -516,6 +543,7 @@ namespace DotNet.Standard.NParsing.Utilities
                     throw new Exception(property.ToColumnName() + er.Message);
                 }
             }
+            return createEmptyObject || count > 0;
         }
 
         /// <summary>
@@ -523,11 +551,12 @@ namespace DotNet.Standard.NParsing.Utilities
         /// </summary>
         /// <typeparam name="TModel"></typeparam>
         /// <param name="di"></param>
+        /// <param name="createEmptyObject">是否创建空对象</param>
         /// <returns></returns>
-        public static TModel ToModel<TModel>(this IDictionary di) where TModel : new()
+        public static TModel ToModel<TModel>(this IDictionary di, bool createEmptyObject) where TModel : new()
         {
             var model = new TModel();
-            DataFill(di, model);
+            DataFill(di, model, createEmptyObject);
             return model;
         }
 
@@ -536,8 +565,10 @@ namespace DotNet.Standard.NParsing.Utilities
         /// </summary>
         /// <param name="di">数据</param>
         /// <param name="model">对象</param>
-        private static void DataFill(IDictionary di, object model)
+        /// <param name="createEmptyObject">是否创建空对象</param>
+        private static bool DataFill(IDictionary di, object model, bool createEmptyObject)
         {
+            var count = 0;
             var modelType = model.GetType();
             foreach (PropertyInfo property in modelType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
@@ -554,6 +585,7 @@ namespace DotNet.Standard.NParsing.Utilities
                                 ? di[property.Name] is string s ? Enum.Parse(t, s) : Enum.ToObject(t, di[property.Name])
                                 : Convert.ChangeType(di[property.Name], t);
                             //value = di[property.Name].ToChangeType(t);
+                            count++;
                         }
                         property.SetValue(model, value, null);
                     }
@@ -564,7 +596,15 @@ namespace DotNet.Standard.NParsing.Utilities
                             property.SetValue(model, Activator.CreateInstance(t), null);
                             oValue = property.GetValue(model, null);
                         }
-                        DataFill((IDictionary) di[property.Name], oValue);
+                        if(DataFill((IDictionary) di[property.Name], oValue, createEmptyObject))
+                        {
+                            count++;
+                        }
+                        else
+                        {
+                            property.SetValue(model, null, null);
+                            oValue = null;
+                        }
                     }
                 }
                 catch (Exception er)
@@ -572,6 +612,7 @@ namespace DotNet.Standard.NParsing.Utilities
                     throw new Exception(property.Name + er.Message);
                 }
             }
+            return createEmptyObject || count > 0;
         }
 
         /*/// <summary>

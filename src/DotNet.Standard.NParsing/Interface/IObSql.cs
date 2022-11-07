@@ -6,6 +6,11 @@ namespace DotNet.Standard.NParsing.Interface
     public interface IObSql<TModel>
     {
         /// <summary>
+        /// 是否创建空对象
+        /// </summary>
+        bool CreateEmptyObject { get; set; }
+
+        /// <summary>
         /// 获得一个对像
         /// </summary>
         /// <returns></returns>

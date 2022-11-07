@@ -114,6 +114,10 @@ namespace DotNet.Standard.NParsing.MySQL
                     case DbFunc.Format:
                         columnName += $"FORMAT({columnName})";
                         break;
+                    case DbFunc.IfNull:
+                        var nullCvs = columnName.Split(',');
+                        columnName += $"IFNULL({nullCvs[0]},{nullCvs[1]})";
+                        break;
                 }
                 strSqlOrder += dbSort.IsAsc ? columnName : columnName + " DESC";
             }

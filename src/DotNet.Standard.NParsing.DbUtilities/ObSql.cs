@@ -15,8 +15,14 @@ namespace DotNet.Standard.NParsing.DbUtilities
         private readonly CommandType _commandType;
         private readonly string _commandText;
         private readonly DbParameter[] _commandParameters;
+        public bool CreateEmptyObject { get; set; }
 
         public ObSql(IDbHelper iDbHelper/*, IObRedefine iObRedefine*/, IObTransaction iObTransaction, CommandType commandType, string commandText,
+            params DbParameter[] commandParameters) : this(iDbHelper, true, iObTransaction, commandType, commandText, commandParameters)
+        { 
+        }
+
+        public ObSql(IDbHelper iDbHelper/*, IObRedefine iObRedefine*/, bool createEmptyObject, IObTransaction iObTransaction, CommandType commandType, string commandText,
             params DbParameter[] commandParameters)
         {
             _iDbHelper = iDbHelper;
@@ -25,6 +31,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             _commandType = commandType;
             _commandText = commandText;
             _commandParameters = commandParameters;
+            CreateEmptyObject = createEmptyObject;
         }
 
         public TModel ToModel()
@@ -37,7 +44,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             if (_iObTransaction != null)
             {
                 dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, _commandType, _commandText, _commandParameters);
-                model = dr.ToModel<TModel>();
+                model = dr.ToModel<TModel>(CreateEmptyObject);
                 if (!dr.IsClosed)
                 {
                     dr.Close();
@@ -49,7 +56,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 using (var dbHelper = new DbHelper(_iDbHelper))
                 {
                     dr = dbHelper.ExecuteReader(_commandType, _commandText, _commandParameters);
-                    model = dr.ToModel<TModel>();
+                    model = dr.ToModel<TModel>(CreateEmptyObject);
                 }
             }
 
@@ -68,7 +75,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             if (_iObTransaction != null)
             {
                 dr = DbHelper.ExecuteReader(_iDbHelper, _iObTransaction.DbTransaction, _commandType, _commandText, _commandParameters);
-                models = dr.ToList<TModel>();
+                models = dr.ToList<TModel>(CreateEmptyObject);
                 if (!dr.IsClosed)
                 {
                     dr.Close();
@@ -80,7 +87,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 using (var dbHelper = new DbHelper(_iDbHelper))
                 {
                     dr = dbHelper.ExecuteReader(_commandType, _commandText, _commandParameters);
-                    models = dr.ToList<TModel>();
+                    models = dr.ToList<TModel>(CreateEmptyObject);
                 }
             }
 

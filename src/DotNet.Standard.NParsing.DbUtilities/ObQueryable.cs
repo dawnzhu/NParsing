@@ -121,10 +121,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
         public IObQueryable<TModel> Join()
         {
-            if (ObJoin == null)
-            {
-                ObJoin = new ObJoin();
-            }
+            ObJoin = new ObJoin();
             return this;
         }
 
@@ -482,6 +479,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
 
             if (exp is NewExpression newExp)
             {
+                if(newExp.Type == typeof(DateTime))
+                {
+                    return Activator.CreateInstance(typeof(DateTime), newExp.Arguments.Select(o => CreateValue(o)).ToArray());
+                }
                 //return arrExp.Expressions.Select(o => ((ConstantExpression)o).Value).ToArray();
                 var list = new List<object>();
                 for (var i = 0; i < newExp.Arguments.Count; i++)
@@ -529,6 +530,13 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 if (meExp.Expression is ConstantExpression)
                 {
                     return Expression.Lambda(meExp).Compile().DynamicInvoke();
+                }
+                if (meExp.Type == typeof(DateTime) && meExp.ToString().StartsWith("DateTime"))
+                {
+                    if (meExp.Expression != null)
+                        return ((PropertyInfo)meExp.Member).GetMethod.Invoke(CreateValue(meExp.Expression), null);
+                    return ((PropertyInfo)meExp.Member).GetMethod.Invoke(null, null);
+                    //meExp.Member.
                 }
                 var tableName = typeof(TModel).ToTableName(SqlBuilder.ObRedefine.Models);
                 var ts = meExp.ToString()
@@ -779,32 +787,40 @@ namespace DotNet.Standard.NParsing.DbUtilities
                     {
                         var obProperty = CreateProperty(((LambdaExpression) mcallExp.Arguments[1]).Body);
                         obProperty = ObFunc.Avg(obProperty);
-                        return obProperty.As(CreateProperty(path));
+                        return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
                     }
                     case "Count":
                     {
                         var obProperty = CreateProperty(path);
                         obProperty = ObFunc.Count(obProperty);
-                        return obProperty;
-                    }
+                        return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
                     case "Max":
                     {
                         var obProperty = CreateProperty(((LambdaExpression)mcallExp.Arguments[1]).Body);
                         obProperty = ObFunc.Max(obProperty);
-                        return obProperty.As(CreateProperty(path));
+                        return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
                     }
                     case "Min":
                     {
                         var obProperty = CreateProperty(((LambdaExpression)mcallExp.Arguments[1]).Body);
                         obProperty = ObFunc.Min(obProperty);
-                        return obProperty.As(CreateProperty(path));
+                        return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
                     }
                     case "Sum":
                     {
                         var obProperty = CreateProperty(((LambdaExpression)mcallExp.Arguments[1]).Body);
                         obProperty = ObFunc.Sum(obProperty);
-                        return obProperty.As(CreateProperty(path));
+                        return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
                     }
+                    case "IfNull":
+                        {
+                            //var obProperty = CreateProperty(path);
+                            var obProperty = CreateProperty(((LambdaExpression)mcallExp.Arguments[1]).Body);
+                            var value = CreateValue(mcallExp.Arguments[2]);
+                            obProperty = ObFunc.IfNull(obProperty, value);
+                            return string.IsNullOrEmpty(path) ? obProperty : obProperty.As(CreateProperty(path));
+                        }
                 }
                 return Expression.Lambda(mcallExp).Compile().DynamicInvoke();
             }

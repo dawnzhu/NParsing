@@ -21,6 +21,7 @@
         ToDecimal,
         ToDateTime,
         ToString,
-        Format
+        Format,
+        IfNull,
     }
 }

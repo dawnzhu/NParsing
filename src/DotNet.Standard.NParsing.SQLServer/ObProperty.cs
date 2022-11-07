@@ -196,6 +196,10 @@ namespace DotNet.Standard.NParsing.SQLServer
                     case DbFunc.Format:
                         columnNames += $"FORMAT({columnValue})";
                         break;
+                    case DbFunc.IfNull:
+                        var nullCvs = columnValue.Split(',');
+                        columnNames += $"ISNULL({nullCvs[0]},{nullCvs[1]})";
+                        break;
                 }
                 asString = renaming ? $" AS {iObProperty.AsProperty.TableName}_{iObProperty.AsProperty.PropertyName}" : "";
                 isAll = iObProperty.AriSymbol == DbAriSymbol.Null;
