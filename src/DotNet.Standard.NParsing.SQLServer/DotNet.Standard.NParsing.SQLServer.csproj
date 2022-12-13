@@ -12,7 +12,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/dawnzhu/NParsing/tree/master/src/DotNet.Standard.NParsing.SQLServer</RepositoryUrl>
     <PackageReleaseNotes>SQLServer support class library.</PackageReleaseNotes>
-    <Copyright>Copyright 2020</Copyright>
+    <Copyright>Copyright 2022</Copyright>
     <RepositoryType>Public</RepositoryType>
   </PropertyGroup>
 
