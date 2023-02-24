@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "GIMZsJhpQAoRdZGcbDlQ5Q6cTv1C89/v229262qp7UGBfSrZfHT1XnX2c4J8kzQjv7NCqxHkEpOYv4oUnrAwKg==",
+  "success": true,
+  "projectFilePath": "D:\\Work\\GitHub\\NParsing\\src\\WinTest\\WinTest.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Administrator\\.nuget\\packages\\newtonsoft.json\\13.0.2\\newtonsoft.json.13.0.2.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\system.reflection.emit\\4.7.0\\system.reflection.emit.4.7.0.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\dotnet.standard.common\\2.0.1\\dotnet.standard.common.2.0.1.nupkg.sha512",
+    "C:\\Users\\Administrator\\.nuget\\packages\\dotnet.standard.nparsing\\2.1.1\\dotnet.standard.nparsing.2.1.1.nupkg.sha512"
+  ],
+  "logs": []
+}

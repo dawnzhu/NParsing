@@ -11,6 +11,7 @@
  * 修改内容：新增判断对象属性是否被赋值扩展方法
  */
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -22,6 +23,7 @@ namespace DotNet.Standard.NParsing.Factory
 {
     public static class ObModel
     {
+        private static Dictionary<Type, Type> _dicProxyTypes = new Dictionary<Type, Type>();
         private const string DynamicAssemblyName = "DynamicAssembly";//动态程序集名称
         private const string DynamicModuleName = "DynamicAssemblyModule";
         private const string ProxyClassNameFormater = "{0}Proxy";
@@ -35,14 +37,18 @@ namespace DotNet.Standard.NParsing.Factory
 
         public static object Create(Type proxyType, params object[] args)
         {
+            if (_dicProxyTypes.ContainsKey(proxyType))
+            {
+                return Activator.CreateInstance(_dicProxyTypes[proxyType], args);
+            }
             var assemblyName = new AssemblyName(DynamicAssemblyName);
-            var assemblyBuilderAccess = AssemblyBuilderAccess.Run;
+            var assemblyBuilderAccess = AssemblyBuilderAccess.RunAndCollect; //必须要设置可回收，否则内存暴涨
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, assemblyBuilderAccess);
             //动态创建模块
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(DynamicModuleName);
             var proxyClassName = string.Format(ProxyClassNameFormater, proxyType.Name);
             //动态创建类代理
-            var typeBuilderProxy = moduleBuilder.DefineType(proxyClassName, TypeAttributes.Public, proxyType);
+            var typeBuilderProxy = moduleBuilder.DefineType(proxyClassName, TypeAttributes.Public | TypeAttributes.Serializable | TypeAttributes.Class | TypeAttributes.AutoClass, proxyType);
             var constructorArgs = args.Select(o => o.GetType()).ToArray();
             var methodProxySet = proxyType.GetMethod("ProxySet", BindingFlags.Instance | BindingFlags.NonPublic);
             var constructorBuilder = typeBuilderProxy.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, constructorArgs);
@@ -129,6 +135,23 @@ namespace DotNet.Standard.NParsing.Factory
             var proxyClassType = typeBuilderProxy.CreateTypeInfo();
             //创建类实例
             var instance = Activator.CreateInstance(proxyClassType, args);
+            lock (_dicProxyTypes)
+            {
+                if (_dicProxyTypes.ContainsKey(proxyType))
+                {
+                    _dicProxyTypes.Add(proxyType, proxyClassType);
+                }
+            }
+            //proxyClassType = null;
+            //properties = null;
+            //ilgCtor = null;
+            //constructorBuilder = null;
+            //methodProxySet = null;
+            //typeBuilderProxy = null;
+            //moduleBuilder = null;
+            //assemblyBuilder = null;
+            ////assemblyBuilderAccess = null;
+            //assemblyName = null;
             return instance;
         }
 

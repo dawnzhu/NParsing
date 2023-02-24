@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Authors>dawn zhu</Authors>
     <Description>DotNet.Standard.NParsing.SQLite .Net Standard Class Library</Description>
-    <Version>2.1.0</Version>
+    <Version>2.1.1</Version>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -12,7 +12,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/dawnzhu/NParsing/tree/master/src/DotNet.Standard.NParsing.SQLite</RepositoryUrl>
     <PackageReleaseNotes>SQLite support class library.</PackageReleaseNotes>
-    <Copyright>Copyright 2022</Copyright>
+    <Copyright>Copyright 2023</Copyright>
     <RepositoryType>Public</RepositoryType>
   </PropertyGroup>
 
@@ -30,7 +30,7 @@
 
 
   <ItemGroup>
-    <PackageReference Include="System.Data.SQLite" Version="1.0.113.1" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.117" />
   </ItemGroup>
 
   <ItemGroup>

@@ -440,6 +440,11 @@ namespace DotNet.Standard.NParsing.DbUtilities
             {
                 return Factory.ObParameter.Create(not ? !(bool)coExp.Value : (bool)coExp.Value);
             }
+            else if(exp is MemberExpression meExp)
+            {
+                var obProperty = CreateProperty(meExp);
+                return CreateParameter(obProperty, ExpressionType.Equal, true, not);
+            }
             return null;
         }
 
@@ -472,9 +477,20 @@ namespace DotNet.Standard.NParsing.DbUtilities
         {
             if (exp is BinaryExpression biExp)
             {
-                var left = CreateProperty(biExp.Left);
+                var left = CreateValue(biExp.Left);
                 var right = CreateValue(biExp.Right);
-                return CreateProperty(left, biExp.NodeType, right);
+                if(left is ObProperty opl)
+                {
+                    return CreateProperty(opl, biExp.NodeType, right);
+                }
+                else if (right is ObProperty opr)
+                {
+                    return CreateProperty(opr, biExp.NodeType, left);
+                }
+                else
+                {
+                    return Expression.Lambda(biExp).Compile().DynamicInvoke();
+                }
             }
 
             if (exp is NewExpression newExp)

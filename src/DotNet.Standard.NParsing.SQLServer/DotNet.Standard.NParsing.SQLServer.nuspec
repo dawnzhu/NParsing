@@ -14,8 +14,8 @@
     <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="DotNet.Standard.NParsing" version="2.1.0"/>
-        <dependency id="System.Data.SqlClient" version="4.8.2"/>
+        <dependency id="DotNet.Standard.NParsing" version="2.1.1"/>
+        <dependency id="System.Data.SqlClient" version="4.8.5"/>
       </group>
     </dependencies>
   </metadata>

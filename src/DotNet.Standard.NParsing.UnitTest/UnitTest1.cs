@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using DotNet.Standard.NParsing.ComponentModel;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Interface;
@@ -45,6 +47,7 @@ namespace DotNet.Standard.NParsing.UnitTest
                 throw;
             }*/
             //var a = 1;
+            int[] a = new[] { 1 }; 
             var aa = new DataTable();
             aa.Columns.Add("aa");
             aa.Rows.Add(1);
@@ -52,7 +55,7 @@ namespace DotNet.Standard.NParsing.UnitTest
             var cc = new[] {1, 2, 3};
 
             var query = dal
-                .Where(o => o.Department.Id == Convert.ToInt32(aa.Rows[0][0]) && o.IfNull(a=>a.Gender, Gender.MALE) == Gender.MALE)
+                .Where(o => o.Age == a[0])
                 .GroupBy(o => new {o.Department.Id, o.Name})
                 .Join(o => new {
                     o,
@@ -113,6 +116,20 @@ namespace DotNet.Standard.NParsing.UnitTest
         [TestMethod]
         public void TestMethod2()
         {
+            new Thread(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(5000);
+                    var list = new List<EmployeInfo>();
+                    for(var i = 0; i < 500; i++)
+                    {
+                        var model = ObModel.Create<EmployeInfo>();
+                        list.Add(model);
+                    }
+                }
+            })
+            { IsBackground = true }.Start();
             var emp = new EmployeInfo().Of();
             emp.Age = 18;
             var employe = new Employe("Employes").Of();

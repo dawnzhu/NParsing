@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29403.142
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet.Standard.NParsing.SQLServer", "src\DotNet.Standard.NParsing.SQLServer\DotNet.Standard.NParsing.SQLServer.csproj", "{D7F72CAA-2823-4040-BA0D-BE495899BA5E}"
 EndProject
@@ -16,6 +16,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet.Standard.NParsing.SQLite", "src\DotNet.Standard.NParsing.SQLite\DotNet.Standard.NParsing.SQLite.csproj", "{11C224CC-D6A9-4FAF-8FA5-6D1D4A2B7AAC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotNet.Standard.NParsing.UnitTest", "src\DotNet.Standard.NParsing.UnitTest\DotNet.Standard.NParsing.UnitTest.csproj", "{180DFBCF-B1FB-4BAC-8581-F27E5633D25D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinTest", "src\WinTest\WinTest.csproj", "{13CBA59E-2C00-46EC-94A0-3BC85293223E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{180DFBCF-B1FB-4BAC-8581-F27E5633D25D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{180DFBCF-B1FB-4BAC-8581-F27E5633D25D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{180DFBCF-B1FB-4BAC-8581-F27E5633D25D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13CBA59E-2C00-46EC-94A0-3BC85293223E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13CBA59E-2C00-46EC-94A0-3BC85293223E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13CBA59E-2C00-46EC-94A0-3BC85293223E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13CBA59E-2C00-46EC-94A0-3BC85293223E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

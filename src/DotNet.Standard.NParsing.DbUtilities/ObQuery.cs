@@ -250,9 +250,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 sql = SqlBuilder.Select(topSize, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out columnNames);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames});
             }
-#if DEBUG
             CurrentExeSql = (key, sql, dbParameters);
-#endif
 
             #endregion
 
@@ -354,9 +352,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 sql = SqlBuilder.Select(pageSize, pageIndex, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out columnNames);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames });
             }
-#if DEBUG
             CurrentExeSql = (key, sql, dbParameters);
-#endif
+
             #endregion
 
             #region 读取数据
@@ -510,9 +507,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 sql = SqlBuilder.Select(topSize, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out var columnNames);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames });
             }
-#if DEBUG
             CurrentExeSql = (key, sql, dbParameters);
-#endif
+
             #endregion
 
             #region 读取数据
@@ -604,9 +600,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 sql = SqlBuilder.Select(pageSize, pageIndex, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters, out var columnNames);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql, ColumnNames = columnNames });
             }
-#if DEBUG
             CurrentExeSql = (key, sql, dbParameters);
-#endif
+
             #endregion
 
             #region 读取数据
@@ -683,9 +678,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 sql = SqlBuilder.Select(iObProperty, iObParameter, iObGroup, iObParameter2, iObSort, ref dbParameters);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql });
             }
-#if DEBUG
             CurrentExeSql = (key, sql, dbParameters);
-#endif
+
             #endregion
 
             #region 读取数据
@@ -739,9 +733,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 sql = SqlBuilder.ExistsSelect(iObParameter, ref dbParameters);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql });
             }
-#if DEBUG
             CurrentExeSql = (key, sql, dbParameters);
-#endif
+
             #endregion
 
             #region 读取数据
@@ -803,9 +796,8 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 sql = SqlBuilder.CountSelect(iObParameter, iObGroup, iObParameter2, ref dbParameters);
                 ObCache.Add(key, new ObSqlcache { Version = _sqlVersion, SqlText = sql });
             }
-#if DEBUG
             CurrentExeSql = (key, sql, dbParameters);
-#endif
+
             #endregion
 
             #region 读取数据

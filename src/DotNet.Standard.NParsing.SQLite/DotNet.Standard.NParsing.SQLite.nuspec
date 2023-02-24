@@ -14,8 +14,8 @@
     <copyright>$copyright$</copyright>
     <dependencies>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="DotNet.Standard.NParsing" version="2.1.0"/>
-        <dependency id="System.Data.SQLite" version="1.0.113.1"/>
+        <dependency id="DotNet.Standard.NParsing" version="2.1.1"/>
+        <dependency id="System.Data.SQLite" version="1.0.117"/>
       </group>
     </dependencies>
   </metadata>
