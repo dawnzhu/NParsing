@@ -21,3 +21,4 @@ D:\Work\GitHub\NParsing\src\WinTest\obj\Release\net7.0-windows\refint\WinTest.dl
 D:\Work\GitHub\NParsing\src\WinTest\obj\Release\net7.0-windows\WinTest.pdb
 D:\Work\GitHub\NParsing\src\WinTest\obj\Release\net7.0-windows\WinTest.genruntimeconfig.cache
 D:\Work\GitHub\NParsing\src\WinTest\obj\Release\net7.0-windows\ref\WinTest.dll
+D:\Work\GitHub\NParsing\src\WinTest\obj\Release\net7.0-windows\WinTest.sourcelink.json

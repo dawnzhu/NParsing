@@ -397,6 +397,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             if (exp is MethodCallExpression mcallExp)
             {
                 ObProperty obProperty;
+
                 switch (mcallExp.Method.Name)
                 {
                     case "Contains":
@@ -407,20 +408,23 @@ namespace DotNet.Standard.NParsing.DbUtilities
                             var value = arrExp.Expressions.Select(o => ((ConstantExpression) o).Value).ToArray();
                             return not ? obProperty.NotIn(value) : obProperty.In(value);
                         }
-                        else if (mcallExp.Arguments[0] is MemberExpression meExp)
+                        if (mcallExp.Arguments[0] is MemberExpression meExp)
                         {
                             var value = CreateValue(meExp);
                             if (value is ICollection vs)
                             {
                                 return not ? obProperty.NotIn(vs.Cast<object>().ToArray()) : obProperty.In(vs.Cast<object>().ToArray());
                             }
-                            return not ? obProperty.NotIn(value) : obProperty.In(value);
+                            return not ? obProperty.NotLike(value) : obProperty.Like(value);
                         }
                         //TODO
-                        else //if(mcallExp.Arguments[0] is ConstantExpression coExp)
-                        {
-                            return not ? obProperty.NotLike(CreateValue(mcallExp.Arguments[0])) : obProperty.Like(CreateValue(mcallExp.Arguments[0]));
-                        }
+                        return not ? obProperty.NotLike(CreateValue(mcallExp.Arguments[0])) : obProperty.Like(CreateValue(mcallExp.Arguments[0]));
+                    case "StartsWith":
+                        obProperty = CreateProperty(mcallExp.Object ?? mcallExp.Arguments[1]);
+                        return not ? obProperty.NotLikeLift(CreateValue(mcallExp.Arguments[0])) : obProperty.LikeLeft(CreateValue(mcallExp.Arguments[0]));
+                    case "EndsWith":
+                        obProperty = CreateProperty(mcallExp.Object ?? mcallExp.Arguments[1]);
+                        return not ? obProperty.NotLikeRight(CreateValue(mcallExp.Arguments[0])) : obProperty.LikeRight(CreateValue(mcallExp.Arguments[0]));
                     case "Equals":
                         obProperty = CreateProperty(mcallExp.Object ?? mcallExp.Arguments[1]);
                         return not ? obProperty != CreateValue(mcallExp.Arguments[0]) : obProperty == CreateValue(mcallExp.Arguments[0]);

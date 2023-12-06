@@ -331,7 +331,7 @@ namespace DotNet.Standard.NParsing.SQLServer
                     continue;
                 //TODO ToColumnName
                 var strColumnName = property.ToColumnName();
-                var strParameterName = "@" + strColumnName;
+                var strParameterName = "@" + strColumnName.Replace("[", "").Replace("]", "");
                 if (!isSingle)
                 {
                     var id = dbParameters.Count(obj => obj.ParameterName.Contains(strParameterName));
@@ -481,7 +481,7 @@ namespace DotNet.Standard.NParsing.SQLServer
                 {
                     //TODO ToColumnName
                     string strColumnName = property.ToColumnName();
-                    string strParameterName = "@" + strColumnName;
+                    string strParameterName = "@" + strColumnName.Replace("[", "").Replace("]", "");
 
                     #region 查找不可修改列,标识列,查找固定列
 

@@ -14,7 +14,7 @@
           }
         }
       },
-      "System.Reflection.Emit/4.6.0": {}
+      "System.Reflection.Emit/4.7.0": {}
     }
   },
   "libraries": {
@@ -25,12 +25,12 @@
       "path": "newtonsoft.json/13.0.2",
       "hashPath": "newtonsoft.json.13.0.2.nupkg.sha512"
     },
-    "System.Reflection.Emit/4.6.0": {
+    "System.Reflection.Emit/4.7.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-qAo4jyXtC9i71iElngX7P2r+zLaiHzxKwf66sc3X91tL5Ks6fnQ1vxL04o7ZSm3sYfLExySL7GN8aTpNYpU1qw==",
-      "path": "system.reflection.emit/4.6.0",
-      "hashPath": "system.reflection.emit.4.6.0.nupkg.sha512"
+      "sha512": "sha512-VR4kk8XLKebQ4MZuKuIni/7oh+QGFmZW3qORd1GvBq/8026OpW501SzT/oypwiQl4TvT8ErnReh/NzY9u+C6wQ==",
+      "path": "system.reflection.emit/4.7.0",
+      "hashPath": "system.reflection.emit.4.7.0.nupkg.sha512"
     }
   }
 }

@@ -53,9 +53,10 @@ namespace DotNet.Standard.NParsing.UnitTest
             aa.Rows.Add(1);
             var bb = 1;
             var cc = new[] {1, 2, 3};
+            var dd = "abc";
 
             var query = dal
-                .Where(o => o.Age == a[0])
+                .Where(o => o.Name.StartsWith(dd))
                 .GroupBy(o => new {o.Department.Id, o.Name})
                 .Join(o => new {
                     o,
