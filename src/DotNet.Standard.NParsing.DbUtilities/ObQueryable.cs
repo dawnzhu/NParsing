@@ -86,7 +86,7 @@ namespace DotNet.Standard.NParsing.DbUtilities
             var value = CreateValue(body);
             if (value is ObProperty obProperty)
             {
-                ObSort.AddOrderBy(obProperty);
+                ObSort.AddOrderByDescending(obProperty);
             }
             if (value is object[] objs)
             {
@@ -421,10 +421,10 @@ namespace DotNet.Standard.NParsing.DbUtilities
                         return not ? obProperty.NotLike(CreateValue(mcallExp.Arguments[0])) : obProperty.Like(CreateValue(mcallExp.Arguments[0]));
                     case "StartsWith":
                         obProperty = CreateProperty(mcallExp.Object ?? mcallExp.Arguments[1]);
-                        return not ? obProperty.NotLikeLift(CreateValue(mcallExp.Arguments[0])) : obProperty.LikeLeft(CreateValue(mcallExp.Arguments[0]));
+                        return not ? obProperty.NotLikeRight(CreateValue(mcallExp.Arguments[0])) : obProperty.LikeRight(CreateValue(mcallExp.Arguments[0]));
                     case "EndsWith":
                         obProperty = CreateProperty(mcallExp.Object ?? mcallExp.Arguments[1]);
-                        return not ? obProperty.NotLikeRight(CreateValue(mcallExp.Arguments[0])) : obProperty.LikeRight(CreateValue(mcallExp.Arguments[0]));
+                        return not ? obProperty.NotLikeLift(CreateValue(mcallExp.Arguments[0])) : obProperty.LikeLeft(CreateValue(mcallExp.Arguments[0]));
                     case "Equals":
                         obProperty = CreateProperty(mcallExp.Object ?? mcallExp.Arguments[1]);
                         return not ? obProperty != CreateValue(mcallExp.Arguments[0]) : obProperty == CreateValue(mcallExp.Arguments[0]);
@@ -509,7 +509,18 @@ namespace DotNet.Standard.NParsing.DbUtilities
                 {
                     var a = newExp.Arguments[i];
                     var m = newExp.Members[i];
-                    var obj = CreateValue(a, path + "." + m.Name);
+                    string name;
+                    if (a is MemberExpression ameExp)
+                    {
+                        var ss = ameExp.ToString().Split('.');
+                        ss[0] = "";
+                        name = string.Join(".", ss);
+                    }
+                    else
+                    {
+                        name = "." + m.Name;
+                    }
+                    var obj = CreateValue(a, path + name);
                     if (obj is object[] objs)
                     {
                         list.AddRange(objs);

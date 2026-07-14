@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Utilities;
 
@@ -52,9 +53,13 @@ namespace DotNet.Standard.NParsing.Interface
 
         string ToString(char separator);
 
-        string ToString(IList<string> columnNames);
+        //string ToString(IList<string> columnNames);
 
-        string ToString(char separator, IList<string> columnNames);
+        //string ToString(char separator, IList<string> columnNames);
+
+        string ToString(ref IList<DbParameter> dbParameters);
+
+        string ToString(char separator, ref IList<DbParameter> dbParameters);
 
         /// <summary>
         /// ฑ๊สถ

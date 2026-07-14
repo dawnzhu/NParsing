@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Xml.Linq;
 using DotNet.Standard.NParsing.ComponentModel;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Interface;
@@ -56,18 +57,22 @@ namespace DotNet.Standard.NParsing.UnitTest
             var dd = "abc";
 
             var query = dal
-                .Where(o => o.Name.StartsWith(dd))
-                .GroupBy(o => new {o.Department.Id, o.Name})
+                //.Where(o => o.Name.StartsWith(dd))
+                .GroupBy(o => new { Department = new { DirectorId = o.IfNull(k => k.Department.DirectorId, 0) }, o.Name, o.Age })
                 .Join(o => new {
-                    o,
-                    o.Department
-                }).Select(o => new {
+                    o.Department,
+                    o.Department.Director
+                }).OrderBy(o => new
+                {
+                    Age = o.Department.DirectorId + o.Age,
+                    Name = o.Custom("abc", k => new {k.Name, a=1})
+                })/**/.Select(o => new {
                     //o.FirstOrDefault().Name,
                     //Age = o.FirstOrDefault().Custom("dbo.A", a => new object[] {a.Age})
                     DepartmentId = o.IfNull(b => b.Min(a => a.DepartmentId), 0),
                     Dimission = o.Avg(a => a.Age),
                     Age = o.Max(a => a.Age),
-                    RowNumber = o.RowNumber(a => a.OrderBy(b => b.Department.Id).ThenByDescending(b => b.Name)),
+                    RowNumber = o.RowNumber(a => a.OrderBy(b => b.Department.DirectorId + b.Age).ThenByDescending(b => b.Name)),
                     //Dimission = o.Custom("dbo.A", a => new object[] { a.Max(d => d.Age) }),
                     Department = new
                     {

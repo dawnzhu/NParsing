@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using DotNet.Standard.NParsing.Factory;
 using DotNet.Standard.NParsing.Utilities;
 
@@ -58,12 +59,22 @@ namespace DotNet.Standard.NParsing.Interface
             throw new NotImplementedException();
         }
 
-        public virtual string ToString(IList<string> columnNames)
+        //public virtual string ToString(IList<string> columnNames)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //public virtual string ToString(char separator, IList<string> columnNames)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public virtual string ToString(ref IList<DbParameter> dbParameters)
         {
             throw new NotImplementedException();
         }
 
-        public virtual string ToString(char separator, IList<string> columnNames)
+        public virtual string ToString(char separator, ref IList<DbParameter> dbParameters)
         {
             throw new NotImplementedException();
         }

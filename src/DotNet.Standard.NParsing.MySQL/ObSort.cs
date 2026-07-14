@@ -8,6 +8,9 @@
 using System.Collections.Generic;
 using DotNet.Standard.NParsing.Utilities;
 using DotNet.Standard.NParsing.Interface;
+using System.Reflection;
+using DotNet.Standard.Common.Utilities;
+using System.Data.Common;
 
 namespace DotNet.Standard.NParsing.MySQL
 {
@@ -18,6 +21,7 @@ namespace DotNet.Standard.NParsing.MySQL
             List = list;
         }
 
+        /*
         public override string ToString()
         {
             return ToString('.', new List<string>());
@@ -118,6 +122,24 @@ namespace DotNet.Standard.NParsing.MySQL
                         var nullCvs = columnName.Split(',');
                         columnName += $"IFNULL({nullCvs[0]},{nullCvs[1]})";
                         break;
+                    case DbFunc.Custom:
+                        var custom = "";
+                        foreach (var customParam in dbSort.ObProperty.CustomParams)
+                        {
+                            if (!(customParam is IObProperty iObProperty)) continue;
+                            if (custom.Length > 0)
+                                custom += ",";
+                            string obSettledValue = null;
+                            foreach (var propertyInfo in iObProperty.ModelType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                            {
+                                if (propertyInfo.ToColumnName() != iObProperty.ColumnName) continue;
+                                obSettledValue = propertyInfo.GetSettledValue();
+                                break;
+                            }
+                            var columnValue = obSettledValue ?? string.Format("{0}{2}{1}", iObProperty.TableName, iObProperty.ColumnName, separator);
+                            custom += columnValue;
+                        }
+                        break;
                 }
                 strSqlOrder += dbSort.IsAsc ? columnName : columnName + " DESC";
             }
@@ -187,7 +209,38 @@ namespace DotNet.Standard.NParsing.MySQL
             {
                 return strSqlOrderDesc + " DESC";
             }
-            return "";*/
+            return "";#1#
+        }
+        */
+
+        public override string ToString()
+        {
+            IList<DbParameter> dbParameters = new List<DbParameter>();
+            return ToString('.', ref dbParameters);
+        }
+
+        public override string ToString(char separator)
+        {
+            IList<DbParameter> dbParameters = new List<DbParameter>();
+            return ToString(separator, ref dbParameters);
+        }
+
+        public override string ToString(ref IList<DbParameter> dbParameters)
+        {
+            return ToString('.', ref dbParameters);
+        }
+
+        public override string ToString(char separator, ref IList<DbParameter> dbParameters)
+        {
+            var strSqlOrder = string.Empty;
+            foreach (var dbSort in List)
+            {
+                if (strSqlOrder.Length > 0)
+                    strSqlOrder += ",";
+                var columnName = new ObProperty(dbSort.ObProperty).ToString(separator, ref dbParameters);
+                strSqlOrder += dbSort.IsAsc ? columnName : columnName + " DESC";
+            }
+            return strSqlOrder;
         }
     }
 }

@@ -153,7 +153,7 @@ namespace DotNet.Standard.NParsing.SQLServer
                         {
                             g = $"PARTITION BY {iObProperty.Group.ToString(ref dbParameter, out _, out _)} ";
                         }
-                        columnNames += $"ROW_NUMBER() OVER({g}ORDER BY {iObProperty.Sort.ToString()})";
+                        columnNames += $"ROW_NUMBER() OVER({g}ORDER BY {iObProperty.Sort.ToString(ref dbParameter)})";
                         break;
                     case DbFunc.Custom:
                         columnNames += $"{iObProperty.FuncName}({columnValue})";

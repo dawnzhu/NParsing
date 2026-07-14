@@ -631,10 +631,10 @@ namespace DotNet.Standard.NParsing.SQLServer
             if (iObSort != null)
             {
                 sql += " ORDER BY ";
-                if (!string.IsNullOrEmpty(sqlGroup))
-                    sql += iObSort.ToString('_');
+                if (!string.IsNullOrEmpty(sqlGroup) && iObParameter2 != null)
+                    sql += iObSort.ToString('_', ref dbParameters);
                 else
-                    sql += iObSort.ToString();
+                    sql += iObSort.ToString(ref dbParameters);
             }
             return sql;
         }
@@ -673,7 +673,7 @@ namespace DotNet.Standard.NParsing.SQLServer
                     sql += " WHERE " + iObParameter2.ToString('_', ref dbParameters);
                 }
                 if (iObSort != null)
-                    sql += " ORDER BY " + iObSort.ToString();
+                    sql += " ORDER BY " + iObSort.ToString(ref dbParameters);
             }
             else
             {
@@ -688,7 +688,7 @@ namespace DotNet.Standard.NParsing.SQLServer
                     }
                 }
                 if (iObSort != null)
-                    sql += " ORDER BY " + iObSort.ToString();
+                    sql += " ORDER BY " + iObSort.ToString(ref dbParameters);
             }
             return sql;
         }
@@ -736,12 +736,12 @@ namespace DotNet.Standard.NParsing.SQLServer
                         cols += ",";
                     cols += columnName;
                 }
-                table = $"(SELECT {columns} FROM {table} {innerJoin} {strWhere}{sqlGroup}) {TableName} ORDER BY {iObSort.ToString('_')}";
+                table = $"(SELECT {columns} FROM {table} {innerJoin} {strWhere}{sqlGroup}) {TableName} ORDER BY {iObSort.ToString('_', ref dbParameters)}";
                 sql = $"SELECT {cols} FROM {table} OFFSET @StartRow ROWS FETCH NEXT @SizeRow ROWS ONLY";
             }
             else
             {
-                sql = $"SELECT {columns} FROM {table} {innerJoin} {strWhere} ORDER BY {iObSort.ToString()} OFFSET @StartRow ROWS FETCH NEXT @SizeRow ROWS ONLY";
+                sql = $"SELECT {columns} FROM {table} {innerJoin} {strWhere} ORDER BY {iObSort.ToString(ref dbParameters)} OFFSET @StartRow ROWS FETCH NEXT @SizeRow ROWS ONLY";
             }
             return sql;
         }

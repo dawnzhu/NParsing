@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WinTest")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eee648195b79e58fbc54debca3f1c5fc4f18a388")]
 [assembly: System.Reflection.AssemblyProductAttribute("WinTest")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WinTest")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

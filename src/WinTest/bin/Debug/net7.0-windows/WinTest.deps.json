@@ -26,7 +26,10 @@
       "System.Reflection.Emit/4.7.0": {},
       "DotNet.Standard.Common/2.0.1": {
         "runtime": {
-          "DotNet.Standard.Common.dll": {}
+          "DotNet.Standard.Common.dll": {
+            "assemblyVersion": "2.0.1.0",
+            "fileVersion": "2.0.1.0"
+          }
         }
       },
       "DotNet.Standard.NParsing/2.1.1": {
@@ -35,7 +38,10 @@
           "System.Reflection.Emit": "4.7.0"
         },
         "runtime": {
-          "DotNet.Standard.NParsing.dll": {}
+          "DotNet.Standard.NParsing.dll": {
+            "assemblyVersion": "2.1.1.0",
+            "fileVersion": "2.1.1.0"
+          }
         }
       }
     }
